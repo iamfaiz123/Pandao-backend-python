@@ -166,7 +166,13 @@ def transaction_manifest_routes(app):
             proposal_right = community.proposal_rights
 
             if proposal_right == 'TOKEN_HOLDER_THRESHOLD':
-                if user_token.token_owned < community.proposal_minimum_token:
+                if user_token is None:
+                    error_message = {
+                        "error": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required",
+                        "message": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+                elif user_token.token_owned < community.proposal_minimum_token:
                     error_message = {
                         "error": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required",
                         "message": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required"
