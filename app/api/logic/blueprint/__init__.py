@@ -1,0 +1,1 @@
+from .blueprint import add_blueprint
