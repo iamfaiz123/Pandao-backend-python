@@ -8,6 +8,7 @@ from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenW
 from models import Community, Participants, Proposal, CommunityToken
 from models import dbsession as conn
 
+
 #
 def transaction_manifest_routes(app):
     @app.post('/manifest/build/deploy_token_weighted_dao', tags=(['manifest_builder']))
@@ -161,10 +162,11 @@ def transaction_manifest_routes(app):
     def build_proposal(req: DeployProposal):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
-            user_token = conn.query(CommunityToken).filter(CommunityToken.community_id ==community.id,
+            user_token = conn.query(CommunityToken).filter(CommunityToken.community_id == community.id,
                                                            CommunityToken.user_address == req.userAddress).first()
             proposal_right = community.proposal_rights
 
+            token_address = community.token_address
             if proposal_right == 'TOKEN_HOLDER_THRESHOLD':
                 if user_token is None:
                     error_message = {
@@ -180,12 +182,19 @@ def transaction_manifest_routes(app):
                     raise HTTPException(status_code=400, detail=error_message)
 
             if proposal_right == 'ADMIN':
+                token_address = community.owner_token_address
                 if community.owner_address != req.userAddress:
                     error_message = {
                         "error": f"only admins can create proposal in this community",
                         "message": f"only admins can create proposal in this community",
                     }
                     raise HTTPException(status_code=400, detail=error_message)
+            vote_type = ""
+
+            if req.vote_type == 'Equality':
+                vote_type = 'Enum<1u8>()'
+            if req.vote_type == 'ResourceOwned':
+                vote_type = 'Enum<0u8>()'
 
             start_time = req.start_time
             end_time = req.end_time
@@ -213,6 +222,18 @@ def transaction_manifest_routes(app):
             start_second = start_time_dt.second
 
             transaction_string = f"""
+               CALL_METHOD
+               Address("{req.userAddress}")
+               "withdraw"
+                Address("{token_address}")
+                Decimal("1")
+        ;
+        
+               TAKE_FROM_WORKTOP
+               Address("{token_address}")
+               Decimal("1")
+               Bucket("bucket1")
+        ;
                                     CALL_METHOD
                                     Address("{community.component_address}")
                                     "create_praposal"
@@ -240,8 +261,17 @@ def transaction_manifest_routes(app):
                                     )Enum<1u8>(
                                     Address("{account_address}")
                                     )
+                                    Bucket("bucket1")
+                                    {vote_type}
 
                                     ;
+                                    
+                                CALL_METHOD
+                                       Address("{req.userAddress}")
+    "try_deposit_batch_or_refund"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
             """
             return transaction_string
 
@@ -255,7 +285,8 @@ def transaction_manifest_routes(app):
         proposal = conn.query(Proposal).filter(Proposal.proposal_address == req.proposal_address).first()
         community_id = proposal.community_id
         community = conn.query(Community).filter(Community.id == community_id).first()
-        user_token = conn.query(CommunityToken).filter(CommunityToken.community_id == community_id, CommunityToken.user_address == req.userAddress).first()
+        user_token = conn.query(CommunityToken).filter(CommunityToken.community_id == community_id,
+                                                       CommunityToken.user_address == req.userAddress).first()
         if user_token is None:
             error_message = {
                 "error": "does not hold any token",

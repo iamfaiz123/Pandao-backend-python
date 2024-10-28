@@ -41,6 +41,7 @@ class DeployProposal(BaseModel):
     proposal: str = Field(..., description="proposal")
     userAddress: str = Field(..., description="user address")
     description: str = Field(..., description="description")
+    vote_type: str = Field(..., description="voting system of proposal")
 
 
 class ProposalVote(BaseModel):
