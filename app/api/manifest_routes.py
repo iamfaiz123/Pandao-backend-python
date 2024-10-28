@@ -161,11 +161,25 @@ def transaction_manifest_routes(app):
     def build_proposal(req: DeployProposal):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
-            # # check if there is any ongoing proposal
-            # proposal = conn.query(Proposal).filter(Proposal.community_id == req.community_id,
-            #                                        Proposal.is_active == True).first()
-            # if proposal:
-            #     raise HTTPException(status_code=401, detail="there is already a active proposal")
+            user_token = conn.query(CommunityToken).filter(CommunityToken.community_id ==community.id,
+                                                           CommunityToken.user_address == req.userAddress).first()
+            proposal_right = community.proposal_rights
+
+            if proposal_right == 'TOKEN_HOLDER_THRESHOLD':
+                if user_token.token_owned < community.proposal_minimum_token:
+                    error_message = {
+                        "error": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required",
+                        "message": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+
+            if proposal_right == 'ADMIN':
+                if community.owner_address != req.userAddress:
+                    error_message = {
+                        "error": f"only admins can create proposal in this community",
+                        "message": f"only admins can create proposal in this community",
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
 
             start_time = req.start_time
             end_time = req.end_time

@@ -70,7 +70,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     else:
                         resources[field['field_name']] = field.get('value') or field.get('variant_name')
         try:
-            if resources['event_type'] == 'PROPOSAL_CREATION_RIGHT':
+            if resources['event_type'] == 'DEPLOYMENT':
                 # create a new community
                 community_id = uuid.uuid4()
                 temp = metadata['community_name']
