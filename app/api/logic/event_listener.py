@@ -106,7 +106,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_addr=user_address,
                     community_id=community_id,
                 )
-                # conn.add(participant)
+                conn.add(participant)
                 conn.commit()
 
                 community = conn.query(Community).filter(Community.id == community_id).first()
@@ -119,7 +119,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_address=user_address,
                     community_id=community_id
                 )
-                #conn.add(participate_activity)
+                conn.add(participate_activity)
 
                 activity = UserActivity(
                     transaction_id=tx_id,
@@ -127,7 +127,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_address=user_address,
                     community_id=community_id
                 )
-                #conn.add(activity)
+                conn.add(activity)
                 print("community commited")
                 conn.commit()
             elif resources['event_type'] == 'TOKEN_BOUGHT':
