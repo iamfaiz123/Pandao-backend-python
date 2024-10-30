@@ -95,7 +95,7 @@ class Community(Base):
     name = Column(String(128))
     component_address = Column(String(2048), unique=True)
     description = Column(String)
-    blueprint_slug = Column(String) #: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
+    blueprint_slug = Column(String)  #: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
     token_address = Column(String)
     owner_token_address = Column(String)
     image = Column(String)
@@ -104,7 +104,7 @@ class Community(Base):
     token_buy_back_price = Column(Float)  # Assuming buy-back price is stored as a float
     total_token = Column(Integer)
     token_bought = Column(Integer)
-    owner_address = Column(String) # = Column(String, ForeignKey('users.public_address'))
+    owner_address = Column(String)  # = Column(String, ForeignKey('users.public_address'))
     funds = Column(Float)
     purpose = Column(String)
     # proposal rights tells about who can create a proposal in Pandao/community
@@ -182,6 +182,30 @@ class Proposal(Base):
     result: Mapped[str] = mapped_column(String)
     number_of_people_voted = Column(Integer)
 
+class ZeroCouponBond(Base):
+    __tablename__ = 'zero_coupon_bond'
+
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=True)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=True)
+    created_at: Mapped[DateTime] = Column(DateTime, default=func.now(), nullable=True)
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    symbol: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    creator: Mapped[str] = mapped_column(String, nullable=True)
+    bond_price = Column(Float, nullable=True)
+    interest_rate = Column(Float, nullable=True)
+    contract_type: Mapped[str] = mapped_column(String, nullable=True)
+    contract_role: Mapped[str] = mapped_column(String, nullable=True)
+    contract_identity: Mapped[str] = mapped_column(String, nullable=True)
+    currency: Mapped[str] = mapped_column(String, nullable=True)
+    initial_exchange_date: Mapped[DateTime] = Column(DateTime, nullable=True)
+    maturity_date: Mapped[DateTime] = Column(DateTime, nullable=True)
+    notional_principle = Column(Float, nullable=True)
+    discount = Column(Integer, nullable=True)
+    bond_position: Mapped[str] = mapped_column(String, nullable=True)
+    price = Column(Float, nullable=True)
+    number_of_bonds = Column(Float, nullable=True)
+    created_on_blockchain = Column(Boolean, nullable=True)
 
 
 class Blog(Base):

@@ -1,4 +1,5 @@
 import uuid
+
 from uuid import UUID
 from pydantic import BaseModel, Field
 from typing_extensions import Optional, List
@@ -53,3 +54,21 @@ class ProposalVote(BaseModel):
 class ExecuteProposal(BaseModel):
     proposal_id: int = Field(..., description="proposal id")
     proposal_address: str = Field(..., description="proposal address")
+
+
+class ZeroCouponBond(BaseModel):
+    community_id: uuid.UUID = Field(..., description="community id")
+    bond_name: str
+    bond_symbol: str
+    bond_identity: str
+    nominal_interest_rate: float
+    currency: str = "xrd"  # Assuming this is a constant value
+    initial_exchange_date: int
+    maturity_date: int
+    notional_principal: float
+    discount: int
+    bond_position: str
+    bond_price: float
+    number_of_bonds: float
+    user_address: str
+    description: str

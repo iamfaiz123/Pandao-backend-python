@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 import requests
 from fastapi import HTTPException
@@ -6,7 +7,8 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.api.logic.community.community import generate_random_string
-from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags
+from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
+    ZeroCouponBond
 
 
 ## pending , add logger
@@ -106,7 +108,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_addr=user_address,
                     community_id=community_id,
                 )
-                conn.add(participant)
+                # conn.add(participant)
                 conn.commit()
 
                 community = conn.query(Community).filter(Community.id == community_id).first()
@@ -119,7 +121,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_address=user_address,
                     community_id=community_id
                 )
-                conn.add(participate_activity)
+                # conn.add(participate_activity)
 
                 activity = UserActivity(
                     transaction_id=tx_id,
@@ -127,7 +129,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     user_address=user_address,
                     community_id=community_id
                 )
-                conn.add(activity)
+                # conn.add(activity)
                 print("community commited")
                 conn.commit()
             elif resources['event_type'] == 'TOKEN_BOUGHT':
@@ -256,7 +258,25 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(activity)
                 conn.commit()
 
-
+            elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
+                community_address = resources['component_address']
+                # get community names and detail
+                community = conn.query(Community).filter(Community.component_address == community_address).first()
+                # get create zero coupon bond
+                bond = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).filter(ZeroCouponBond.contract_identity == metadata['contract_identifier']).first()
+                bond.contract_type = metadata['contract_type']
+                bond.contract_role = metadata['contract_role']
+                bond.contract_identity = metadata['contract_identifier']
+                bond.interest_rate = metadata['nominal_interest_rate']
+                bond.currency = metadata['currency']
+                bond.initial_exchange_date = datetime.fromtimestamp(metadata['initial_exchange_date'])
+                bond.maturity_date = datetime.fromtimestamp(metadata['maturity_date'])
+                bond.notional_principle = metadata['notional_principal']
+                bond.discount = metadata['discount']
+                bond.bond_position = metadata['bond_position']
+                bond.number_of_bonds = metadata['number_of_bonds']
+                conn.add(bond)
+                conn.commit()
         except SQLAlchemyError as e:
             print(e)
             conn.rollback()

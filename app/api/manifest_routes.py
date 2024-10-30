@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal
+    ProposalVote, ExecuteProposal, ZeroCouponBond
 from models import Community, Participants, Proposal, CommunityToken
 from models import dbsession as conn
 
@@ -45,7 +45,7 @@ def transaction_manifest_routes(app):
 
         manifest = command_string = (
             f'CALL_FUNCTION\n'
-            f'Address("package_tdx_2_1phtlqgv3ehsxvpz93cuxyxeya4hn09lplf8ayhnu23xkdnsq0lrjtt")\n'
+            f'Address("package_tdx_2_1phccx4tpfp4vj22z5pqxm7ydawdqzs3daacajvnu23r0m394fc0vmw")\n'
             f'"TokenWeigtedDao"\n'
             f'"initiate"\n'
             f'"{organization_name}"\n'
@@ -339,5 +339,39 @@ def transaction_manifest_routes(app):
                "execute_proposal"
                {proposal.proposal_id}u64
             ;
+        """
+        return transaction_string
+
+    @app.post('/manifest/zero-coupon-bond', tags=(['manifest_builder']))
+    def create_zero_coupon_bond(req: ZeroCouponBond):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        zcb = None
+        if community is not None:
+            zcb = ZeroCouponBond(
+                community_id=req.community_id,
+                name=req.bond_name,
+                description=req.description,
+                created_on_blockchain=False
+            )
+            conn.add(zcb)
+            conn.commit()
+        transaction_string = f"""
+               CALL_METHOD
+                Address("{community.component_address}")
+                "create_zero_coupon_bond"
+                "{req.bond_name}"
+                "{req.bond_symbol}"
+                "{req.bond_identity}"
+                Decimal("{req.nominal_interest_rate}")
+                "xrd"
+                {req.initial_exchange_date}u64
+                {req.maturity_date}u64
+                Decimal("{req.notional_principal}")
+                {req.discount}u64
+                "{req.bond_position}"
+                Decimal("{req.bond_price}")
+                Decimal("{req.number_of_bonds}")
+                Address("{req.user_address}")
+            ; 
         """
         return transaction_string
