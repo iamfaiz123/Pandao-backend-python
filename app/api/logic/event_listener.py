@@ -213,7 +213,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     ends_time=metadata['end_time_ts'],
                     minimum_quorum=metadata['minimum_quorum'],
                     proposal_address=metadata['component_address'],
-                    proposal_id=metadata['proposal_id']
+                    proposal_id=metadata['proposal_id'],
+                    creator=metadata['proposal_creator_address'],
+                    result=''
                 )
                 activity = UserActivity(
                     transaction_id=tx_id,
@@ -228,9 +230,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 proposal_address = resources['component_address']
                 proposal_address = metadata['praposal_address']
                 proposal = conn.query(Proposal).filter(Proposal.proposal_address == proposal_address).first()
-                vote_againts = metadata['againts']
-                print(vote_againts)
-                if vote_againts:
+                vote_against = metadata['againts']
+                if vote_against:
                     proposal.voted_against += float(metadata['voting_amount'])
                 else:
                     proposal.voted_for += float(metadata['voting_amount'])
@@ -263,7 +264,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
                 # get create zero coupon bond
-                bond = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).filter(ZeroCouponBond.contract_identity == metadata['contract_identifier']).first()
+                bond = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).filter(
+                    ZeroCouponBond.contract_identity == metadata['contract_identifier']).first()
                 bond.contract_type = metadata['contract_type']
                 bond.contract_role = metadata['contract_role']
                 bond.contract_identity = metadata['contract_identifier']
