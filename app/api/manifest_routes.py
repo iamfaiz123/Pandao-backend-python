@@ -165,11 +165,11 @@ def transaction_manifest_routes(app):
             user_token = conn.query(CommunityToken).filter(CommunityToken.community_id == community.id,
                                                            CommunityToken.user_address == req.userAddress).first()
             proposal_right = community.proposal_rights
-            token_amount  = 1
+            token_amount = 1
             token_address = community.token_address
             if proposal_right == 'TOKEN_HOLDER_THRESHOLD':
+                token_amount = community.proposal_minimum_token
                 if user_token is None:
-                    token_amount = community.proposal_minimum_token
                     error_message = {
                         "error": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required",
                         "message": f"user does not hold minimum token to create proposal , at least {community.proposal_minimum_token} token required"
