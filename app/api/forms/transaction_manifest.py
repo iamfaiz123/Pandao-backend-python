@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from uuid import UUID
 from pydantic import BaseModel, Field
@@ -63,8 +64,8 @@ class ZeroCouponBond(BaseModel):
     bond_identity: str
     nominal_interest_rate: float
     currency: str = "xrd"  # Assuming this is a constant value
-    initial_exchange_date: int
-    maturity_date: int
+    initial_exchange_date: datetime
+    maturity_date: datetime
     notional_principal: float
     discount: int
     bond_position: str

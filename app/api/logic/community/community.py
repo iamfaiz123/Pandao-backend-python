@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags
+    CommunityTags, ZeroCouponBond
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -308,31 +308,31 @@ def get_discussion_comments(d_id: uuid.UUID):
 
 def get_single_community(community_id: uuid.UUID):
     communities = conn.query(Com).filter(Com.id == community_id).first()
-    funds_in_usd = get_price_conversion(communities.funds,'USD')
+    funds_in_usd = get_price_conversion(communities.funds, 'USD')
     token_price_in_usd = get_price_conversion(communities.token_price, 'USD')
     token_buy_back_price_in_usd = get_price_conversion(communities.token_buy_back_price, 'USD')
     resp = {
-                "id": communities.id,
-                "name": communities.name,
-                "component_address": communities.component_address,
-                "description": communities.description,
-                "blueprint_slug": communities.blueprint_slug,
-                "token_address": communities.token_address,
-                "owner_token_address": communities.owner_token_address,
-                "image": communities.image,
-                "token_image": communities.token_image,
-                "token_price": communities.token_price,
-                "token_buy_back_price": communities.token_buy_back_price,
-                "total_token": communities.total_token,
-                "token_bought": communities.token_bought,
-                "owner_address": communities.owner_address,
-                "funds": communities.funds,
-                "purpose": communities.purpose,
-                "proposal_rights": communities.proposal_rights,
-                "proposal_minimum_token": communities.proposal_minimum_token,
-                "funds_in_usd":funds_in_usd,
-                "token_price_in_usd":token_price_in_usd,
-                "token_buy_back_price_in_usd":token_buy_back_price_in_usd
+        "id": communities.id,
+        "name": communities.name,
+        "component_address": communities.component_address,
+        "description": communities.description,
+        "blueprint_slug": communities.blueprint_slug,
+        "token_address": communities.token_address,
+        "owner_token_address": communities.owner_token_address,
+        "image": communities.image,
+        "token_image": communities.token_image,
+        "token_price": communities.token_price,
+        "token_buy_back_price": communities.token_buy_back_price,
+        "total_token": communities.total_token,
+        "token_bought": communities.token_bought,
+        "owner_address": communities.owner_address,
+        "funds": communities.funds,
+        "purpose": communities.purpose,
+        "proposal_rights": communities.proposal_rights,
+        "proposal_minimum_token": communities.proposal_minimum_token,
+        "funds_in_usd": funds_in_usd,
+        "token_price_in_usd": token_price_in_usd,
+        "token_buy_back_price_in_usd": token_buy_back_price_in_usd
 
     }
     return resp
@@ -608,6 +608,7 @@ def get_community_all_proposal(community_id: uuid.UUID):
     proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).all()
     return proposal
 
+
 def get_user_communities(user_addr: str, owner: bool):
     try:
         if not owner:
@@ -648,4 +649,6 @@ def get_user_communities(user_addr: str, owner: bool):
         raise HTTPException(status_code=500, detail="Internal Servesvsvsvsdvr Error")
 
 
-
+def get_community_all_zero_coupon_bonds(community_id: uuid.UUID):
+    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).all()
+    return proposal

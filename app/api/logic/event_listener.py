@@ -264,19 +264,25 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
                 # get create zero coupon bond
-                bond = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).filter(
-                    ZeroCouponBond.contract_identity == metadata['contract_identifier']).first()
+                print(community.name)
+                pass
+                bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).first()
+                .filter(
+                    ZeroCouponBond.contract_identity == metadata['contract_identifier']))
+
                 bond.contract_type = metadata['contract_type']
                 bond.contract_role = metadata['contract_role']
                 bond.contract_identity = metadata['contract_identifier']
                 bond.interest_rate = metadata['nominal_interest_rate']
                 bond.currency = metadata['currency']
-                bond.initial_exchange_date = datetime.fromtimestamp(metadata['initial_exchange_date'])
-                bond.maturity_date = datetime.fromtimestamp(metadata['maturity_date'])
+                bond.initial_exchange_date = datetime.fromtimestamp(int(metadata['initial_exchange_date']))
+                bond.maturity_date = datetime.fromtimestamp(int(metadata['maturity_date']))
                 bond.notional_principle = metadata['notional_principal']
                 bond.discount = metadata['discount']
                 bond.bond_position = metadata['bond_position']
                 bond.number_of_bonds = metadata['number_of_bonds']
+                bond.created_on_blockchain = True
+                bond.creator = metadata['creator_address']
                 conn.add(bond)
                 conn.commit()
         except SQLAlchemyError as e:

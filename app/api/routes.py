@@ -22,7 +22,8 @@ from .logic.community.community import create_community, get_user_community, che
     user_participate_in_community, get_community_participants, get_community_comments, add_community_comment, \
     get_single_community, get_community_metadata_details, get_community_tokens, get_community_active_proposal, \
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
-    get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal
+    get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
+    get_community_all_zero_coupon_bonds
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -177,6 +178,11 @@ def load_server(app):
     def get_community_token_route(c_id: uuid.UUID):
         return get_community_all_proposal(c_id)
 
+    @app.get('/community/zcb/all/{c_id}', summary="get community ero_coupon_bonds", tags=(['community']))
+    def get_community_zero_coupon_bonds(c_id: uuid.UUID):
+        return get_community_all_zero_coupon_bonds(c_id)
+
+
     @app.get('/community/proposal/comments/{proposal_id}', summary="get proposal comments", tags=(['community']))
     def get_community_proposal_comment(proposal_id: uuid.UUID):
         return get_proposal_comment(proposal_id)
@@ -184,6 +190,8 @@ def load_server(app):
     @app.post('/community/proposal/comments', summary="add proposal comment", tags=(['community']))
     def get_community_proposal_comment(req: ProposalComment):
         return add_proposal_comment(req)
+
+
 
     @app.post('/community/discussion/comments', summary="add comment in community discussion", tags=(['community']))
     def get_community_discussion_comment(req: CommunityDiscussionComment):

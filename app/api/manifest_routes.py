@@ -1,11 +1,12 @@
 from datetime import datetime
 
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
     ProposalVote, ExecuteProposal, ZeroCouponBond
-from models import Community, Participants, Proposal, CommunityToken
+from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel
 from models import dbsession as conn
 
 
@@ -346,16 +347,18 @@ def transaction_manifest_routes(app):
     @app.post('/manifest/zero-coupon-bond', tags=(['manifest_builder']))
     def create_zero_coupon_bond(req: ZeroCouponBond):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
-        zcb = None
         if community is not None:
-            zcb = ZeroCouponBond(
+            zcb = ZcpModel(
                 community_id=req.community_id,
                 name=req.bond_name,
                 description=req.description,
-                created_on_blockchain=False
+                created_on_blockchain=False,
+                contract_identity=req.bond_identity
             )
             conn.add(zcb)
             conn.commit()
+        print(int(req.initial_exchange_date.timestamp()))
+        print(int(req.maturity_date.timestamp()))
         transaction_string = f"""
                CALL_METHOD
                 Address("{community.component_address}")
@@ -365,8 +368,8 @@ def transaction_manifest_routes(app):
                 "{req.bond_identity}"
                 Decimal("{req.nominal_interest_rate}")
                 "xrd"
-                {req.initial_exchange_date}u64
-                {req.maturity_date}u64
+                {int(req.initial_exchange_date.timestamp())}u64
+                {int(req.maturity_date.timestamp())}u64
                 Decimal("{req.notional_principal}")
                 {req.discount}u64
                 "{req.bond_position}"

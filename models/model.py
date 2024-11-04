@@ -185,7 +185,7 @@ class Proposal(Base):
 class ZeroCouponBond(Base):
     __tablename__ = 'zero_coupon_bond'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=True)
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=True)
     created_at: Mapped[DateTime] = Column(DateTime, default=func.now(), nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
