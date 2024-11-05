@@ -21,11 +21,6 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
-
-class CommunityCreate:
-    pass
-
-
 import random
 import string
 
@@ -308,7 +303,9 @@ def get_discussion_comments(d_id: uuid.UUID):
 
 def get_single_community(community_id: uuid.UUID):
     communities = conn.query(Com).filter(Com.id == community_id).first()
-    funds_in_usd = get_price_conversion(communities.funds, 'USD')
+    funds_in_usd = 0
+    if communities.funds != 0:
+        funds_in_usd = get_price_conversion(communities.funds, 'USD')
     token_price_in_usd = get_price_conversion(communities.token_price, 'USD')
     token_buy_back_price_in_usd = get_price_conversion(communities.token_buy_back_price, 'USD')
     resp = {
