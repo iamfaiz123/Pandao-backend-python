@@ -86,4 +86,5 @@ class IssueAnnTokenRequest(BaseModel):
     price: float
     number_of_ann: float
     user_address: str
+    community_id: uuid.UUID = Field(..., description="community id")
 
