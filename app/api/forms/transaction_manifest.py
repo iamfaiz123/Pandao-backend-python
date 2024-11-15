@@ -78,12 +78,12 @@ class IssueAnnTokenRequest(BaseModel):
     contract_type: str
     contract_role: str
     contract_identity: str
-    nominal_interest_rate: Decimal
+    nominal_interest_rate: float
     initial_exchange_date: datetime
     maturity_date: datetime
-    notional_principal: Decimal
+    notional_principal: float
     ann_position: str
-    price: Decimal
-    number_of_ann: Decimal
+    price: float
+    number_of_ann: float
     user_address: str
 
