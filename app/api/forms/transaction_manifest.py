@@ -73,3 +73,17 @@ class ZeroCouponBond(BaseModel):
     number_of_bonds: float
     user_address: str
     description: str
+
+class IssueAnnTokenRequest(BaseModel):
+    contract_type: str
+    contract_role: str
+    contract_identity: str
+    nominal_interest_rate: Decimal
+    initial_exchange_date: datetime
+    maturity_date: datetime
+    notional_principal: Decimal
+    ann_position: str
+    price: Decimal
+    number_of_ann: Decimal
+    user_address: str
+
