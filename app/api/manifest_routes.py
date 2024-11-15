@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal, ZeroCouponBond
+    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel
 from models import dbsession as conn
 
