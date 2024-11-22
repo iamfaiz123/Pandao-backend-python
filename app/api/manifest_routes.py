@@ -381,7 +381,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
     @app.post('/manifest/create-ann', tags=(['manifest_builder']))
-    def create_zero_coupon_bond(req: IssueAnnTokenRequest):
+    def create_zero_coupon_bond(req:   IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
                 CALL_METHOD

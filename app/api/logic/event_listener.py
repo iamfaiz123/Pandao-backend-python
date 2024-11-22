@@ -81,7 +81,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
                     description=metadata['description'],
-                    blueprint_slug='token-weight',
+                    blueprint_slug=metadata['dao_type'],
                     token_address=metadata['token_address'],
                     owner_token_address=metadata['owner_token_address'],
                     owner_address=user_address,
