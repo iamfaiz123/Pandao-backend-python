@@ -44,12 +44,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         for event in tx_events:
             if event['name'] == 'PandaoEvent':
                 for field in event['data']['fields']:
-
                     if field['field_name'] == 'meta_data':
-
                         for m_d in field['fields']:
                             for _m_d in m_d['fields']:
-
                                 if _m_d['field_name'] == 'tags':
                                     for tags in _m_d['elements']:
                                         community_tags.append(tags['value'])
@@ -81,7 +78,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
                     description=metadata['description'],
-                    blueprint_slug=metadata['dao_type'],
+                    blueprint_slug=resources['dao_type'],
                     token_address=metadata['token_address'],
                     owner_token_address=metadata['owner_token_address'],
                     owner_address=user_address,
