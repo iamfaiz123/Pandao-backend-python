@@ -282,13 +282,21 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 bond.creator = metadata['creator_address']
                 conn.add(bond)
                 conn.commit()
+                
+            elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
+                pass
+            else:
+                pass
         except SQLAlchemyError as e:
             print(e)
             conn.rollback()
             # logger.error(f"SQLAlchemy error occurred: {e}")
             raise HTTPException(status_code=500, detail="Internal Server Error")
+        finally:
+            raise HTTPException(status_code=400, detail="unknown data type")
 
         return resources
 
     else:
         print(f"Request failed with status code {response.status_code}")
+

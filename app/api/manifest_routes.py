@@ -404,3 +404,27 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
+    @app.post('/manifest/sell-bond', tags=(['manifest_builder']))
+    def create_zero_coupon_bond(req:IssueAnnTokenRequest):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        transaction_string = f"""
+                CALL_METHOD
+                Address("{community.component_address}")
+                "issue_ann_token"
+                "{req.contract_type}"
+                "{req.contract_role}"
+                "{req.contract_identity}"
+                Decimal("{req.nominal_interest_rate}")
+                "xrd"
+                {int(req.initial_exchange_date.timestamp())}u64
+                {int(req.maturity_date.timestamp())}u64
+                Decimal("{req.notional_principal}")
+                "{req.ann_position}"
+                Decimal("{req.price}")
+                Decimal("{req.number_of_ann}")
+                Address("{req.user_address}")
+                ;
+            """
+        return transaction_string
+
+

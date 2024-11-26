@@ -647,5 +647,5 @@ def get_user_communities(user_addr: str, owner: bool):
 
 
 def get_community_all_zero_coupon_bonds(community_id: uuid.UUID):
-    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).all()
+    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).filter(ZeroCouponBond.created_on_blockchain == True).all()
     return proposal
