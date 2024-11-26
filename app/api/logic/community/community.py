@@ -159,11 +159,9 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         participant = Participants(
             user_addr=user_addr,
             community_id=community_id,
-
         )
-        conn.add(participant)
-        conn.commit()
 
+        conn.add(participant)
         community = conn.query(Community).filter(Community.id == community_id).first()
         community_name = community.name
         random_string = generate_random_string()
@@ -176,8 +174,6 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         )
         conn.add(activity)
         conn.commit()
-
-
     except IntegrityError as e:
         conn.rollback()
         print(f"Integrity error occurred: {e}")

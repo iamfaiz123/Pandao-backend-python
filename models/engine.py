@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 Base = declarative_base()
 
 engine = create_engine(
-    'postgresql://panda_live_user:Ebf671IFTQKo0cuZEl4zCW7t1CLizLoN@dpg-csfq3rpu0jms73fke3a0-a.oregon-postgres.render.com/panda_live')
+    'postgresql://pandao_test_user:mye0K26a11SmrIBrsxXaMPnm3yR2QVGS@dpg-ct2u6slsvqrc738gu7lg-a.oregon-postgres.render.com/pandao_test')
 
 
 
