@@ -207,6 +207,30 @@ class ZeroCouponBond(Base):
     number_of_bonds = Column(Float, nullable=True)
     created_on_blockchain = Column(Boolean, nullable=True)
 
+class AnnTokens(Base):
+    __tablename__ = 'ann_tokens'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=True)
+    created_at: Mapped[DateTime] = Column(DateTime, default=func.now(), nullable=True)
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    symbol: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    creator: Mapped[str] = mapped_column(String, nullable=True)
+    ann_price = Column(Float, nullable=True)
+    interest_rate = Column(Float, nullable=True)
+    contract_type: Mapped[str] = mapped_column(String, nullable=True)
+    contract_role: Mapped[str] = mapped_column(String, nullable=True)
+    contract_identity: Mapped[str] = mapped_column(String, nullable=True)
+    currency: Mapped[str] = mapped_column(String, nullable=True)
+    initial_exchange_date: Mapped[DateTime] = Column(DateTime, nullable=True)
+    maturity_date: Mapped[DateTime] = Column(DateTime, nullable=True)
+    notional_principle = Column(Float, nullable=True)
+    discount = Column(Integer, nullable=True)
+    ann_position: Mapped[str] = mapped_column(String, nullable=True)
+    price = Column(Float, nullable=True)
+    number_of_ann_tokens = Column(Float, nullable=True)
+    created_on_blockchain = Column(Boolean, nullable=True)
+
 
 class Blog(Base):
     __tablename__ = 'blogs'

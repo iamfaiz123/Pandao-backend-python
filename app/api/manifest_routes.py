@@ -5,8 +5,8 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest
-from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel
+    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, SellBondRequest
+from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
 from models import dbsession as conn
 
 
@@ -357,8 +357,6 @@ def transaction_manifest_routes(app):
             )
             conn.add(zcb)
             conn.commit()
-        print(int(req.initial_exchange_date.timestamp()))
-        print(int(req.maturity_date.timestamp()))
         transaction_string = f"""
                CALL_METHOD
                 Address("{community.component_address}")
@@ -383,6 +381,16 @@ def transaction_manifest_routes(app):
     @app.post('/manifest/create-ann', tags=(['manifest_builder']))
     def create_zero_coupon_bond(req:   IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
+        if community is not None:
+            zcb = AnnTokens(
+                community_id=req.community_id,
+                name=req.name,
+                description=req.description,
+                created_on_blockchain=False,
+                contract_identity=req.contract_identity
+            )
+            conn.add(zcb)
+            conn.commit()
         transaction_string = f"""
                 CALL_METHOD
                 Address("{community.component_address}")
@@ -404,27 +412,21 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
-    @app.post('/manifest/sell-bond', tags=(['manifest_builder']))
-    def create_zero_coupon_bond(req:IssueAnnTokenRequest):
+    @app.post('/manifest/sell-bond', tags=['manifest_builder'])
+    def sell_bond(req: SellBondRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
+        if community is None:
+            return {"error": "Community not found"}
+
         transaction_string = f"""
-                CALL_METHOD
-                Address("{community.component_address}")
-                "issue_ann_token"
-                "{req.contract_type}"
-                "{req.contract_role}"
-                "{req.contract_identity}"
-                Decimal("{req.nominal_interest_rate}")
-                "xrd"
-                {int(req.initial_exchange_date.timestamp())}u64
-                {int(req.maturity_date.timestamp())}u64
-                Decimal("{req.notional_principal}")
-                "{req.ann_position}"
-                Decimal("{req.price}")
-                Decimal("{req.number_of_ann}")
-                Address("{req.user_address}")
-                ;
-            """
+            CALL_METHOD
+            Address("{community.component_address}")
+            "sell_bond"
+            Address("{req.bond_creator_address}");
+        """
         return transaction_string
+
+
+
 
 

@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.api.logic.community.community import generate_random_string
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
-    ZeroCouponBond
+    ZeroCouponBond, AnnTokens
 
 
 ## pending , add logger
@@ -260,12 +260,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                # get create zero coupon bond
-                print(community.name)
-                pass
-                bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id).first()
+                bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id)
                 .filter(
-                    ZeroCouponBond.contract_identity == metadata['contract_identifier']))
+                    ZeroCouponBond.contract_identity == metadata['contract_identifier'])).first()
 
                 bond.contract_type = metadata['contract_type']
                 bond.contract_role = metadata['contract_role']
@@ -283,7 +280,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(bond)
                 conn.commit()
                 
-            elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
+            elif resources['event_type'] == 'ANN_TOKEN_CREATION':
+                community_address = resources['component_address']
+                community = conn.query(Community).filter(Community.component_address == community_address).first()
+                bond = (conn.query(AnnTokens).filter(AnnTokens.community_id == community.id)
+                .filter(
+                    AnnTokens.contract_identity == metadata['contract_identifier'])).first()
+
                 pass
             else:
                 pass
@@ -292,9 +295,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             conn.rollback()
             # logger.error(f"SQLAlchemy error occurred: {e}")
             raise HTTPException(status_code=500, detail="Internal Server Error")
-        finally:
-            raise HTTPException(status_code=400, detail="unknown data type")
+        except Exception as e:
+            print(e)
 
+            raise HTTPException(status_code=400, detail="unknown data type")
         return resources
 
     else:

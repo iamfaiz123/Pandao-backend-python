@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond
+    CommunityTags, ZeroCouponBond, AnnTokens
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -645,3 +645,8 @@ def get_user_communities(user_addr: str, owner: bool):
 def get_community_all_zero_coupon_bonds(community_id: uuid.UUID):
     proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).filter(ZeroCouponBond.created_on_blockchain == True).all()
     return proposal
+
+def get_community_all_ann_tokens(community_id: uuid.UUID):
+    ann = conn.query(AnnTokens).filter(AnnTokens.community_id == community_id).all()
+    # .filter(AnnTokens.created_on_blockchain == True)
+    return ann

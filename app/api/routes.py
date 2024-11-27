@@ -23,7 +23,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_single_community, get_community_metadata_details, get_community_tokens, get_community_active_proposal, \
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
-    get_community_all_zero_coupon_bonds
+    get_community_all_zero_coupon_bonds, get_community_all_ann_tokens
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -181,6 +181,12 @@ def load_server(app):
     @app.get('/community/zcb/all/{c_id}', summary="get community ero_coupon_bonds", tags=(['community']))
     def get_community_zero_coupon_bonds(c_id: uuid.UUID):
         return get_community_all_zero_coupon_bonds(c_id)
+
+    @app.get('/community/ann/all/{c_id}', summary="get community anns tokens", tags=(['community']))
+    def get_community_all_ann_tokens_routes(c_id: uuid.UUID):
+        return get_community_all_ann_tokens(c_id)
+
+
 
 
     @app.get('/community/proposal/comments/{proposal_id}', summary="get proposal comments", tags=(['community']))

@@ -87,4 +87,12 @@ class IssueAnnTokenRequest(BaseModel):
     number_of_ann: float
     user_address: str
     community_id: uuid.UUID = Field(..., description="community id")
+    name:str
+    description: str
+
+class SellBondRequest(BaseModel):
+    community_id: uuid.UUID = Field(..., description="community id")
+    bond_creator_address:str
+
+
 
