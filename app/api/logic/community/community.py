@@ -174,6 +174,9 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         )
         conn.add(activity)
         conn.commit()
+        return {
+            "participated":True
+        }
     except IntegrityError as e:
         conn.rollback()
         print(f"Integrity error occurred: {e}")
@@ -660,6 +663,8 @@ def get_bonds_name(community_id: uuid.UUID):
 
         results = query.all()
 
+        if results is None:
+            return []
 
         response = [
             {

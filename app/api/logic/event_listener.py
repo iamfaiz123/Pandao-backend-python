@@ -284,11 +284,26 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             elif resources['event_type'] == 'ANN_TOKEN_CREATION':
                 community_address = resources['component_address']
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                bond = (conn.query(AnnTokens).filter(AnnTokens.community_id == community.id)
+                ann = (conn.query(AnnTokens).filter(AnnTokens.community_id == community.id)
                 .filter(
                     AnnTokens.contract_identity == metadata['contract_identifier'])).first()
-
-                pass
+                
+                ann.contract_type = metadata['contract_type']
+                ann.contract_role = metadata['contract_role']
+                ann.contract_identity = metadata['contract_identifier']
+                ann.interest_rate = metadata['nominal_interest_rate']
+                ann.currency = metadata['currency']
+                ann.initial_exchange_date = datetime.fromtimestamp(int(metadata['initial_exchange_date']))
+                ann.maturity_date = datetime.fromtimestamp(int(metadata['maturity_date']))
+                ann.notional_principle = metadata['notional_principal']
+                ann.discount = metadata['discount']
+                ann.ann_position = metadata['annuity_position']
+                ann.number_of_ann_tokens = metadata['number_of_annuities_to_mint']
+                ann.created_on_blockchain = True
+                ann.creator = metadata['creator_address']
+                ann.price = metadata['price']
+                conn.add(ann)
+                conn.commit()
             else:
                 pass
         except SQLAlchemyError as e:
@@ -298,8 +313,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             raise HTTPException(status_code=500, detail="Internal Server Error")
         except Exception as e:
             print(e)
-
-            raise HTTPException(status_code=400, detail="unknown data type")
+            raise HTTPException(status_code=400, detail=e)
         return resources
 
     else:
