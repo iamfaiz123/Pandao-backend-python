@@ -277,6 +277,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 bond.number_of_bonds = metadata['number_of_bonds']
                 bond.created_on_blockchain = True
                 bond.creator = metadata['creator_address']
+                bond.price = metadata['price']
                 conn.add(bond)
                 conn.commit()
                 

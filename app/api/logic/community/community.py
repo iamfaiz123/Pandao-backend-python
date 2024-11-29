@@ -650,3 +650,35 @@ def get_community_all_ann_tokens(community_id: uuid.UUID):
     ann = conn.query(AnnTokens).filter(AnnTokens.community_id == community_id).all()
     # .filter(AnnTokens.created_on_blockchain == True)
     return ann
+
+def get_bonds_name(community_id: uuid.UUID):
+    try:
+        query = conn.query(ZeroCouponBond.creator, ZeroCouponBond.name).filter(
+            ZeroCouponBond.community_id == community_id,
+            ZeroCouponBond.created_on_blockchain == True
+        )
+
+        results = query.all()
+
+
+        response = [
+            {
+                "bond_name": row.name,
+                "creator_address": row.creator,
+
+            }
+            for row in results
+        ]
+
+        return response
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(e)
+        raise HTTPException(status_code=500, detail="dssdrror")
+    except Exception as e:
+        conn.rollback()
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal Servesvsvsvsdvr Error")
+
+
+
