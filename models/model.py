@@ -232,15 +232,27 @@ class AnnTokens(Base):
     created_on_blockchain = Column(Boolean, nullable=True)
 
 
-class Blog(Base):
-    __tablename__ = 'blogs'
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title = Column(String, nullable=False)
-    description: Mapped[str] = mapped_column(String)
-    thumbnail_image = Column(String, nullable=True)
-    created_at: Mapped[DateTime] = Column(DateTime, default=func.now())
-    published_by = Column(String, nullable=False)
-    url = Column(String, nullable=False)
+
+class CommunityExpense(Base):
+    __tablename__ = 'community_expense'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True) , default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
+    xrd_spent: Mapped[float] = mapped_column(Float, nullable=False)
+    creator: Mapped[str] = mapped_column(String, nullable=True)
+    tx_hash: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    xrd_spent_on: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+class CommunityFunds(Base):
+    __tablename__ = 'community_funds'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True) , default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
+    xrd_added: Mapped[float] = mapped_column(Float, nullable=False)
+    current_xrd: Mapped[float] = mapped_column(Float, nullable=False)
+    creator: Mapped[str] = mapped_column(String, nullable=True)
+    tx_hash: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
 
 from .engine import engine

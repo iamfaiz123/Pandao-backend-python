@@ -3,12 +3,13 @@ from datetime import datetime
 
 import requests
 from fastapi import HTTPException
+from future.backports.xmlrpc.client import DateTime
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.api.logic.community.community import generate_random_string
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
-    ZeroCouponBond, AnnTokens
+    ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds
 
 
 ## pending , add logger
@@ -28,7 +29,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
     # Check if the request was successful
     if response.status_code == 200:
-        # create an empty dict to strore data
+        # create an empty dict to store data
         resources = {}
         metadata = {}
         # Parse the response JSON data
@@ -36,9 +37,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         # Print the response JSON data
 
         # Store the response data in a dictionary
-
         response_data = response_data
         tx_events = response_data['transaction']['receipt']['events']
+        xrd_paid = response_data['transaction']['fee_paid']
         # print(tx_events)
         community_tags = []
         for event in tx_events:
@@ -69,10 +70,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     else:
                         resources[field['field_name']] = field.get('value') or field.get('variant_name')
         try:
+            # check for all the events emitted from the blockchain , check event types
             if resources['event_type'] == 'DEPLOYMENT':
                 # create a new community
+                # store id for future purpose
                 community_id = uuid.uuid4()
-                temp = metadata['community_name']
+                # store community name as temp for further use
+                community_name = metadata['community_name']
+                # create new object for community to insert into table
                 community = Community(
                     id=community_id,
                     name=metadata['community_name'],
@@ -92,51 +97,67 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal_rights=metadata['proposal_creation_right'],
                     proposal_minimum_token=metadata['minimum_token']
                 )
+                # add created community object for batch insert state
                 conn.add(community)
-                print("community added")
+                # loop over the tags for community
                 for t in community_tags:
                     tag = CommunityTags(
                         community_id=community_id,
                         tag=t
                     )
                     conn.add(tag)
-                conn.commit()
+                # create object for community participant
                 participant = Participants(
                     user_addr=user_address,
                     community_id=community_id,
                 )
-                # conn.add(participant)
-                conn.commit()
+                conn.add(participant)
 
-                community = conn.query(Community).filter(Community.id == community_id).first()
-                community_name = community.name
+                # create community create activity
+                activity = UserActivity(
+                    transaction_id=tx_id,
+                    transaction_info=f'created {community_name}',
+                    user_address=user_address,
+                    community_id=community_id
+                )
+                conn.add(activity)
+
                 random_string = generate_random_string()
                 # add comment activity
                 participate_activity = UserActivity(
+                    # since participating in community does not envole any blockchain effort , generate a random string for tx id
                     transaction_id=random_string,
                     transaction_info=f'participated in {community_name}',
                     user_address=user_address,
                     community_id=community_id
                 )
-                # conn.add(participate_activity)
+                conn.add(participate_activity)
 
-                activity = UserActivity(
-                    transaction_id=tx_id,
-                    transaction_info=f'created  {temp}',
-                    user_address=user_address,
-                    community_id=community_id
+                # create a community expense object to insert into this data
+                community_expense = CommunityExpense(
+                    community_id=community_id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='This Community Creation',
+                    date=datetime.now()  # You can omit this if you want to use the default value
                 )
-                # conn.add(activity)
-                print("community commited")
+
+                conn.add(community_expense)
+                # finally commit
                 conn.commit()
             elif resources['event_type'] == 'TOKEN_BOUGHT':
                 # in case of token bought , get community details and add activity
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                community.funds += float(metadata['amount_paid'])
+                # current community funds at this given time
+                funds_added = float(metadata['amount_paid'])
+                current_community_funds = community.funds + float(metadata['amount_paid'])
+                community.funds = current_community_funds
                 community.token_bought += float(metadata['amount'])
                 token_bought = float(metadata['amount'])
+                current_time = datetime.now()
                 try:
                     # Attempt to retrieve the existing row
                     community_token = conn.query(CommunityToken).filter_by(
@@ -145,8 +166,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     ).one()
                     community_token.token_owned += float(token_bought)
                     conn.commit()
-
-
                 except NoResultFound:
                     community_token = CommunityToken(
                         community_id=community.id,
@@ -162,6 +181,27 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_id=community.id
                 )
                 conn.add(activity)
+
+                # create a community expense object to insert into this data
+                community_expense = CommunityExpense(
+                    community_id=community.id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='buy tokens in community',
+                    date=current_time  # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
+                # create a community funds chart
+                new_funds = CommunityFunds(
+                    community_id=community.id,
+                    xrd_added=funds_added,
+                    current_xrd=current_community_funds,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    date=current_time  # You can omit this if you want to use the default value
+                )
+                conn.add(new_funds)
                 conn.commit()
 
             elif resources['event_type'] == 'TOKEN_SELL':
@@ -169,9 +209,12 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                community.funds -= float(metadata['amount_paid'])
+                funds_added = -(float(metadata['amount_paid']))
+                current_community_funds = community.funds - float(metadata['amount_paid'])
+                community.funds = current_community_funds
                 community.token_bought -= float(metadata['amount'])
                 token_bought = float(metadata['amount'])
+                current_time = datetime.now()
                 try:
                     # Attempt to retrieve the existing row
                     community_token = conn.query(CommunityToken).filter_by(
@@ -191,9 +234,29 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_id=community.id
                 )
                 conn.add(activity)
+
+                community_expense = CommunityExpense(
+                    community_id=community.id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='sold tokens in community',
+                    date=current_time # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
+                # create a community funds chart
+                new_funds = CommunityFunds(
+                    community_id=community.id,
+                    xrd_added=funds_added,
+                    current_xrd=current_community_funds,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    date=current_time  # You can omit this if you want to use the default value
+                )
+                conn.add(new_funds)
+
                 conn.commit()
 
-                pass
             elif resources['event_type'] == 'PRAPOSAL':
                 community_address = resources['component_address']
 
@@ -222,6 +285,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 )
                 conn.add(activity)
                 conn.add(new_proposal)
+                community_expense = CommunityExpense(
+                    community_id=community.id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='created a proposal in community',
+                    date=datetime.now() # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
                 conn.commit()
             elif resources['event_type'] == 'VOTE':
                 proposal_address = resources['component_address']
@@ -235,10 +307,21 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                 activity = UserActivity(
                     transaction_id=tx_id,
-                    transaction_info=f'voted in ongoing proposal',
+                    transaction_info=f'voted in a proposal',
                     user_address=user_address,
                     community_id=proposal.community_id
                 )
+
+                conn.add(activity)
+                community_expense = CommunityExpense(
+                    community_id=proposal.community_id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='voted in a proposal',
+                    date=datetime.now() # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
                 conn.commit()
             elif resources['event_type'] == 'EXECUTE_PROPOSAL':
                 component_address = resources['component_address']
@@ -254,6 +337,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_id=proposal.community_id
                 )
                 conn.add(activity)
+                community_expense = CommunityExpense(
+                    community_id=proposal.community_id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='executed in a proposal',
+                    date=datetime.now() # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
                 conn.commit()
 
             elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
@@ -263,7 +355,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id)
                 .filter(
                     ZeroCouponBond.contract_identity == metadata['contract_identifier'])).first()
-
                 bond.contract_type = metadata['contract_type']
                 bond.contract_role = metadata['contract_role']
                 bond.contract_identity = metadata['contract_identifier']
@@ -279,6 +370,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 bond.creator = metadata['creator_address']
                 bond.price = metadata['price']
                 conn.add(bond)
+
+                community_expense = CommunityExpense(
+                    community_id=community.id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='created a zero coupon bond',
+                    date=datetime.now() # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
                 conn.commit()
                 
             elif resources['event_type'] == 'ANN_TOKEN_CREATION':
@@ -303,6 +404,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 ann.creator = metadata['creator_address']
                 ann.price = metadata['price']
                 conn.add(ann)
+                community_expense = CommunityExpense(
+                    community_id=community.id,
+                    xrd_spent=xrd_paid,
+                    creator=user_address,
+                    tx_hash=tx_id,
+                    xrd_spent_on='created an ANN token',
+                    date=datetime.now() # You can omit this if you want to use the default value
+                )
+                conn.add(community_expense)
                 conn.commit()
             else:
                 pass

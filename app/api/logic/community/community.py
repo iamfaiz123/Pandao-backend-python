@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond, AnnTokens
+    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -683,7 +683,49 @@ def get_bonds_name(community_id: uuid.UUID):
     except Exception as e:
         conn.rollback()
         print(e)
-        raise HTTPException(status_code=500, detail="Internal Servesvsvsvsdvr Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-
+def community_funds_history(community_id: uuid.UUID):
+    try:
+        # Perform the left join query
+        query = conn.query(
+            CommunityFunds.id,
+            CommunityFunds.community_id,
+            CommunityFunds.xrd_added,
+            CommunityFunds.current_xrd,
+            CommunityFunds.creator,
+            CommunityFunds.tx_hash,
+            CommunityFunds.date,
+            UserMetaData.user_address,
+            UserMetaData.image_url
+        ).outerjoin(
+            UserMetaData,
+            CommunityFunds.creator == UserMetaData.user_address
+        ).filter(
+            CommunityFunds.community_id == community_id
+        )
+        # Execute the query and fetch the results
+        results = query.all()
+        response = []
+        for result in results:
+            response.append({
+                "id": str(result.id),
+                "community_id": str(result.community_id),
+                "xrd_added": result.xrd_added,
+                "current_xrd": result.current_xrd,
+                "creator": result.creator,
+                "tx_hash": result.tx_hash,
+                "date": result.date.isoformat(),
+                "user_address": result.user_address,
+                "image_url": result.image_url
+            })
+        return response
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception as e:
+        conn.rollback()
+        print(f"Unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

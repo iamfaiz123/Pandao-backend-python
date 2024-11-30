@@ -3,7 +3,6 @@ import uuid
 from fastapi import FastAPI
 from starlette import status
 
-from .forms.blogs import BlogCreate
 from .forms.blueprint import DeployCommunity
 from .forms.community import CommunityParticipant, ProposalComment, CommunityDiscussion, CommunityDiscussionComment
 from .forms.transaction_manifest import TransactionSubmit
@@ -12,7 +11,6 @@ from .logic import health as health_handler
 from .logic.activity.user_activity import get_user_activity, UserActivityModel, get_community_activity
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile, \
     delete_user
-from .logic.blogs.blogs import add_blogs, get_blogs
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
@@ -23,7 +21,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_single_community, get_community_metadata_details, get_community_tokens, get_community_active_proposal, \
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
-    get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name
+    get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -109,10 +107,12 @@ def load_server(app):
     def get_all_communities(sort: str = 'participants'):
         return get_all_community_of_platform(sort)
 
-    @app.get('/community/{user_addr}', summary="get communities iof user ",
+    @app.get('/community/{user_addr}', summary="get communities of user ",
              description="get communities of user", tags=(['community']))
     def get_community_user_route(user_addr: str):
         return get_user_community(user_addr)
+
+    # community_funds_history
 
     # @app.post('/community/deploy', summary="send this to server after deploying a community",
     #           description="send this to server after deploying a community")
@@ -145,6 +145,11 @@ def load_server(app):
     @app.get('/community/participant/{c_id}', summary="user join a community", tags=(['community']))
     def get_community_participant_route(c_id: uuid.UUID):
         return get_community_participants(c_id)
+
+    @app.get('/community/funds-history/{c_id}', summary="get funds history of a community", tags=(['community']))
+    def get_community_funds_history_route(c_id: uuid.UUID):
+        return community_funds_history(c_id)
+
 
     @app.get('/community/tags/{c_id}', summary="get tags of the community", tags=(['community']))
     def get_community_participant_route(c_id: uuid.UUID):
@@ -209,11 +214,4 @@ def load_server(app):
     def get_community_proposal_comment(discussion_id: uuid.UUID):
         return get_discussion_comments(discussion_id)
 
-    @app.post('/blogs', summary="insert blogs into pandao",
-              tags=(['blogs']))
-    def get_community_proposal_comment(req: BlogCreate):
-        return add_blogs(req)
 
-    @app.get('/blogs', summary="get all the blogs in pandao", tags=(['blogs']))
-    def get_blogs_route():
-        return get_blogs()
