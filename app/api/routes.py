@@ -150,7 +150,6 @@ def load_server(app):
     def get_community_funds_history_route(c_id: uuid.UUID):
         return community_funds_history(c_id)
 
-
     @app.get('/community/tags/{c_id}', summary="get tags of the community", tags=(['community']))
     def get_community_participant_route(c_id: uuid.UUID):
         return get_community_tags(c_id)

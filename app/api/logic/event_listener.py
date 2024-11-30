@@ -3,7 +3,6 @@ from datetime import datetime
 
 import requests
 from fastapi import HTTPException
-from future.backports.xmlrpc.client import DateTime
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
