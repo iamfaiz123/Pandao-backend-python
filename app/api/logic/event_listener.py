@@ -185,7 +185,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community_expense = CommunityExpense(
                     community_id=community.id,
                     # also add xrd send in this
-                    xrd_spent= - (xrd_paid+float(metadata['amount_paid'])),
+                    xrd_spent= - (float(xrd_paid)+float(metadata['amount_paid'])),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='buy tokens in community',
@@ -199,10 +199,11 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     current_xrd=current_community_funds,
                     creator=user_address,
                     tx_hash=tx_id,
-                    date=current_time  # You can omit this if you want to use the default value
+                    date=current_time
                 )
                 conn.add(new_funds)
                 conn.commit()
+                print("here")
 
             elif resources['event_type'] == 'TOKEN_SELL':
                 # in case of token bought , get community details and add activity
