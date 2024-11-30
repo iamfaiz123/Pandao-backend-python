@@ -254,6 +254,13 @@ class CommunityFunds(Base):
     tx_hash: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
     date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
+class PendingTransactions(Base):
+    __tablename__ = 'pending_transactions'
+    creator: Mapped[str] = mapped_column(String, nullable=True)
+    tx_hash: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    error : Mapped[str] = mapped_column(String, nullable=True)
+    event_type:Mapped[str] = mapped_column(String, nullable=True)
+    date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
 from .engine import engine
 

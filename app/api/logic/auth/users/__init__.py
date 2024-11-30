@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload, joinedload
 
-from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork
+from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
 import logging
@@ -239,3 +239,14 @@ def delete_user(u_a: str):
         conn.rollback()
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
+
+def get_pending_transactions(user_address: str):
+    try:
+        transactions = conn.query(PendingTransactions).filter(PendingTransactions.creator == user_address).all()
+        return transactions
+    except Exception as e:
+        conn.rollback()
+        logging.error(e)
+        return ApiError("Something went wrong, we're working on it", 500).as_http_response()
+
+
