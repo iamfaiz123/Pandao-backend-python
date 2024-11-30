@@ -154,8 +154,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     # get community names and detail
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     # current community funds at this given time
-                    # funds_added = float(metadata['amount_paid'])
-                    funds_added = float(metadata['amount_paid_faizal'])
+                    funds_added = float(metadata['amount_paid'])
+                    # funds_added = float(metadata['amount_paid_faizal'])
                     current_community_funds = community.funds + float(metadata['amount_paid'])
                     community.funds = current_community_funds
                     community.token_bought += float(metadata['amount'])
@@ -447,7 +447,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         print(inner_block_error.status_code)
         if inner_block_error.status_code != 504:
             raise HTTPException(status_code=500,
-                                detail="Failing transaction , The transactions has been recorded already will get")
+                                detail="Failing transaction , The transactions has been recorded already will get reelected in your community soon when the services goes online")
         if inner_block_error.status_code != 503:
             raise HTTPException(status_code=500,
                                 detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
