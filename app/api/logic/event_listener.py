@@ -287,7 +287,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(new_proposal)
                 community_expense = CommunityExpense(
                     community_id=community.id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent=- ( xrd_paid ) ,
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='created a proposal in community',
@@ -315,7 +315,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(activity)
                 community_expense = CommunityExpense(
                     community_id=proposal.community_id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent= - ( xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='voted in a proposal',
@@ -339,7 +339,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(activity)
                 community_expense = CommunityExpense(
                     community_id=proposal.community_id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent= - ( xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='executed in a proposal',
@@ -373,7 +373,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                 community_expense = CommunityExpense(
                     community_id=community.id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent= - ( xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='created a zero coupon bond',
@@ -406,7 +406,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(ann)
                 community_expense = CommunityExpense(
                     community_id=community.id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent= - ( xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='created an ANN token',
