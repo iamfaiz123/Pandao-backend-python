@@ -698,12 +698,18 @@ def community_funds_history(community_id: uuid.UUID):
             CommunityFunds.tx_hash,
             CommunityFunds.date,
             UserMetaData.user_address,
-            UserMetaData.image_url
+            UserMetaData.image_url,
+            User.name
         ).outerjoin(
             UserMetaData,
             CommunityFunds.creator == UserMetaData.user_address
+        ).outerjoin(
+            User,
+            CommunityFunds.creator == User.public_address
         ).filter(
             CommunityFunds.community_id == community_id
+        ).order_by(
+            CommunityFunds.date.desc()
         )
         # Execute the query and fetch the results
         results = query.all()
@@ -718,7 +724,8 @@ def community_funds_history(community_id: uuid.UUID):
                 "tx_hash": result.tx_hash,
                 "date": result.date.isoformat(),
                 "user_address": result.user_address,
-                "image_url": result.image_url
+                "image_url": result.image_url,
+                "user_name":result.name
             })
         return response
     except SQLAlchemyError as e:
