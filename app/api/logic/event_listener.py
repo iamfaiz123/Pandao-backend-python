@@ -135,7 +135,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 # create a community expense object to insert into this data
                 community_expense = CommunityExpense(
                     community_id=community_id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent= -( xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='This Community Creation',
@@ -184,7 +184,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 # create a community expense object to insert into this data
                 community_expense = CommunityExpense(
                     community_id=community.id,
-                    xrd_spent=xrd_paid,
+                    # also add xrd send in this
+                    xrd_spent= - (xrd_paid+float(metadata['amount_paid'])),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='buy tokens in community',
@@ -236,7 +237,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                 community_expense = CommunityExpense(
                     community_id=community.id,
-                    xrd_spent=xrd_paid,
+                    xrd_spent=  ( float(metadata['amount_paid']) - xrd_paid ),
                     creator=user_address,
                     tx_hash=tx_id,
                     xrd_spent_on='sold tokens in community',

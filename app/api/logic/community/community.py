@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds
+    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -726,6 +726,55 @@ def community_funds_history(community_id: uuid.UUID):
                 "user_address": result.user_address,
                 "image_url": result.image_url,
                 "user_name":result.name
+            })
+        return response
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception as e:
+        conn.rollback()
+        print(f"Unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+def get_user_expense(user_addr: str):
+    try:
+        query = conn.query(
+            CommunityExpense.id,
+            CommunityExpense.community_id,
+            CommunityExpense.xrd_spent,
+            CommunityExpense.creator,
+            CommunityExpense.tx_hash,
+            CommunityExpense.xrd_spent_on,
+            CommunityExpense.date,
+            Community.name.label('community_name'),
+            Community.image.label('community_image')
+        ).join(
+            Community,
+            CommunityExpense.community_id == Community.id
+        ).filter(
+            CommunityExpense.creator == user_addr
+        ).order_by(
+            CommunityExpense.date.desc()
+        )
+
+        # Execute the query and fetch the results
+        results = query.all()
+
+        # Store the results in a list of dictionaries
+        response = []
+        for result in results:
+            response.append({
+                "id": str(result.id),
+                "community_id": str(result.community_id),
+                "xrd_spent": result.xrd_spent,
+                "creator": result.creator,
+                "tx_hash": result.tx_hash,
+                "xrd_spent_on": result.xrd_spent_on,
+                "date": result.date.isoformat(),
+                "community_name": result.community_name,
+                "community_image":result.community_image
             })
         return response
     except SQLAlchemyError as e:
