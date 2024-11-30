@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from sqlite3 import IntegrityError
 
 import requests
 from fastapi import HTTPException
@@ -24,7 +25,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             }
         }
 
-        # Send a POST request with the JSON data
+        # Send a POST request with the JSON dataxs
 
         response = requests.post(url, json=data)
 
@@ -418,40 +419,56 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     pass
             except Exception as e:
                 # in case of exceptions insert data in pending transactions table with error
+                print('here we got execption')
                 pending_transactions = PendingTransactions(
                         creator=user_address,
                         tx_hash=tx_id,
-                        error=e,
+                        error='internal code error',
                         event_type=resources['event_type'],
                         date=datetime.now()  # You can also use func.now() if you want the database to handle the timestamp
                 )
                 try:
                     conn.add(pending_transactions)
-                    conn.commit(pending_transactions)
+                    conn.commit()
+                except IntegrityError as ie:
+                    # treate 504 as integratey error
+                    raise HTTPException(status_code=504,
+                                        detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
                 except Exception as e:
                     raise HTTPException(status_code=500,
                                         detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
-                raise HTTPException(status_code=500, detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
+                # treat 503 as handled error
+                raise HTTPException(status_code=503, detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
             return resources
 
         else:
             print(f"Request failed with status code {response.status_code}")
-
+    except HTTPException as inner_block_error:
+        print(inner_block_error.status_code)
+        if inner_block_error.status_code != 504:
+            raise HTTPException(status_code=500,
+                                detail="Failing transaction , The transactions has been recorded already will get")
+        if inner_block_error.status_code != 503:
+            raise HTTPException(status_code=500,
+                                detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
+        raise HTTPException(status_code=503,
+                            detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
+    # this will catch all the errors from outer block
     except Exception as e:
         pending_transactions = PendingTransactions(
             creator=user_address,
             tx_hash=tx_id,
-            error=e,
+            error="unknown error",
             event_type='Unknown',
             date=datetime.now()  # You can also use func.now() if you want the database to handle the timestamp
         )
         try:
             conn.add(pending_transactions)
-            conn.commit(pending_transactions)
+            conn.commit()
         except Exception as e:
             raise HTTPException(status_code=500,
                                 detail="We get into some unrecoverable error , please keep your transactions-hash with you and raise a complain in Pandao dashboard")
         raise HTTPException(status_code=500,
-                            detail="We get into some unrecoverable error , please keep your transactions-hash with you and raise a complain in Pandao dashboard")
+                            detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
 
 
