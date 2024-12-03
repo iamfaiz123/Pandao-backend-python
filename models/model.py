@@ -206,6 +206,8 @@ class ZeroCouponBond(Base):
     price = Column(Float, nullable=True)
     number_of_bonds = Column(Float, nullable=True)
     created_on_blockchain = Column(Boolean, nullable=True)
+    asset_address:  Mapped[str] = mapped_column(String, nullable=True)
+    amount_stored = Column(Float, nullable=True)
 
 class AnnTokens(Base):
     __tablename__ = 'ann_tokens'
