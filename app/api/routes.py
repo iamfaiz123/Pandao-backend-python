@@ -26,6 +26,7 @@ from .logic.community.community import create_community, get_user_community, che
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
+from .logic.wallet import get_user_wallet_nfts
 from .utils.presignsignature import generate_signature
 
 
@@ -222,4 +223,7 @@ def load_server(app):
     def get_community_proposal_comment(discussion_id: uuid.UUID):
         return get_discussion_comments(discussion_id)
 
-
+    @app.get('/users/wallets/assets/{user_address}', summary="get all assets from users wallet",
+             tags=(['User wallet']))
+    def get_user_wallet_asset(user_address: str):
+        return get_user_wallet_nfts(user_address)
