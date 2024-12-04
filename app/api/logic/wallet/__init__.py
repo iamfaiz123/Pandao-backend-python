@@ -3,7 +3,7 @@ def get_user_wallet_nfts(user_address:str):
         url = "https://stokenet.radixdlt.com/state/entity/details"
         data = {
           "addresses": [
-            "account_tdx_2_129qvh025nwetpnq0dlajlzcffw0vahdw9x2zqn04edwnp4sgw93m5m"
+              user_address
           ]
         }
 
@@ -57,8 +57,8 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
                     finally:
                         continue
                 asset_details.append({
-                        name: name,
-                        icon_url: icon_url
+                        'name': name,
+                        'icon_url': icon_url
                     })
             return asset_details
         else:
