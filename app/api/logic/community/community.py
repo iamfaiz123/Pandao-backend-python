@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense
+    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -173,6 +173,15 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
             community_id=community_id
         )
         conn.add(activity)
+
+        # create a community notice
+        c_n = CommunityNotice(
+            creator = user_addr ,
+            date = datetime.now() ,
+            notice = 'welcome new member !',
+            community_id = community_id
+        )
+        conn.add(c_n)
         conn.commit()
         return {
             "participated":True
