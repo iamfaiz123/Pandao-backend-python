@@ -46,18 +46,20 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
             for item in assets:
                 resource_address = item['address']
                 metadata = item['metadata']['items']
-                assets_metadata = []
+                name = ''
+                icon_url = ''
                 for data in metadata:
                     try:
-                        assets_metadata.append(
-                            {
-                                data['key'] : data['value']['programmatic_json']['fields'][0]['value'],
-                                'address' : resource_address
-                            }
-                        )
+                        if data['key'] == 'name':
+                            name = data['value']['programmatic_json']['fields'][0]['value']
+                        elif data['key'] == 'icon_url':
+                            icon_url = data['value']['programmatic_json']['fields'][0]['value']
                     finally:
                         continue
-                asset_details.append(assets_metadata)
+                asset_details.append({
+                        name: name,
+                        icon_url: icon_url
+                    })
             return asset_details
         else:
             print("3")
