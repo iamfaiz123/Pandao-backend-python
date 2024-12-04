@@ -264,9 +264,10 @@ class PendingTransactions(Base):
     event_type:Mapped[str] = mapped_column(String, nullable=True)
     date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
+## alter table in new release
 class CommunityNotice(Base):
     __tablename__ = 'community_notice'
-    creator: Mapped[str] = mapped_column(String, nullable=True)
+    creator: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
     date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
     notice:Mapped[str] = mapped_column(String, nullable=True)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
