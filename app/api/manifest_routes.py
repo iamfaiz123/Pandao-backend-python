@@ -353,27 +353,40 @@ def transaction_manifest_routes(app):
                 name=req.bond_name,
                 description=req.description,
                 created_on_blockchain=False,
-                contract_identity=req.bond_identity
+                contract_identity=req.bond_identity,
+                asset_address=req.asset_address
             )
             conn.add(zcb)
             conn.commit()
         transaction_string = f"""
+                CALL_METHOD
+                             Address("{req.user_address}")
+                             "withdraw"
+                             Address("{req.asset_address}")
+                             Decimal("1")
+                ;
+                TAKE_FROM_WORKTOP
+                             Address("{req.asset_address}")
+                             Decimal("1")
+                             Bucket("bucket1")
+                ;
                CALL_METHOD
-                Address("{community.component_address}")
-                "create_zero_coupon_bond"
-                "{req.bond_name}"
-                "{req.bond_symbol}"
-                "{req.bond_identity}"
-                Decimal("{req.nominal_interest_rate}")
-                "xrd"
-                {int(req.initial_exchange_date.timestamp())}u64
-                {int(req.maturity_date.timestamp())}u64
-                Decimal("{req.notional_principal}")
-                {req.discount}u64
-                "{req.bond_position}"
-                Decimal("{req.bond_price}")
-                Decimal("{req.number_of_bonds}")
-                Address("{req.user_address}")
+                            Address("{community.component_address}")
+                            "create_zero_coupon_bond"
+                            "{req.bond_name}"
+                            "{req.bond_symbol}"
+                            "{req.bond_identity}"
+                            Decimal("{req.nominal_interest_rate}")
+                            "xrd"
+                            {int(req.initial_exchange_date.timestamp())}u64
+                            {int(req.maturity_date.timestamp())}u64
+                            Decimal("{req.notional_principal}")
+                            {req.discount}u64
+                            "{req.bond_position}"
+                            Decimal("{req.bond_price}")
+                            Decimal("{req.number_of_bonds}")
+                            Address("{req.user_address}")
+                            Bucket("bucket1")
             ; 
         """
         return transaction_string
@@ -382,14 +395,14 @@ def transaction_manifest_routes(app):
     def create_zero_coupon_bond(req:   IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         if community is not None:
-            zcb = AnnTokens(
+            ann = AnnTokens(
                 community_id=req.community_id,
                 name=req.name,
                 description=req.description,
                 created_on_blockchain=False,
                 contract_identity=req.contract_identity
             )
-            conn.add(zcb)
+            conn.add(ann)
             conn.commit()
         transaction_string = f"""
                 CALL_METHOD

@@ -73,6 +73,7 @@ class ZeroCouponBond(BaseModel):
     number_of_bonds: float
     user_address: str
     description: str
+    asset_address: str
 
 class IssueAnnTokenRequest(BaseModel):
     contract_type: str
