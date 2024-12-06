@@ -58,7 +58,8 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
                         continue
                 asset_details.append({
                         'name': name,
-                        'icon_url': icon_url
+                        'icon_url': icon_url,
+                        'resource_address':resource_address
                     })
             return asset_details
         else:
