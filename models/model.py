@@ -184,7 +184,6 @@ class Proposal(Base):
 
 class ZeroCouponBond(Base):
     __tablename__ = 'zero_coupon_bond'
-
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=True)
     created_at: Mapped[DateTime] = Column(DateTime, default=func.now(), nullable=True)
@@ -207,6 +206,8 @@ class ZeroCouponBond(Base):
     number_of_bonds = Column(Float, nullable=True)
     created_on_blockchain = Column(Boolean, nullable=True)
     asset_address:  Mapped[str] = mapped_column(String, nullable=True)
+    asset_url:  Mapped[str] = mapped_column(String, nullable=True)
+    asset_name:  Mapped[str] = mapped_column(String, nullable=True)
     amount_stored = Column(Float, nullable=True)
 
 class AnnTokens(Base):
