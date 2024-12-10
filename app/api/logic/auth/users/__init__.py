@@ -4,7 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload, joinedload
 
-from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions
+from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
+    Community
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
 import logging
@@ -250,3 +251,51 @@ def get_pending_transactions(user_address: str):
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
 
 
+
+def get_user_created_bonds(user_address:str):
+    try:
+        query = (
+            select(ZeroCouponBond)
+            .join(Community, ZeroCouponBond.community_id == Community.id)
+            .where(ZeroCouponBond.creator == user_address)
+        )
+        results = conn.execute(query).all()
+
+        # Convert results to list of dictionaries
+        bond_community_list = []
+        for bond in results:
+            bond_dict = {
+                # ZeroCouponBond fields
+                'bond_id': str(bond.id),  # Convert UUID to string
+                'created_at': bond.created_at,
+                'name': bond.name,
+                'symbol': bond.symbol,
+                'description': bond.description,
+                'creator': bond.creator,
+                'bond_price': bond.bond_price,
+                'interest_rate': bond.interest_rate,
+                'contract_type': bond.contract_type,
+                'contract_role': bond.contract_role,
+                'contract_identity': bond.contract_identity,
+                'currency': bond.currency,
+                'initial_exchange_date': bond.initial_exchange_date,
+                'maturity_date': bond.maturity_date,
+                'notional_principle': bond.notional_principle,
+                'discount': bond.discount,
+                'bond_position': bond.bond_position,
+                'price': bond.price,
+                'number_of_bonds': bond.number_of_bonds,
+                'created_on_blockchain': bond.created_on_blockchain,
+                'asset_address': bond.asset_address,
+                'asset_url': bond.asset_url,
+                'asset_name': bond.asset_name,
+                'amount_stored': bond.amount_stored,
+            }
+            bond_community_list.append(bond_dict)
+        return bond_community_list
+
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        logging.error(e)
+        return ApiError("Something went wrong, we're working on it", 500).as_http_response()
