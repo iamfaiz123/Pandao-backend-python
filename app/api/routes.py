@@ -231,3 +231,10 @@ def load_server(app):
              tags=(['User wallet']))
     def get_user_wallet_asset(user_address: str):
         return get_user_wallet_nfts(user_address)
+
+
+    ### invalid apis
+    @app.get('/user/metadata/{user_address}', summary="get all assets from users wallet",
+             tags=(['User wallet']))
+    def invalid_function(user_address: str):
+        return  {}
