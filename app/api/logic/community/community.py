@@ -149,8 +149,6 @@ def create_community(community: DeployCommunity):
     #     raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-class CommunityParticipant:
-    pass
 
 
 def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
@@ -228,8 +226,8 @@ def get_community_participants(community_id: UUID):
 
 def check_user_community_status(user_addr: str, community_id: uuid.UUID):
     try:
-        user_data = conn.query(CommunityParticipant).filter(CommunityParticipant.community_id == community_id,
-                                                            CommunityParticipant.participant == user_addr).first()
+        user_data = conn.query(Participants).filter(Participants.community_id == community_id,
+                                                            Participants.user_addr == user_addr).first()
         if user_data is None:
             return {
                 "user_participated": False
@@ -240,16 +238,18 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
             }
     except IntegrityError as e:
         conn.rollback()
+        print(e)
 
         raise HTTPException(status_code=400,
                             detail="Integrity error: possibly duplicate entry or foreign key constraint.")
 
     except SQLAlchemyError as e:
         conn.rollback()
-
+        print(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     except Exception as e:
+        print(e)
         conn.rollback()
 
         raise HTTPException(status_code=500, detail="Internal Server Error")
