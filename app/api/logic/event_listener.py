@@ -41,7 +41,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             # Store the response data in a dictionary
             response_data = response_data
             tx_events = response_data['transaction']['receipt']['events']
-            xrd_paid = response_data['transaction']['fee_paid']
+            xrd_paid = float(response_data['transaction']['fee_paid'])
             # print(tx_events)
             community_tags = []
             for event in tx_events:
@@ -419,6 +419,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     pass
             except Exception as e:
                 # in case of exceptions insert data in pending transactions table with error
+                print(e)
                 print('here we got execption')
                 pending_transactions = PendingTransactions(
                         creator=user_address,
