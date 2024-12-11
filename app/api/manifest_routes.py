@@ -358,15 +358,16 @@ def transaction_manifest_routes(app):
             )
             conn.add(zcb)
             conn.commit()
+        asset_address = req.nft
         transaction_string = f"""
                 CALL_METHOD
                              Address("{req.user_address}")
                              "withdraw"
-                             Address("{req.asset_address}")
+                             Address("{asset_address}")
                              Decimal("1")
                 ;
                 TAKE_FROM_WORKTOP
-                             Address("{req.asset_address}")
+                             Address("{asset_address}")
                              Decimal("1")
                              Bucket("bucket1")
                 ;
