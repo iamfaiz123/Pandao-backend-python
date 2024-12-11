@@ -26,7 +26,7 @@ from .logic.community.community import create_community, get_user_community, che
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
-from .logic.wallet import get_user_wallet_nfts
+from .logic.wallet import get_user_wallet_nfts, get_asset_details
 from .utils.presignsignature import generate_signature
 
 
@@ -231,6 +231,11 @@ def load_server(app):
              tags=(['User wallet']))
     def get_user_wallet_asset(user_address: str):
         return get_user_wallet_nfts(user_address)
+
+    @app.get('/assets/metadata', summary="get metadata of asset",
+             tags=(['User wallet']))
+    def get_user_wallet_asset(resource_address: str):
+        return get_asset_details(resource_address)
 
 
     ### invalid apis

@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.api.logic.community.community import generate_random_string
+from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions
 
@@ -352,6 +353,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
                     # get community names and detail
+
+                    asset_detail = get_asset_details(metadata['nft_as_collateral'])
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id)
                     .filter(
@@ -370,6 +373,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     bond.created_on_blockchain = True
                     bond.creator = metadata['creator_address']
                     bond.price = metadata['price']
+                    bond.asset_address = asset_detail.resource_address
+                    bond.asset_url = asset_detail.icon_url
+                    bond.asset_name = asset_detail.name
                     conn.add(bond)
 
                     community_expense = CommunityExpense(

@@ -1,5 +1,6 @@
 import requests
 def get_user_wallet_nfts(user_address:str):
+        print(user_address)
         url = "https://stokenet.radixdlt.com/state/entity/details"
         data = {
           "addresses": [
@@ -8,15 +9,12 @@ def get_user_wallet_nfts(user_address:str):
         }
 
         # Send a POST request with the JSON dataxs
-
         response = requests.post(url, json=data)
-
         user_fungible_resource_arr = []
-        user_non_fungible_resource_arr = []
-
         # Check if the request was successful
         if response.status_code == 200:
             response_data = response.json()
+            print(response_data)
             assets = response_data['items'][0]
             user_fungible_resource = assets['fungible_resources']
             user_non_fungible_resource = assets['non_fungible_resources']
@@ -24,7 +22,10 @@ def get_user_wallet_nfts(user_address:str):
                 user_fungible_resource_arr.append(data['resource_address'])
             # call api to load all fungible resources
             print('till this works')
-            resp = collect_asset_from_resource_array(user_fungible_resource_arr)
+            if len(user_fungible_resource_arr) > 20:
+                resp = collect_asset_from_resource_array(user_fungible_resource_arr[0:19])
+            else:
+                resp = collect_asset_from_resource_array(user_fungible_resource_arr)
             return resp
         else:
             print("1")
@@ -39,8 +40,12 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
             "addresses": user_fungible_resource_arr
         }
         response = requests.post(url, json=data)
+        response_data = response.json()
+        print(response_data)
         if response.status_code == 200:
+            print('line 44')
             response_data = response.json()
+            print(response_data)
             assets = response_data['items']
             asset_details = []
             for item in assets:
@@ -67,6 +72,38 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
             pass
 
 
+def get_asset_details(fungible_resource: str):
+    url = "https://stokenet.radixdlt.com/state/entity/details"
+    data = {
+        "addresses": [fungible_resource]
+    }
+    response = requests.post(url, json=data)
+    if response.status_code == 200:
+        response_data = response.json()
+        assets = response_data['items']
+        asset_details = []
+        for item in assets:
+            resource_address = item['address']
+            metadata = item['metadata']['items']
+            name = ''
+            icon_url = ''
+            for data in metadata:
+                try:
+                    if data['key'] == 'name':
+                        name = data['value']['programmatic_json']['fields'][0]['value']
+                    elif data['key'] == 'icon_url':
+                        icon_url = data['value']['programmatic_json']['fields'][0]['value']
+                finally:
+                    continue
+            asset_details.append({
+                'name': name,
+                'icon_url': icon_url,
+                'resource_address': resource_address
+            })
+        return asset_details[0]
+    else:
+        print("3")
+        pass
 
 def flatten_dict(d, parent_key='', sep='_'):
     items = []
