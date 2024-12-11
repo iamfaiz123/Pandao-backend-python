@@ -384,7 +384,7 @@ def transaction_manifest_routes(app):
                             Decimal("{req.notional_principal}")
                             {req.discount}u64
                             "{req.bond_position}"
-                            u64{int(req.bond_price)}
+                            {int(req.bond_price)}u64
                             Decimal("{req.number_of_bonds}")
                             Address("{req.user_address}")
                             Bucket("bucket1")

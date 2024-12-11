@@ -348,13 +348,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
                     conn.add(community_expense)
-                    conn.commit()
+
 
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
                     # get community names and detail
 
-                    asset_detail = get_asset_details(metadata['nft_as_collateral'])
+                    asset_detail = get_asset_details(metadata['collateral_resource_address'])
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id)
                     .filter(
@@ -373,9 +373,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     bond.created_on_blockchain = True
                     bond.creator = metadata['creator_address']
                     bond.price = metadata['price']
-                    bond.asset_address = asset_detail.resource_address
-                    bond.asset_url = asset_detail.icon_url
-                    bond.asset_name = asset_detail.name
+                    bond.asset_address = asset_detail['resource_address']
+                    bond.asset_url = asset_detail['icon_url']
+                    bond.asset_name = asset_detail['name']
                     conn.add(bond)
 
                     community_expense = CommunityExpense(
@@ -462,6 +462,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                             detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
     # this will catch all the errors from outer block
     except Exception as e:
+        print(e)
         pending_transactions = PendingTransactions(
             creator=user_address,
             tx_hash=tx_id,
@@ -473,6 +474,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             conn.add(pending_transactions)
             conn.commit()
         except Exception as e:
+            print(e)
             raise HTTPException(status_code=500,
                                 detail="We get into some unrecoverable error , please keep your transactions-hash with you and raise a complain in Pandao dashboard")
         raise HTTPException(status_code=500,
