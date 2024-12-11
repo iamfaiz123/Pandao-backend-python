@@ -354,7 +354,7 @@ def transaction_manifest_routes(app):
                 description=req.description,
                 created_on_blockchain=False,
                 contract_identity=req.bond_identity,
-                asset_address=req.asset_address
+                asset_address=req.nft
             )
             conn.add(zcb)
             conn.commit()
