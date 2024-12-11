@@ -257,7 +257,7 @@ def transaction_manifest_routes(app):
                                     {end_minute}u8 ,
                                     {end_second}u8)
                                     Enum<1u8>(
-                                    Address("account_tdx_2_128e6fmjkhjqx0n8h9562rrvstl883wq22pzea4ucnnx0762ptlch4s"))
+                                    Address("{req.bond_issuer_address}"))
                                     Enum<1u8>(
                                     Decimal("40")
                                     )Enum<1u8>(
