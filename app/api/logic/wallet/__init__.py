@@ -23,7 +23,13 @@ def get_user_wallet_nfts(user_address:str):
             # call api to load all fungible resources
             print('till this works')
             if len(user_fungible_resource_arr) > 20:
-                resp = collect_asset_from_resource_array(user_fungible_resource_arr[0:19])
+                chunk_size = 19
+                response = []
+                for i in range(0, len(user_fungible_resource_arr), chunk_size):
+                    chunk = user_fungible_resource_arr[i:i + chunk_size]
+                    resp = collect_asset_from_resource_array(chunk)
+                    response.extend(resp)
+                return response
             else:
                 resp = collect_asset_from_resource_array(user_fungible_resource_arr)
             return resp
