@@ -1,6 +1,6 @@
 import requests
 def get_user_wallet_nfts(user_address:str):
-        print(user_address)
+
         url = "https://stokenet.radixdlt.com/state/entity/details"
         data = {
           "addresses": [
@@ -14,14 +14,14 @@ def get_user_wallet_nfts(user_address:str):
         # Check if the request was successful
         if response.status_code == 200:
             response_data = response.json()
-            print(response_data)
+
             assets = response_data['items'][0]
             user_fungible_resource = assets['fungible_resources']
             user_non_fungible_resource = assets['non_fungible_resources']
             for data in  user_fungible_resource['items']:
                 user_fungible_resource_arr.append(data['resource_address'])
             # call api to load all fungible resources
-            print('till this works')
+
             if len(user_fungible_resource_arr) > 20:
                 chunk_size = 19
                 response = []
@@ -34,7 +34,7 @@ def get_user_wallet_nfts(user_address:str):
                 resp = collect_asset_from_resource_array(user_fungible_resource_arr)
             return resp
         else:
-            print("1")
+
             pass
 
 
@@ -47,11 +47,11 @@ def collect_asset_from_resource_array(user_fungible_resource_arr:list):
         }
         response = requests.post(url, json=data)
         response_data = response.json()
-        print(response_data)
+
         if response.status_code == 200:
-            print('line 44')
+
             response_data = response.json()
-            print(response_data)
+
             assets = response_data['items']
             asset_details = []
             for item in assets:
