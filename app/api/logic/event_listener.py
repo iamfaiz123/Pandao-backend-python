@@ -16,7 +16,7 @@ from models import Community, dbsession as conn, UserActivity, CommunityToken, P
 ## pending , add logger
 
 def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
-    try:
+
         url = "https://babylon-stokenet-gateway.radixdlt.com/transaction/committed-details"
         data = {
             "intent_hash": tx_id,
@@ -49,10 +49,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 if event['name'] == 'PandaoEvent':
                     for field in event['data']['fields']:
                         if field['field_name'] == 'meta_data':
-                            print(field['fields'])
+
                             for m_d in field['fields']:
                                 for _m_d in m_d['fields']:
-                                    print(_m_d)
+
                                     if _m_d['field_name'] == 'tags':
                                         for tags in _m_d['elements']:
                                             community_tags.append(tags['value'])
@@ -72,9 +72,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         else:
                                             metadata['minimum_token'] = 0
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
+                                    elif _m_d['field_name'] == 'token_type':
+                                        metadata[_m_d['field_name']] = _m_d['variant_name']
                                     else:
-                                        print(metadata[_m_d['field_name']])
-                                        print(_m_d)
+                                        print(_m_d['field_name'])
                                         metadata[_m_d['field_name']] = _m_d['value']
                         else:
                             resources[field['field_name']] = field.get('value') or field.get('variant_name') or ''
@@ -266,7 +267,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.commit()
 
                 elif resources['event_type'] == 'PRAPOSAL':
-                    print("hii reached here")
                     community_address = resources['component_address']
 
                     # get community names and detail
@@ -284,7 +284,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal_address=metadata['component_address'],
                         proposal_id=metadata['proposal_id'],
                         creator=metadata['proposal_creator_address'],
-                        result=''
+                        result='' ,
+                        zcb_bond_creator= metadata['address_issued_bonds_to_sell'],
+                        proposal_vote_type = metadata['token_type'] ,
+                        status = 1
                     )
                     activity = UserActivity(
                         transaction_id=tx_id,
@@ -309,6 +312,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal_address = metadata['praposal_address']
                     proposal = conn.query(Proposal).filter(Proposal.proposal_address == proposal_address).first()
                     vote_against = metadata['againts']
+                    if proposal.proposal_vote_type == 'Equality':
+                        if vote_against:
+                            proposal.voted_against += 1
+                        else:
+                            proposal.voted_for += 1
+                    else:
+                        pass
                     if vote_against:
                         proposal.voted_against += float(metadata['voting_amount'])
                     else:
@@ -320,8 +330,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         user_address=user_address,
                         community_id=proposal.community_id
                     )
-
                     conn.add(activity)
+
                     community_expense = CommunityExpense(
                         community_id=proposal.community_id,
                         xrd_spent= - ( xrd_paid ),
@@ -393,6 +403,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         xrd_spent_on='created a zero coupon bond',
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'created a zero coupon bond',
+                        user_address=user_address,
+                        community_id=community.id
+                    )
+                    conn.add(activity)
+                    # create an activity for same
                     conn.add(community_expense)
                     conn.commit()
 
@@ -457,34 +475,34 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
         else:
             print(f"Request failed with status code {response.status_code}")
-    except HTTPException as inner_block_error:
-        print(inner_block_error.status_code)
-        if inner_block_error.status_code != 504:
-            raise HTTPException(status_code=500,
-                                detail="Failing transaction , The transactions has been recorded already will get reelected in your community soon when the services goes online")
-        if inner_block_error.status_code != 503:
-            raise HTTPException(status_code=500,
-                                detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
-        raise HTTPException(status_code=503,
-                            detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
-    # this will catch all the errors from outer block
-    except Exception as e:
-        print(e)
-        pending_transactions = PendingTransactions(
-            creator=user_address,
-            tx_hash=tx_id,
-            error="unknown error",
-            event_type='Unknown',
-            date=datetime.now()  # You can also use func.now() if you want the database to handle the timestamp
-        )
-        try:
-            conn.add(pending_transactions)
-            conn.commit()
-        except Exception as e:
-            print(e)
-            raise HTTPException(status_code=500,
-                                detail="We get into some unrecoverable error , please keep your transactions-hash with you and raise a complain in Pandao dashboard")
-        raise HTTPException(status_code=500,
-                            detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
+    # except HTTPException as inner_block_error:
+    #     print(inner_block_error.status_code)
+    #     if inner_block_error.status_code != 504:
+    #         raise HTTPException(status_code=500,
+    #                             detail="Failing transaction , The transactions has been recorded already will get reelected in your community soon when the services goes online")
+    #     if inner_block_error.status_code != 503:
+    #         raise HTTPException(status_code=500,
+    #                             detail="We get into some unrecoverable error , please keep your transactions-hash with you , and raise a complain in Pandao dashboard")
+    #     raise HTTPException(status_code=503,
+    #                         detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
+    # # this will catch all the errors from outer block
+    # except Exception as e:
+    #     print(e)
+    #     pending_transactions = PendingTransactions(
+    #         creator=user_address,
+    #         tx_hash=tx_id,
+    #         error="unknown error",
+    #         event_type='Unknown',
+    #         date=datetime.now()  # You can also use func.now() if you want the database to handle the timestamp
+    #     )
+    #     try:
+    #         conn.add(pending_transactions)
+    #         conn.commit()
+    #     except Exception as e:
+    #         print(e)
+    #         raise HTTPException(status_code=500,
+    #                             detail="We get into some unrecoverable error , please keep your transactions-hash with you and raise a complain in Pandao dashboard")
+    #     raise HTTPException(status_code=500,
+    #                         detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
 
 

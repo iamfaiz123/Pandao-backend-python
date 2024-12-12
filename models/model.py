@@ -181,6 +181,10 @@ class Proposal(Base):
     creator: Mapped[str] = mapped_column(String)
     result: Mapped[str] = mapped_column(String)
     number_of_people_voted = Column(Integer)
+    zcb_bond_creator: Mapped[str] = mapped_column(String)
+    proposal_vote_type: Mapped[str] = mapped_column(String)
+    status = Column(Integer)
+
 
 class ZeroCouponBond(Base):
     __tablename__ = 'zero_coupon_bond'
