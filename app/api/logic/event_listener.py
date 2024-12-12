@@ -49,8 +49,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 if event['name'] == 'PandaoEvent':
                     for field in event['data']['fields']:
                         if field['field_name'] == 'meta_data':
+                            print(field['fields'])
                             for m_d in field['fields']:
                                 for _m_d in m_d['fields']:
+                                    print(_m_d)
                                     if _m_d['field_name'] == 'tags':
                                         for tags in _m_d['elements']:
                                             community_tags.append(tags['value'])
@@ -61,6 +63,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
                                     elif _m_d['field_name'] == 'amount_of_tokens_should_be_minted':
                                         pass
+                                    elif _m_d['field_name'] == 'amount_of_tokens_should_be_minted':
+                                        pass
                                     elif _m_d['field_name'] == 'proposal_creation_right':
                                         if _m_d['variant_name'] == 'TOKEN_HOLDER_THRESHOLD':
                                             metadata['minimum_token'] = _m_d['fields'][0]['value']
@@ -69,9 +73,11 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                             metadata['minimum_token'] = 0
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     else:
+                                        print(metadata[_m_d['field_name']])
+                                        print(_m_d)
                                         metadata[_m_d['field_name']] = _m_d['value']
                         else:
-                            resources[field['field_name']] = field.get('value') or field.get('variant_name')
+                            resources[field['field_name']] = field.get('value') or field.get('variant_name') or ''
             try:
                 # check for all the events emitted from the blockchain , check event types
                 if resources['event_type'] == 'DEPLOYMENT':
@@ -260,6 +266,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.commit()
 
                 elif resources['event_type'] == 'PRAPOSAL':
+                    print("hii reached here")
                     community_address = resources['component_address']
 
                     # get community names and detail

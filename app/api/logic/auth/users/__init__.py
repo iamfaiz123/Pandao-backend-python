@@ -1,7 +1,7 @@
 from http.client import HTTPException
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
@@ -254,20 +254,15 @@ def get_pending_transactions(user_address: str):
 
 def get_user_created_bonds(user_address:str):
     try:
-        query = (
-            select(ZeroCouponBond)
-            .join(Community, ZeroCouponBond.community_id == Community.id)
-            .where(ZeroCouponBond.creator == user_address)
-        )
-        results = conn.execute(query).all()
+        # Perform an inner join between ZeroCouponBond and Community
+        results = conn.query(ZeroCouponBond, Community).join(Community,
+                                                                ZeroCouponBond.community_id == Community.id).distinct(ZeroCouponBond.contract_identity).all()
 
-        # Convert results to list of dictionaries
-        bond_community_list = []
-        for bond in results:
+        # Convert the results to a list of dictionaries
+        bond_data = []
+        for bond, community in results:
             bond_dict = {
-                # ZeroCouponBond fields
-                'bond_id': str(bond.id),  # Convert UUID to string
-                'created_at': bond.created_at,
+                'bond_id': bond.id,
                 'name': bond.name,
                 'symbol': bond.symbol,
                 'description': bond.description,
@@ -290,12 +285,36 @@ def get_user_created_bonds(user_address:str):
                 'asset_url': bond.asset_url,
                 'asset_name': bond.asset_name,
                 'amount_stored': bond.amount_stored,
+                'community': {
+                    'community_id': community.id,
+                    'name': community.name,
+                    'component_address': community.component_address,
+                    'description': community.description,
+                    'blueprint_slug': community.blueprint_slug,
+                    'token_address': community.token_address,
+                    'owner_token_address': community.owner_token_address,
+                    'image': community.image,
+                    'token_image': community.token_image,
+                    'token_price': community.token_price,
+                    'token_buy_back_price': community.token_buy_back_price,
+                    'total_token': community.total_token,
+                    'token_bought': community.token_bought,
+                    'owner_address': community.owner_address,
+                    'funds': community.funds,
+                    'purpose': community.purpose,
+                    'proposal_rights': community.proposal_rights,
+                    'proposal_minimum_token': community.proposal_minimum_token
+                }
             }
-            bond_community_list.append(bond_dict)
-        return bond_community_list
+            bond_data.append(bond_dict)
+
+        return bond_data
 
     except Exception as e:
-        print(e)
         conn.rollback()
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
+
+
+
+

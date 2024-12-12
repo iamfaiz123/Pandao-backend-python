@@ -185,6 +185,7 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
             "participated":True
         }
     except IntegrityError as e:
+        print(e)
         conn.rollback()
         print(f"Integrity error occurred: {e}")
         raise HTTPException(status_code=400,
