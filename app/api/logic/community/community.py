@@ -11,7 +11,7 @@ from app.api.logic.external_apis.external_apis import get_price_conversion
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice
+    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -815,3 +815,35 @@ def get_proposal_bond(proposal_id:uuid):
         conn.rollback()
         print(f"Unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+def get_communities_user_might_be_int_in(user_address:str):
+    try:
+        query = (
+            conn.query(UserPreference.tag)
+            .filter(UserPreference.user_address == user_address)
+        )
+
+        # Execute the query and fetch all results
+        tags = query.all()
+        # Extract tags from the result (tags will be a list of tuples, so we extract the first element from each)
+        tag_list = [tag[0] for tag in tags]
+        query = (
+            conn.query(CommunityTags.community_id)
+            .join(UserPreference, CommunityTags.tag == UserPreference.tag)
+            .filter(UserPreference.user_address == user_address)
+            .filter(UserPreference.tag.in_(query))  # Check if the tag is in the user's preference list
+            .distinct()  # Ensure no duplicates
+        )
+        # Execute the query
+        result = query.all()
+        community_ids = [community_id[0] for community_id in result]
+        query = (
+            conn.query(Community)
+            .filter(Community.id.in_(community_ids))
+        )
+
+        resp = query.all()
+        return resp
+    finally:
+        pass

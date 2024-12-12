@@ -22,7 +22,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
     get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history, \
-    get_user_expense, get_proposal_bond
+    get_user_expense, get_proposal_bond, get_communities_user_might_be_int_in
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -229,8 +229,15 @@ def load_server(app):
 
     @app.get('/community/proposal/zcb/{proposal_id}', summary="get zcb of proposal",
              tags=(['community']))
-    def get_community_proposal_comment(proposal_id: uuid.UUID):
+    def get_proposal_bonds(proposal_id: uuid.UUID):
         return get_proposal_bond(proposal_id)
+
+    @app.get('/community/user/interest/{user_add}', summary="get all community user might be interested in in",
+             tags=(['community']))
+    def get_user_community_suggestions(user_addr: str):
+        return  get_communities_user_might_be_int_in(user_addr)
+
+
 
 
     @app.get('/users/wallets/assets/{user_address}', summary="get all assets from users wallet",

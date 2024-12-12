@@ -90,6 +90,16 @@ def get_user_detail(public_address: str):
         user = conn.query(User).options(joinedload(User.usermetadata)).filter(
             User.public_address == public_address).first()
 
+        query = (
+            conn.query(UserPreference.tag)
+            .filter(UserPreference.user_address == public_address)
+        )
+
+        # Execute the query and fetch all results
+        tags = query.all()
+        # Extract tags from the result (tags will be a list of tuples, so we extract the first element from each)
+        tag_list = [tag[0] for tag in tags]
+
         if user:
             # get user work history
             user_wh = conn.query(UserWork).filter(UserWork.user_address == user.public_address).all()
@@ -107,7 +117,8 @@ def get_user_detail(public_address: str):
                     "website": user.usermetadata.website,
                     "bio": user.usermetadata.bio
                 },
-                "user_work": user_wh
+                "user_work": user_wh,
+                "interested_tag":tag_list
             }
 
             return user_dict
@@ -256,7 +267,7 @@ def get_user_created_bonds(user_address:str):
     try:
         # Perform an inner join between ZeroCouponBond and Community
         results = conn.query(ZeroCouponBond, Community).join(Community,
-                                                                ZeroCouponBond.community_id == Community.id).distinct(ZeroCouponBond.contract_identity).all()
+                                                                ZeroCouponBond.community_id == Community.id).filter(ZeroCouponBond.created_on_blockchain == True).filter(ZeroCouponBond.creator == user_address).distinct(ZeroCouponBond.contract_identity).all()
 
         # Convert the results to a list of dictionaries
         bond_data = []
