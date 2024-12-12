@@ -552,8 +552,9 @@ def add_proposal_comment(req: ProposalComment):
         activity = UserActivity(
             transaction_id=random_string,
             transaction_info=f'commented on a proposal in {community.name} community',
-            user_address=proposal_data.community_id,
-            community_id=req.user_addr
+            user_address=req.user_addr,
+            community_id=proposal_data.community_id,
+            activity_type = 'commented on a proposal'
         )
         conn.add(activity)
         conn.commit()
