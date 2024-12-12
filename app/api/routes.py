@@ -22,7 +22,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
     get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history, \
-    get_user_expense
+    get_user_expense, get_proposal_bond
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -227,6 +227,12 @@ def load_server(app):
     def get_community_proposal_comment(discussion_id: uuid.UUID):
         return get_discussion_comments(discussion_id)
 
+    @app.get('/community/proposal/zcb/{proposal_id}', summary="get zcb of proposal",
+             tags=(['community']))
+    def get_community_proposal_comment(proposal_id: uuid.UUID):
+        return get_proposal_bond(proposal_id)
+
+
     @app.get('/users/wallets/assets/{user_address}', summary="get all assets from users wallet",
              tags=(['User wallet']))
     def get_user_wallet_asset(user_address: str):
@@ -236,6 +242,8 @@ def load_server(app):
              tags=(['User wallet']))
     def get_user_wallet_asset(resource_address: str):
         return get_asset_details(resource_address)
+
+
 
 
     ### invalid apis

@@ -796,3 +796,22 @@ def get_user_expense(user_addr: str):
         conn.rollback()
         print(f"Unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+def get_proposal_bond(proposal_id:uuid):
+    try:
+        proposal = conn.query(Proposal).filter(
+            Proposal.id == proposal_id
+        ).first()
+        if proposal is not None:
+            bond = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == proposal.community_id).filter(ZeroCouponBond.creator == proposal.zcb_bond_creator).first()
+            return bond
+        else:
+            raise HTTPException(status_code=401, detail="invalid proposal id")
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception as e:
+        conn.rollback()
+        print(f"Unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
