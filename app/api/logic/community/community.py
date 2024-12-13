@@ -1,6 +1,7 @@
 import uuid
 
 import requests
+import sqlalchemy
 from sqlalchemy import or_, select, func, desc, distinct
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -90,7 +91,7 @@ def get_all_community_of_platform(name,sort,tag):
     if name is not None:
         query = query.filter(Community.name.ilike(f"%{name}%"))
     if tag is not None:
-        query = query.filter(CommunityTags.tag == tag )
+        query = query.filter(CommunityTags.tag == sqlalchemy.any_(tag) )
     communities_with_participants = query.limit(1000).all()
     # Now you can iterate over the result
     # Now you can iterate over the result
