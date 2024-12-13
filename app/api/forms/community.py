@@ -34,3 +34,8 @@ class ProposalComment(BaseModel):
     user_addr: str = Field(..., description="user address of the community")
     comment: str = Field(..., description="description of the community")
     proposal_id: uuid.UUID = Field(..., description="community id")
+
+class CommunityFilter(BaseModel):
+    name:Optional[str] = Field(None, description="name of the community")
+    tag:Optional[str] = Field(None, description="tag of the community")
+    sort:Optional[str] = Field(None, description="sorting of community")

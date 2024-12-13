@@ -34,6 +34,7 @@ class UserMetaData(Base):
     address: Mapped[str] = Column(String)
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
 
+# class UserBadge
 
 class UserWork(Base):
     __tablename__ = 'user_work'

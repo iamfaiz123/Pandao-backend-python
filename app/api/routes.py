@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from starlette import status
 
 from .forms.blueprint import DeployCommunity
-from .forms.community import CommunityParticipant, ProposalComment, CommunityDiscussion, CommunityDiscussionComment
+from .forms.community import CommunityParticipant, ProposalComment, CommunityDiscussion, CommunityDiscussionComment, \
+    CommunityFilter
 from .forms.transaction_manifest import TransactionSubmit
 # from .forms.blueprint import DeployCommunity
 from .logic import health as health_handler
@@ -116,10 +117,10 @@ def load_server(app):
     def get_community_route(sort: str = 'participants'):
         return get_all_community_of_platform(sort)
 
-    @app.get('/community/all', summary="get all community of platform", description="get_all_community_of_platform",
+    @app.post('/community/all', summary="get all community of platform", description="get_all_community_of_platform",
              tags=(['community']))
-    def get_all_communities(sort: str = 'participants'):
-        return get_all_community_of_platform(sort)
+    def get_all_communities(req:CommunityFilter):
+        return get_all_community_of_platform(req)
 
     @app.get('/community/{user_addr}', summary="get communities of user ",
              description="get communities of user", tags=(['community']))

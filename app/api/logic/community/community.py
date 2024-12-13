@@ -6,8 +6,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
 from app.api.forms.blueprint import DeployCommunity
-from app.api.forms.community import ProposalComment, CommunityDiscussionComment
+from app.api.forms.community import ProposalComment, CommunityDiscussionComment, CommunityFilter
 from app.api.logic.external_apis.external_apis import get_price_conversion
+from app.api.logic.wallet import get_asset_details
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
@@ -68,19 +69,29 @@ def get_community(sort: str):
     return response
 
 
-def get_all_community_of_platform(sort: str):
-    query = conn.query(Community, func.count(Participants.id).label('participants_count')) \
-        .outerjoin(Participants, Community.id == Participants.community_id) \
+def get_all_community_of_platform(filter: CommunityFilter):
+    query = (
+        conn.query(
+            Community,
+            func.count(Participants.id).label('participants_count')
+        )
+        .outerjoin(Participants, Community.id == Participants.community_id)
+        .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)
         .group_by(Community.id)
-    if sort == 'participants':
-        query = query.order_by(func.count(Participants.id).desc())
-    elif sort == 'funds':
-        query = query.order_by(Community.funds.desc())
-    elif sort == 'name':
-        query = query.order_by(Community.name.asc())
+    )
 
+    if filter.sort is not None:
+        if filter.sort == 'participants':
+            query = query.order_by(func.count(Participants.id).desc())
+        elif filter.sort == 'funds':
+           query = query.order_by(Community.funds.desc())
+        elif filter.sort == 'name':
+            query = query.order_by(Community.name.asc())
+    if filter.name is not None:
+        query = query.filter(Community.name.ilike(f"%{filter.name}%"))
+    if filter.tag is not None:
+        query = query.filter(CommunityTags.tag == filter.tag )
     communities_with_participants = query.limit(1000).all()
-
     # Now you can iterate over the result
     # Now you can iterate over the result
     response = []
@@ -317,6 +328,7 @@ def get_single_community(community_id: uuid.UUID):
         funds_in_usd = get_price_conversion(communities.funds, 'USD')
     token_price_in_usd = get_price_conversion(communities.token_price, 'USD')
     token_buy_back_price_in_usd = get_price_conversion(communities.token_buy_back_price, 'USD')
+    community_token_data = get_asset_details(communities.token_address)
     resp = {
         "id": communities.id,
         "name": communities.name,
@@ -338,7 +350,8 @@ def get_single_community(community_id: uuid.UUID):
         "proposal_minimum_token": communities.proposal_minimum_token,
         "funds_in_usd": funds_in_usd,
         "token_price_in_usd": token_price_in_usd,
-        "token_buy_back_price_in_usd": token_buy_back_price_in_usd
+        "token_buy_back_price_in_usd": token_buy_back_price_in_usd,
+        "token_details":community_token_data
 
     }
     return resp
