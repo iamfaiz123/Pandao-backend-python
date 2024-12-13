@@ -25,7 +25,7 @@ class UserSignupForm(BaseModel):
     display_image: str = Field(..., description="user display image")
     bio: Optional[str] = Field(None, description="User cover url")
     tags: list[str] = Field(None, description="community tags that user likes")
-    work_history: Optional[list[UserWorkHistory]] = Field(None, description="community tags that user likes")
+    work_history: Optional[list[UserWorkHistory]] = Field(None, description="user work history")
 
 
 class UserLogin(BaseModel):

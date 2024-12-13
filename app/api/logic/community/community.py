@@ -69,7 +69,7 @@ def get_community(sort: str):
     return response
 
 
-def get_all_community_of_platform(filter: CommunityFilter):
+def get_all_community_of_platform(name,sort,tag):
     query = (
         conn.query(
             Community,
@@ -80,17 +80,17 @@ def get_all_community_of_platform(filter: CommunityFilter):
         .group_by(Community.id)
     )
 
-    if filter.sort is not None:
-        if filter.sort == 'participants':
+    if sort is not None:
+        if sort == 'participants':
             query = query.order_by(func.count(Participants.id).desc())
-        elif filter.sort == 'funds':
+        elif sort == 'funds':
            query = query.order_by(Community.funds.desc())
-        elif filter.sort == 'name':
+        elif sort == 'name':
             query = query.order_by(Community.name.asc())
-    if filter.name is not None:
-        query = query.filter(Community.name.ilike(f"%{filter.name}%"))
-    if filter.tag is not None:
-        query = query.filter(CommunityTags.tag == filter.tag )
+    if name is not None:
+        query = query.filter(Community.name.ilike(f"%{name}%"))
+    if tag is not None:
+        query = query.filter(CommunityTags.tag == tag )
     communities_with_participants = query.limit(1000).all()
     # Now you can iterate over the result
     # Now you can iterate over the result

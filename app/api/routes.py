@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from starlette import status
 
 from .forms.blueprint import DeployCommunity
@@ -117,10 +117,14 @@ def load_server(app):
     def get_community_route(sort: str = 'participants'):
         return get_all_community_of_platform(sort)
 
-    @app.post('/community/all', summary="get all community of platform", description="get_all_community_of_platform",
+    @app.get('/community/all', summary="get all community of platform", description="get_all_community_of_platform",
              tags=(['community']))
-    def get_all_communities(req:CommunityFilter):
-        return get_all_community_of_platform(req)
+    def get_all_communities(
+            name: Optional[str] = Query(None, description="Name of the community"),
+            sort: Optional[str] = Query(None, description="Category of the community"),
+            tags: Optional[List[str]] = Query(None, description="Tags associated with the community")
+    ):
+        return get_all_community_of_platform(name,sort,tags)
 
     @app.get('/community/{user_addr}', summary="get communities of user ",
              description="get communities of user", tags=(['community']))
