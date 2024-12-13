@@ -365,7 +365,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
                     conn.add(community_expense)
-
+                    conn.commit()
 
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
