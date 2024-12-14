@@ -73,14 +73,14 @@ specific subject using :meth:`~Credentials.with_subject`.
 import copy
 import datetime
 
-from google.auth import _helpers
-from google.auth import _service_account_info
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import iam
-from google.auth import jwt
-from google.auth import metrics
-from google.oauth2 import _client
+from email.auth import _helpers
+from email.auth import _service_account_info
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import iam
+from email.auth import jwt
+from email.auth import metrics
+from email.oauth2 import _client
 
 _DEFAULT_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
 _GOOGLE_OAUTH2_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"

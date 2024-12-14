@@ -37,11 +37,11 @@ Note that these two classes are only available if your `cryptography` dependency
 version is at least 1.4.0.
 """
 
-from google.auth.crypt import base
-from google.auth.crypt import rsa
+from email.auth.crypt import base
+from email.auth.crypt import rsa
 
 try:
-    from google.auth.crypt import es256
+    from email.auth.crypt import es256
 except ImportError:  # pragma: NO COVER
     es256 = None  # type: ignore
 

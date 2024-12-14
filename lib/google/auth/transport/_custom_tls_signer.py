@@ -25,7 +25,7 @@ import sys
 
 import cffi  # type: ignore
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 _LOGGER = logging.getLogger(__name__)
 

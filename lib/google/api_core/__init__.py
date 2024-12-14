@@ -17,6 +17,6 @@
 This package contains common code and utilities used by Google client libraries.
 """
 
-from google.api_core import version as api_core_version
+from email.api_core import version as api_core_version
 
 __version__ = api_core_version.__version__

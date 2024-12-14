@@ -21,14 +21,14 @@ Compute Engine using the Compute Engine metadata server.
 
 import datetime
 
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import iam
-from google.auth import jwt
-from google.auth import metrics
-from google.auth.compute_engine import _metadata
-from google.oauth2 import _client
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import iam
+from email.auth import jwt
+from email.auth import metrics
+from email.auth.compute_engine import _metadata
+from email.oauth2 import _client
 
 
 class Credentials(
@@ -149,7 +149,7 @@ class Credentials(
         if self._universe_domain_cached:
             return self._universe_domain
 
-        from google.auth.transport import requests as google_auth_requests
+        from email.auth.transport import requests as google_auth_requests
 
         self._universe_domain = _metadata.get_universe_domain(
             google_auth_requests.Request()

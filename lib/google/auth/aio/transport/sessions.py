@@ -18,13 +18,13 @@ import functools
 import time
 from typing import Mapping, Optional
 
-from google.auth import _exponential_backoff, exceptions
-from google.auth.aio import transport
-from google.auth.aio.credentials import Credentials
-from google.auth.exceptions import TimeoutError
+from email.auth import _exponential_backoff, exceptions
+from email.auth.aio import transport
+from email.auth.aio.credentials import Credentials
+from email.auth.exceptions import TimeoutError
 
 try:
-    from google.auth.aio.transport.aiohttp import Request as AiohttpRequest
+    from email.auth.aio.transport.aiohttp import Request as AiohttpRequest
 
     AIOHTTP_INSTALLED = True
 except ImportError:  # pragma: NO COVER

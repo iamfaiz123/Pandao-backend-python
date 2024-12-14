@@ -26,8 +26,8 @@ from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
 import cryptography.x509
 
-from google.auth import _helpers
-from google.auth.crypt import base
+from email.auth import _helpers
+from email.auth.crypt import base
 
 
 _CERTIFICATE_MARKER = b"-----BEGIN CERTIFICATE-----"

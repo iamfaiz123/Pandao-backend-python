@@ -19,8 +19,8 @@ import logging
 import socket
 import urllib
 
-from google.auth import exceptions
-from google.auth import transport
+from email.auth import exceptions
+from email.auth import transport
 
 _LOGGER = logging.getLogger(__name__)
 

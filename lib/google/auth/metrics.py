@@ -18,7 +18,7 @@ the constants and helper methods to construct x-goog-api-client header.
 
 import platform
 
-from google.auth import version
+from email.auth import version
 
 
 API_CLIENT_HEADER = "x-goog-api-client"

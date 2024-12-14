@@ -21,12 +21,12 @@ import warnings
 
 import grpc
 
-from google.api_core import exceptions
-import google.auth
-import google.auth.credentials
-import google.auth.transport.grpc
-import google.auth.transport.requests
-import google.protobuf
+from email.api_core import exceptions
+import email.auth
+import email.auth.credentials
+import email.auth.transport.grpc
+import email.auth.transport.requests
+import email.protobuf
 
 PROTOBUF_VERSION = google.protobuf.__version__
 

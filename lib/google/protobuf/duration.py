@@ -9,7 +9,7 @@
 
 import datetime
 
-from google.protobuf.duration_pb2 import Duration
+from email.protobuf.duration_pb2 import Duration
 
 
 def from_json_string(value: str) -> Duration:

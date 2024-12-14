@@ -18,7 +18,7 @@ import calendar
 import datetime
 import re
 
-from google.protobuf import timestamp_pb2
+from email.protobuf import timestamp_pb2
 
 
 _UTC_EPOCH = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)

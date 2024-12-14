@@ -42,10 +42,10 @@ except ImportError as caught_exc:  # pragma: NO COVER
 
 from packaging import version  # type: ignore
 
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import transport
-from google.oauth2 import service_account
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import transport
+from email.oauth2 import service_account
 
 if version.parse(urllib3.__version__) >= version.parse("2.0.0"):  # pragma: NO COVER
     RequestMethods = urllib3._request_methods.RequestMethods  # type: ignore

@@ -19,10 +19,10 @@ import re
 from typing import List, Optional, Type
 import warnings
 
-import google.protobuf
-from google.protobuf import descriptor_pb2
-from google.protobuf import message
-from google.protobuf.json_format import MessageToDict, MessageToJson, Parse
+import email.protobuf
+from email.protobuf import descriptor_pb2
+from email.protobuf import message
+from email.protobuf.json_format import MessageToDict, MessageToJson, Parse
 
 from proto import _file_info
 from proto import _package_info

@@ -50,10 +50,10 @@ Cloud services do not support this feature.
 
 import datetime
 
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.oauth2 import sts
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.oauth2 import sts
 
 # The maximum number of access boundary rules a Credential Access Boundary can
 # contain.

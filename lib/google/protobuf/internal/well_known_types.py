@@ -21,7 +21,7 @@ import calendar
 import collections.abc
 import datetime
 import warnings
-from google.protobuf.internal import field_mask
+from email.protobuf.internal import field_mask
 from typing import Union
 
 FieldMask = field_mask.FieldMask

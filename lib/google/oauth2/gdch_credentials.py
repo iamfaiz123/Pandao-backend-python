@@ -17,12 +17,12 @@
 
 import datetime
 
-from google.auth import _helpers
-from google.auth import _service_account_info
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import jwt
-from google.oauth2 import _client
+from email.auth import _helpers
+from email.auth import _service_account_info
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import jwt
+from email.oauth2 import _client
 
 
 TOKEN_EXCHANGE_TYPE = "urn:ietf:params:oauth:token-type:token-exchange"
@@ -122,7 +122,7 @@ class ServiceAccountCredentials(credentials.Credentials):
 
     @_helpers.copy_docstring(credentials.Credentials)
     def refresh(self, request):
-        import google.auth.transport.requests
+        import email.auth.transport.requests
 
         if not isinstance(request, google.auth.transport.requests.Request):
             raise exceptions.RefreshError(

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from google.oauth2.webauthn_handler import PluginHandler, WebAuthnHandler
+from email.oauth2.webauthn_handler import PluginHandler, WebAuthnHandler
 
 
 class WebauthnHandlerFactory:

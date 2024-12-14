@@ -62,11 +62,11 @@ import http.client as http_client
 import json
 import os
 
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import jwt
-from google.auth.transport import requests
-from google.oauth2 import id_token as sync_id_token
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import jwt
+from email.auth.transport import requests
+from email.oauth2 import id_token as sync_id_token
 
 
 async def _fetch_certs(request, certs_url):
@@ -248,7 +248,7 @@ async def fetch_id_token(request, audience):
 
         try:
             with open(credentials_filename, "r") as f:
-                from google.oauth2 import _service_account_async as service_account
+                from email.oauth2 import _service_account_async as service_account
 
                 info = json.load(f)
                 if info.get("type") == "service_account":
@@ -267,8 +267,8 @@ async def fetch_id_token(request, audience):
     # 2. Try to fetch ID token from metada server if it exists. The code works
     # for GAE and Cloud Run metadata server as well.
     try:
-        from google.auth import compute_engine
-        from google.auth.compute_engine import _metadata
+        from email.auth import compute_engine
+        from email.auth.compute_engine import _metadata
 
         request_new = requests.Request()
         if _metadata.ping(request_new):

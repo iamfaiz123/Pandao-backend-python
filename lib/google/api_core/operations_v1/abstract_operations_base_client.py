@@ -18,16 +18,16 @@ import os
 import re
 from typing import Dict, Optional, Type, Union
 
-from google.api_core import client_options as client_options_lib  # type: ignore
-from google.api_core import gapic_v1  # type: ignore
-from google.api_core.operations_v1.transports.base import (
+from email.api_core import client_options as client_options_lib  # type: ignore
+from email.api_core import gapic_v1  # type: ignore
+from email.api_core.operations_v1.transports.base import (
     DEFAULT_CLIENT_INFO,
     OperationsTransport,
 )
-from google.api_core.operations_v1.transports.rest import OperationsRestTransport
+from email.api_core.operations_v1.transports.rest import OperationsRestTransport
 
 try:
-    from google.api_core.operations_v1.transports.rest_asyncio import (
+    from email.api_core.operations_v1.transports.rest_asyncio import (
         AsyncOperationsRestTransport,
     )
 
@@ -36,9 +36,9 @@ except ImportError as e:
     HAS_ASYNC_REST_DEPENDENCIES = False
     ASYNC_REST_EXCEPTION = e
 
-from google.auth import credentials as ga_credentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
-from google.auth.transport import mtls  # type: ignore
+from email.auth import credentials as ga_credentials  # type: ignore
+from email.auth.exceptions import MutualTLSChannelError  # type: ignore
+from email.auth.transport import mtls  # type: ignore
 
 
 class AbstractOperationsBaseClientMeta(type):

@@ -18,7 +18,7 @@ import abc
 import io
 import json
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 _JSON_FILE_PRIVATE_KEY = "private_key"
 _JSON_FILE_PRIVATE_KEY_ID = "private_key_id"

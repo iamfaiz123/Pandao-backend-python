@@ -24,14 +24,14 @@ Engine in the standard environment using the `App Identity API`_.
 
 import datetime
 
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import crypt
-from google.auth import exceptions
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import crypt
+from email.auth import exceptions
 
 # pytype: disable=import-error
 try:
-    from google.appengine.api import app_identity  # type: ignore
+    from email.appengine.api import app_identity  # type: ignore
 except ImportError:
     app_identity = None  # type: ignore
 # pytype: enable=import-error

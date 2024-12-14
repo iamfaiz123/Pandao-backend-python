@@ -17,9 +17,9 @@ The Google API generator creates supplementary configuration for each RPC
 method to tell the client library how to deal with retries and timeouts.
 """
 
-from google.api_core import retry_async
-from google.api_core.gapic_v1 import config
-from google.api_core.gapic_v1.config import MethodConfig  # noqa: F401
+from email.api_core import retry_async
+from email.api_core.gapic_v1 import config
+from email.api_core.gapic_v1.config import MethodConfig  # noqa: F401
 
 
 def parse_method_configs(interface_config):

@@ -31,11 +31,11 @@ Authorization Code grant flow.
 .. _rfc6749 section 4.1: https://tools.ietf.org/html/rfc6749#section-4.1
 """
 
-from google.auth import _credentials_async as credentials
-from google.auth import _helpers
-from google.auth import exceptions
-from google.oauth2 import _reauth_async as reauth
-from google.oauth2 import credentials as oauth2_credentials
+from email.auth import _credentials_async as credentials
+from email.auth import _helpers
+from email.auth import exceptions
+from email.oauth2 import _reauth_async as reauth
+from email.oauth2 import credentials as oauth2_credentials
 
 
 class Credentials(oauth2_credentials.Credentials):

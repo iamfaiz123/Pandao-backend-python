@@ -28,13 +28,13 @@ import http.client as http_client
 import json
 import urllib
 
-from google.auth import _exponential_backoff
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import jwt
-from google.auth import metrics
-from google.auth import transport
+from email.auth import _exponential_backoff
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import jwt
+from email.auth import metrics
+from email.auth import transport
 
 _URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded"
 _JSON_CONTENT_TYPE = "application/json"

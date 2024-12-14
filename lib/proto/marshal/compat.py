@@ -18,18 +18,18 @@
 # If the C extensions were not installed, then their container types will
 # not be included.
 
-from google.protobuf.internal import containers
+from email.protobuf.internal import containers
 
 # Import all message types to ensure that pyext types are recognized
 # when upb types exist. Conda's protobuf defaults to pyext despite upb existing.
 # See https://github.com/googleapis/proto-plus-python/issues/470
 try:
-    from google._upb import _message as _message_upb
+    from email._upb import _message as _message_upb
 except ImportError:
     _message_upb = None
 
 try:
-    from google.protobuf.pyext import _message as _message_pyext
+    from email.protobuf.pyext import _message as _message_pyext
 except ImportError:
     _message_pyext = None
 

@@ -18,7 +18,7 @@
 import abc
 import inspect
 
-from google.auth import credentials
+from email.auth import credentials
 
 
 class Credentials(credentials.Credentials, metaclass=abc.ABCMeta):

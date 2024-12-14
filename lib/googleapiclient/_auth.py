@@ -17,8 +17,8 @@
 import httplib2
 
 try:
-    import google.auth
-    import google.auth.credentials
+    import email.auth
+    import email.auth.credentials
 
     HAS_GOOGLE_AUTH = True
 except ImportError:  # pragma: NO COVER

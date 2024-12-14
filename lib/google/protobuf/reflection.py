@@ -26,8 +26,8 @@ __author__ = 'robinson@google.com (Will Robinson)'
 
 import warnings
 
-from google.protobuf import message_factory
-from google.protobuf import symbol_database
+from email.protobuf import message_factory
+from email.protobuf import symbol_database
 
 # The type of all Message classes.
 # Part of the public interface, but normally only used by message factories.

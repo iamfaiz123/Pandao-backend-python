@@ -180,7 +180,8 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
             transaction_id=random_string,
             transaction_info=f'participated in {community_name}',
             user_address=user_addr,
-            community_id=community_id
+            community_id=community_id,
+            activity_type='participate'
         )
         conn.add(activity)
 
@@ -215,26 +216,53 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
 
 
 def get_community_participants(community_id: UUID):
+    from sqlalchemy import func, and_
+
     result = (
-        conn.query(User.public_address, User.name, UserMetaData.image_url)
-        .join(UserMetaData, User.public_address == UserMetaData.user_address)
+        conn.query(
+            User.name,
+            User.public_address,
+            UserMetaData.image_url,
+            func.count(Proposal.id).label("number_of_proposals"),
+            func.count(UserActivity.transaction_id).label("activities"),
+            func.sum(CommunityExpense.xrd_spent).label("total_invested"),
+            func.sum(CommunityFunds.xrd_added).label("xrd_added"),
+        )
+        # Join Participants with User to get user information
         .join(Participants, Participants.user_addr == User.public_address)
+        # Join UserActivity with a condition based on both user and community
+        .outerjoin(UserActivity, and_(UserActivity.user_address == User.public_address,
+                                 UserActivity.community_id == Participants.community_id))
+        # Join CommunityExpense on the creator of the expense
+        .outerjoin(CommunityExpense, CommunityExpense.creator == User.public_address)
+        # Join CommunityFunds on the creator of the funds
+        .outerjoin(CommunityFunds, CommunityFunds.creator == User.public_address)
+        # Join UserMetaData to get image URL
+        .outerjoin(UserMetaData, UserMetaData.user_address == User.public_address)
+        # Join Proposal to count proposals created by the user
+        .outerjoin(Proposal, Proposal.creator == User.public_address)
+        # Filter by community_id
         .filter(Participants.community_id == community_id)
+        .group_by(User.public_address, User.name, UserMetaData.image_url,UserActivity.user_address,Proposal.creator)
         .all()
     )
 
-    res = []
-    for data in result:
-        pa, un, dp = data
-        res.append(
-            {
-                "participant": pa,
-                "name": un,
-                "image_url": dp,
-            }
-        )
+    # Example of using the result
+    result_list = [
+        {
+            "name": row.name,
+            "public_address": row.public_address,
+            "image_url": row.image_url,
+            "number_of_proposals": row.number_of_proposals,
+            "activities": row.activities,
+            "total_invested": row.total_invested,
+            "xrd_added": row.xrd_added,
+        }
+        for row in result
+    ]
 
-    return res
+    # Return the list of dictionaries
+    return result_list
 
 
 def check_user_community_status(user_addr: str, community_id: uuid.UUID):
@@ -387,7 +415,8 @@ def add_community_discussion_comment(req: CommunityDiscussionComment):
             transaction_id=random_string,
             transaction_info=f'added a new comment in {discussion.title}',
             user_address=user_address,
-            community_id=discussion.community_id
+            community_id=discussion.community_id,
+            activity_type='discussion_comment'
         )
         conn.add(new_comment)
         conn.add(activity)
@@ -444,7 +473,8 @@ def add_community_comment(req: CommunityDiscussion):
             transaction_id=random_string,
             transaction_info=f'created a new discussion in {community_name}',
             user_address=u_adr,
-            community_id=c_id
+            community_id=c_id,
+            activity_type='discussion'
         )
         conn.add(new_comment)
         conn.add(activity)
@@ -568,7 +598,7 @@ def add_proposal_comment(req: ProposalComment):
             transaction_info=f'commented on a proposal in {community.name} community',
             user_address=req.user_addr,
             community_id=proposal_data.community_id,
-            activity_type = 'commented on a proposal'
+            activity_type ='proposal_comment'
         )
         conn.add(activity)
         conn.commit()

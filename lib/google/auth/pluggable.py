@@ -41,9 +41,9 @@ import subprocess
 import sys
 import time
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.auth import external_account
+from email.auth import _helpers
+from email.auth import exceptions
+from email.auth import external_account
 
 # The max supported executable spec version.
 EXECUTABLE_SUPPORTED_MAX_VERSION = 1

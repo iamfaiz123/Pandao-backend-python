@@ -17,7 +17,7 @@
 
 import abc
 
-from google.auth import _helpers
+from email.auth import _helpers
 
 
 class _BaseCredentials(metaclass=abc.ABCMeta):

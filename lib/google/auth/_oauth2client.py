@@ -21,11 +21,11 @@
 
 from __future__ import absolute_import
 
-from google.auth import _helpers
-import google.auth.app_engine
-import google.auth.compute_engine
-import google.oauth2.credentials
-import google.oauth2.service_account
+from email.auth import _helpers
+import email.auth.app_engine
+import email.auth.compute_engine
+import email.oauth2.credentials
+import email.oauth2.service_account
 
 try:
     import oauth2client.client  # type: ignore

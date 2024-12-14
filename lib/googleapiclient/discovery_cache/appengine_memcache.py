@@ -18,7 +18,7 @@ import logging
 
 # This is only an optional dependency because we only import this
 # module when google.appengine.api.memcache is available.
-from google.appengine.api import memcache
+from email.appengine.api import memcache
 
 from . import base
 from ..discovery_cache import DISCOVERY_DOC_MAX_AGE

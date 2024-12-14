@@ -29,9 +29,9 @@ from pyasn1_modules.rfc2459 import Certificate  # type: ignore
 from pyasn1_modules.rfc5208 import PrivateKeyInfo  # type: ignore
 import rsa  # type: ignore
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.auth.crypt import base
+from email.auth import _helpers
+from email.auth import exceptions
+from email.auth.crypt import base
 
 _POW2 = (128, 64, 32, 16, 8, 4, 2, 1)
 _CERTIFICATE_MARKER = b"-----BEGIN CERTIFICATE-----"

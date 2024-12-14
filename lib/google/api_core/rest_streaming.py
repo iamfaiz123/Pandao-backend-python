@@ -18,8 +18,8 @@ from typing import Union
 
 import proto
 import requests
-import google.protobuf.message
-from google.api_core._rest_streaming_base import BaseResponseIterator
+import email.protobuf.message
+from email.api_core._rest_streaming_base import BaseResponseIterator
 
 
 class ResponseIterator(BaseResponseIterator):

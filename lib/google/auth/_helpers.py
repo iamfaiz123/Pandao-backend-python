@@ -21,7 +21,7 @@ from email.message import Message
 import sys
 import urllib
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 # The smallest MDS cache used by this library stores tokens until 4 minutes from
 # expiry.

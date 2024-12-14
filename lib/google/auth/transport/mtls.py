@@ -14,8 +14,8 @@
 
 """Utilites for mutual TLS."""
 
-from google.auth import exceptions
-from google.auth.transport import _mtls_helper
+from email.auth import exceptions
+from email.auth.transport import _mtls_helper
 
 
 def has_default_client_cert_source():

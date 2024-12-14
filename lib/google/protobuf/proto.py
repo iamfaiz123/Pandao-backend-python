@@ -10,9 +10,9 @@
 import io
 from typing import Type, TypeVar
 
-from google.protobuf.internal import decoder
-from google.protobuf.internal import encoder
-from google.protobuf.message import Message
+from email.protobuf.internal import decoder
+from email.protobuf.internal import encoder
+from email.protobuf.message import Message
 
 _MESSAGE = TypeVar('_MESSAGE', bound='Message')
 

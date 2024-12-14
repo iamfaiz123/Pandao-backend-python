@@ -3,8 +3,8 @@ import os
 import struct
 import subprocess
 
-from google.auth import exceptions
-from google.oauth2.webauthn_types import GetRequest, GetResponse
+from email.auth import exceptions
+from email.oauth2.webauthn_types import GetRequest, GetResponse
 
 
 class WebAuthnHandler(abc.ABC):

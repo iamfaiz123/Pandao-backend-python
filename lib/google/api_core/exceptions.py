@@ -26,7 +26,7 @@ from typing import Optional, Dict
 from typing import Union
 import warnings
 
-from google.rpc import error_details_pb2
+from email.rpc import error_details_pb2
 
 
 def _warn_could_not_import_grpcio_status():

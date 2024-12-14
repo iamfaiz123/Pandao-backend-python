@@ -27,7 +27,7 @@ for the return value of :class:`Request`.
 import abc
 from typing import AsyncGenerator, Mapping, Optional
 
-import google.auth.transport
+import email.auth.transport
 
 
 _DEFAULT_TIMEOUT_SECONDS = 180

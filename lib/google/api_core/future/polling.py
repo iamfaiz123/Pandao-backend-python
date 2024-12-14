@@ -17,10 +17,10 @@
 import abc
 import concurrent.futures
 
-from google.api_core import exceptions
-from google.api_core import retry as retries
-from google.api_core.future import _helpers
-from google.api_core.future import base
+from email.api_core import exceptions
+from email.api_core import retry as retries
+from email.api_core.future import _helpers
+from email.api_core.future import base
 
 
 class _OperationNotComplete(Exception):

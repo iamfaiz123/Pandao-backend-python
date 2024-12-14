@@ -21,9 +21,9 @@ import io
 import json
 import os
 
-from google.auth import _default
-from google.auth import environment_vars
-from google.auth import exceptions
+from email.auth import _default
+from email.auth import environment_vars
+from email.auth import exceptions
 
 
 def load_credentials_from_file(filename, scopes=None, quota_project_id=None):
@@ -68,7 +68,7 @@ def load_credentials_from_file(filename, scopes=None, quota_project_id=None):
     credential_type = info.get("type")
 
     if credential_type == _default._AUTHORIZED_USER_TYPE:
-        from google.oauth2 import _credentials_async as credentials
+        from email.oauth2 import _credentials_async as credentials
 
         try:
             credentials = credentials.Credentials.from_authorized_user_info(
@@ -85,7 +85,7 @@ def load_credentials_from_file(filename, scopes=None, quota_project_id=None):
         return credentials, None
 
     elif credential_type == _default._SERVICE_ACCOUNT_TYPE:
-        from google.oauth2 import _service_account_async as service_account
+        from email.oauth2 import _service_account_async as service_account
 
         try:
             credentials = service_account.Credentials.from_service_account_info(
@@ -108,7 +108,7 @@ def load_credentials_from_file(filename, scopes=None, quota_project_id=None):
 
 def _get_gcloud_sdk_credentials(quota_project_id=None):
     """Gets the credentials and project ID from the Cloud SDK."""
-    from google.auth import _cloud_sdk
+    from email.auth import _cloud_sdk
 
     # Check if application default credentials exist.
     credentials_filename = _cloud_sdk.get_application_default_credentials_path()
@@ -129,7 +129,7 @@ def _get_gcloud_sdk_credentials(quota_project_id=None):
 def _get_explicit_environ_credentials(quota_project_id=None):
     """Gets credentials from the GOOGLE_APPLICATION_CREDENTIALS environment
     variable."""
-    from google.auth import _cloud_sdk
+    from email.auth import _cloud_sdk
 
     cloud_sdk_adc_path = _cloud_sdk.get_application_default_credentials_path()
     explicit_file = os.environ.get(environment_vars.CREDENTIALS)
@@ -247,8 +247,8 @@ def default_async(scopes=None, request=None, quota_project_id=None):
             If no credentials were found, or if the credentials found were
             invalid.
     """
-    from google.auth._credentials_async import with_scopes_if_required
-    from google.auth.credentials import CredentialsWithQuotaProject
+    from email.auth._credentials_async import with_scopes_if_required
+    from email.auth.credentials import CredentialsWithQuotaProject
 
     explicit_project_id = os.environ.get(
         environment_vars.PROJECT, os.environ.get(environment_vars.LEGACY_PROJECT)

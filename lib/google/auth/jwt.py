@@ -52,14 +52,14 @@ import urllib
 
 import cachetools
 
-from google.auth import _helpers
-from google.auth import _service_account_info
-from google.auth import crypt
-from google.auth import exceptions
-import google.auth.credentials
+from email.auth import _helpers
+from email.auth import _service_account_info
+from email.auth import crypt
+from email.auth import exceptions
+import email.auth.credentials
 
 try:
-    from google.auth.crypt import es256
+    from email.auth.crypt import es256
 except ImportError:  # pragma: NO COVER
     es256 = None  # type: ignore
 

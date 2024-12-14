@@ -20,7 +20,7 @@ from os import environ, path
 import re
 import subprocess
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 CONTEXT_AWARE_METADATA_PATH = "~/.secureConnect/context_aware_metadata.json"
 CERTIFICATE_CONFIGURATION_DEFAULT_PATH = "~/.config/gcloud/certificate_config.json"

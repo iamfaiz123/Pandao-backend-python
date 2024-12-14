@@ -21,9 +21,9 @@ compression, pagination, and long-running operations to gRPC methods.
 import enum
 import functools
 
-from google.api_core import grpc_helpers
-from google.api_core.gapic_v1 import client_info
-from google.api_core.timeout import TimeToDeadlineTimeout
+from email.api_core import grpc_helpers
+from email.api_core.gapic_v1 import client_info
+from email.api_core.timeout import TimeToDeadlineTimeout
 
 USE_DEFAULT_METADATA = object()
 

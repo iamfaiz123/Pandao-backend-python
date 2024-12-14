@@ -45,7 +45,7 @@ import base64
 import enum
 import json
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 
 # OAuth client authentication based on

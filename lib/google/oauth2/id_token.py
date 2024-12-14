@@ -59,9 +59,9 @@ import http.client as http_client
 import json
 import os
 
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import jwt
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import jwt
 
 
 # The URL that provides public certificates for verifying ID tokens issued
@@ -277,7 +277,7 @@ def fetch_id_token_credentials(audience, request=None):
 
         try:
             with open(credentials_filename, "r") as f:
-                from google.oauth2 import service_account
+                from email.oauth2 import service_account
 
                 info = json.load(f)
                 if info.get("type") == "service_account":
@@ -294,12 +294,12 @@ def fetch_id_token_credentials(audience, request=None):
     # 2. Try to fetch ID token from metada server if it exists. The code
     # works for GAE and Cloud Run metadata server as well.
     try:
-        from google.auth import compute_engine
-        from google.auth.compute_engine import _metadata
+        from email.auth import compute_engine
+        from email.auth.compute_engine import _metadata
 
         # Create a request object if not provided.
         if not request:
-            import google.auth.transport.requests
+            import email.auth.transport.requests
 
             request = google.auth.transport.requests.Request()
 

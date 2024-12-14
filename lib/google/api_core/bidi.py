@@ -21,7 +21,7 @@ import queue as queue_module
 import threading
 import time
 
-from google.api_core import exceptions
+from email.api_core import exceptions
 
 _LOGGER = logging.getLogger(__name__)
 _BIDIRECTIONAL_CONSUMER_NAME = "Thread-ConsumeBidirectionalStream"

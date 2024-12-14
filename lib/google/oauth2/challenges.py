@@ -20,10 +20,10 @@ import base64
 import getpass
 import sys
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.oauth2 import webauthn_handler_factory
-from google.oauth2.webauthn_types import (
+from email.auth import _helpers
+from email.auth import exceptions
+from email.oauth2 import webauthn_handler_factory
+from email.oauth2.webauthn_types import (
     AuthenticationExtensionsClientInputs,
     GetRequest,
     PublicKeyCredentialDescriptor,

@@ -19,11 +19,11 @@ import abc
 from enum import Enum
 import os
 
-from google.auth import _helpers, environment_vars
-from google.auth import exceptions
-from google.auth import metrics
-from google.auth._credentials_base import _BaseCredentials
-from google.auth._refresh_worker import RefreshThreadManager
+from email.auth import _helpers, environment_vars
+from email.auth import exceptions
+from email.auth import metrics
+from email.auth._credentials_base import _BaseCredentials
+from email.auth._refresh_worker import RefreshThreadManager
 
 DEFAULT_UNIVERSE_DOMAIN = "googleapis.com"
 

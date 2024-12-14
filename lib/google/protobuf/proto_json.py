@@ -9,9 +9,9 @@
 
 from typing import Optional, Type
 
-from google.protobuf.message import Message
-from google.protobuf.descriptor_pool import DescriptorPool
-from google.protobuf import json_format
+from email.protobuf.message import Message
+from email.protobuf.descriptor_pool import DescriptorPool
+from email.protobuf import json_format
 
 def serialize(
     message: Message,

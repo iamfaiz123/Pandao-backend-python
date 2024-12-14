@@ -33,7 +33,7 @@ from googleapiclient import version as googleapiclient_version
 from googleapiclient.errors import HttpError
 
 try:
-    from google.api_core.version_header import API_VERSION_METADATA_KEY
+    from email.api_core.version_header import API_VERSION_METADATA_KEY
 
     HAS_API_VERSION = True
 except ImportError:

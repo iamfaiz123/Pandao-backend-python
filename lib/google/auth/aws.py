@@ -51,10 +51,10 @@ from typing import Optional
 import urllib
 from urllib.parse import urljoin
 
-from google.auth import _helpers
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import external_account
+from email.auth import _helpers
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import external_account
 
 # AWS Signature Version 4 signing algorithm identifier.
 _AWS_ALGORITHM = "AWS4-HMAC-SHA256"

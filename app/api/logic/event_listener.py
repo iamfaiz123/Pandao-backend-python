@@ -129,6 +129,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_info=f'created {community_name}',
                         user_address=user_address,
                         community_id=community_id
+                        activity_type='community_create'
                     )
                     conn.add(activity)
 
@@ -139,7 +140,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=random_string,
                         transaction_info=f'participated in {community_name}',
                         user_address=user_address,
-                        community_id=community_id
+                        community_id=community_id,
+                        activity_type='participate'
                     )
                     conn.add(participate_activity)
 

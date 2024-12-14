@@ -34,11 +34,11 @@ from requests.packages.urllib3.util.ssl_ import (  # type: ignore
     create_urllib3_context,
 )  # pylint: disable=ungrouped-imports
 
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import transport
-import google.auth.transport._mtls_helper
-from google.oauth2 import service_account
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import transport
+import email.auth.transport._mtls_helper
+from email.oauth2 import service_account
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -262,7 +262,7 @@ class _MutualTlsOffloadAdapter(requests.adapters.HTTPAdapter):
 
     def __init__(self, enterprise_cert_file_path):
         import certifi
-        from google.auth.transport import _custom_tls_signer
+        from email.auth.transport import _custom_tls_signer
 
         self.signer = _custom_tls_signer.CustomTlsSigner(enterprise_cert_file_path)
         self.signer.load_libraries()

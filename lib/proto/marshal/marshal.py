@@ -15,12 +15,12 @@
 import abc
 import enum
 
-from google.protobuf import message
-from google.protobuf import duration_pb2
-from google.protobuf import timestamp_pb2
-from google.protobuf import field_mask_pb2
-from google.protobuf import struct_pb2
-from google.protobuf import wrappers_pb2
+from email.protobuf import message
+from email.protobuf import duration_pb2
+from email.protobuf import timestamp_pb2
+from email.protobuf import field_mask_pb2
+from email.protobuf import struct_pb2
+from email.protobuf import wrappers_pb2
 
 from proto.marshal import compat
 from proto.marshal.collections import MapComposite

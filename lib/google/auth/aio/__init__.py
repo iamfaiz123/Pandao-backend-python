@@ -16,7 +16,7 @@
 
 import logging
 
-from google.auth import version as google_auth_version
+from email.auth import version as google_auth_version
 
 
 __version__ = google_auth_version.__version__

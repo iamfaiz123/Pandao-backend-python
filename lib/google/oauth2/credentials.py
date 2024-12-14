@@ -37,12 +37,12 @@ import json
 import logging
 import warnings
 
-from google.auth import _cloud_sdk
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import metrics
-from google.oauth2 import reauth
+from email.auth import _cloud_sdk
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import metrics
+from email.oauth2 import reauth
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -25,9 +25,9 @@ except ImportError as caught_exc:  # pragma: NO COVER
         "The aiohttp library is not installed from please install the aiohttp package to use the aiohttp transport."
     ) from caught_exc
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.auth.aio import transport
+from email.auth import _helpers
+from email.auth import exceptions
+from email.auth.aio import transport
 
 
 class Response(transport.Response):

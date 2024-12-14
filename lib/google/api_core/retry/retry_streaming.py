@@ -33,11 +33,11 @@ import sys
 import time
 import functools
 
-from google.api_core.retry.retry_base import _BaseRetry
-from google.api_core.retry.retry_base import _retry_error_helper
-from google.api_core.retry import exponential_sleep_generator
-from google.api_core.retry import build_retry_error
-from google.api_core.retry import RetryFailureReason
+from email.api_core.retry.retry_base import _BaseRetry
+from email.api_core.retry.retry_base import _retry_error_helper
+from email.api_core.retry import exponential_sleep_generator
+from email.api_core.retry import build_retry_error
+from email.api_core.retry import RetryFailureReason
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 10):

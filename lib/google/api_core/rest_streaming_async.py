@@ -19,7 +19,7 @@ from typing import Union
 import proto
 
 try:
-    import google.auth.aio.transport
+    import email.auth.aio.transport
 except ImportError as e:  # pragma: NO COVER
     raise ImportError(
         "`google-api-core[async_rest]` is required to use asynchronous rest streaming. "
@@ -27,8 +27,8 @@ except ImportError as e:  # pragma: NO COVER
         "`pip install google-api-core[async_rest]`."
     ) from e
 
-import google.protobuf.message
-from google.api_core._rest_streaming_base import BaseResponseIterator
+import email.protobuf.message
+from email.api_core._rest_streaming_base import BaseResponseIterator
 
 
 class AsyncResponseIterator(BaseResponseIterator):

@@ -24,12 +24,12 @@ import logging
 import os
 from urllib.parse import urljoin
 
-from google.auth import _helpers
-from google.auth import environment_vars
-from google.auth import exceptions
-from google.auth import metrics
-from google.auth import transport
-from google.auth._exponential_backoff import ExponentialBackoff
+from email.auth import _helpers
+from email.auth import environment_vars
+from email.auth import exceptions
+from email.auth import metrics
+from email.auth import transport
+from email.auth._exponential_backoff import ExponentialBackoff
 
 _LOGGER = logging.getLogger(__name__)
 

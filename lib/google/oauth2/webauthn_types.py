@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import json
 from typing import Any, Dict, List, Optional
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 
 @dataclass(frozen=True)

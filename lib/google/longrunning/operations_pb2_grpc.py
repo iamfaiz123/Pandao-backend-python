@@ -18,10 +18,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from google.longrunning import (
+from email.longrunning import (
     operations_proto_pb2 as google_dot_longrunning_dot_operations__pb2,
 )
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from email.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 class OperationsStub(object):

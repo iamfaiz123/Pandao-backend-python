@@ -16,9 +16,9 @@
 """Interfaces for asynchronous credentials."""
 
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.auth._credentials_base import _BaseCredentials
+from email.auth import _helpers
+from email.auth import exceptions
+from email.auth._credentials_base import _BaseCredentials
 
 
 class Credentials(_BaseCredentials):

@@ -18,8 +18,8 @@ import logging
 import sys
 import warnings
 
-from google.auth import version as google_auth_version
-from google.auth._default import (
+from email.auth import version as google_auth_version
+from email.auth._default import (
     default,
     load_credentials_from_dict,
     load_credentials_from_file,

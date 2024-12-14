@@ -23,9 +23,9 @@ import logging
 import os
 import warnings
 
-from google.auth import environment_vars
-from google.auth import exceptions
-import google.auth.transport._http_client
+from email.auth import environment_vars
+from email.auth import exceptions
+import email.auth.transport._http_client
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def _warn_about_problematic_credentials(credentials):
     are problematic because they may not have APIs enabled and have limited
     quota. If this is the case, warn about it.
     """
-    from google.auth import _cloud_sdk
+    from email.auth import _cloud_sdk
 
     if credentials.client_id == _cloud_sdk.CLOUD_SDK_CLIENT_ID:
         warnings.warn(_CLOUD_SDK_CREDENTIALS_WARNING)
@@ -175,7 +175,7 @@ def load_credentials_from_dict(
 def _load_credentials_from_info(
     filename, info, scopes, default_scopes, quota_project_id, request
 ):
-    from google.auth.credentials import CredentialsWithQuotaProject
+    from email.auth.credentials import CredentialsWithQuotaProject
 
     credential_type = info.get("type")
 
@@ -223,7 +223,7 @@ def _load_credentials_from_info(
 
 def _get_gcloud_sdk_credentials(quota_project_id=None):
     """Gets the credentials and project ID from the Cloud SDK."""
-    from google.auth import _cloud_sdk
+    from email.auth import _cloud_sdk
 
     _LOGGER.debug("Checking Cloud SDK credentials as part of auth process...")
 
@@ -248,7 +248,7 @@ def _get_gcloud_sdk_credentials(quota_project_id=None):
 def _get_explicit_environ_credentials(quota_project_id=None):
     """Gets credentials from the GOOGLE_APPLICATION_CREDENTIALS environment
     variable."""
-    from google.auth import _cloud_sdk
+    from email.auth import _cloud_sdk
 
     cloud_sdk_adc_path = _cloud_sdk.get_application_default_credentials_path()
     explicit_file = os.environ.get(environment_vars.CREDENTIALS)
@@ -290,7 +290,7 @@ def _get_gae_credentials():
     # some cases where it's not available, so we tolerate ImportError.
     try:
         _LOGGER.debug("Checking for App Engine runtime as part of auth process...")
-        import google.auth.app_engine as app_engine
+        import email.auth.app_engine as app_engine
     except ImportError:
         _LOGGER.warning("Import of App Engine auth library failed.")
         return None, None
@@ -316,8 +316,8 @@ def _get_gce_credentials(request=None, quota_project_id=None):
     # While this library is normally bundled with compute_engine, there are
     # some cases where it's not available, so we tolerate ImportError.
     try:
-        from google.auth import compute_engine
-        from google.auth.compute_engine import _metadata
+        from email.auth import compute_engine
+        from email.auth.compute_engine import _metadata
     except ImportError:
         _LOGGER.warning("Import of Compute Engine auth library failed.")
         return None, None
@@ -377,7 +377,7 @@ def _get_external_account_credentials(
     # There are currently 3 types of external_account credentials.
     if info.get("subject_token_type") == _AWS_SUBJECT_TOKEN_TYPE:
         # Check if configuration corresponds to an AWS credentials.
-        from google.auth import aws
+        from email.auth import aws
 
         credentials = aws.Credentials.from_info(
             info, scopes=scopes, default_scopes=default_scopes
@@ -386,7 +386,7 @@ def _get_external_account_credentials(
         info.get("credential_source") is not None
         and info.get("credential_source").get("executable") is not None
     ):
-        from google.auth import pluggable
+        from email.auth import pluggable
 
         credentials = pluggable.Credentials.from_info(
             info, scopes=scopes, default_scopes=default_scopes
@@ -394,7 +394,7 @@ def _get_external_account_credentials(
     else:
         try:
             # Check if configuration corresponds to an Identity Pool credentials.
-            from google.auth import identity_pool
+            from email.auth import identity_pool
 
             credentials = identity_pool.Credentials.from_info(
                 info, scopes=scopes, default_scopes=default_scopes
@@ -406,7 +406,7 @@ def _get_external_account_credentials(
                 "Failed to load external account credentials from {}".format(filename)
             )
     if request is None:
-        import google.auth.transport.requests
+        import email.auth.transport.requests
 
         request = google.auth.transport.requests.Request()
 
@@ -417,7 +417,7 @@ def _get_external_account_authorized_user_credentials(
     filename, info, scopes=None, default_scopes=None, request=None
 ):
     try:
-        from google.auth import external_account_authorized_user
+        from email.auth import external_account_authorized_user
 
         credentials = external_account_authorized_user.Credentials.from_info(info)
     except ValueError:
@@ -431,7 +431,7 @@ def _get_external_account_authorized_user_credentials(
 
 
 def _get_authorized_user_credentials(filename, info, scopes=None):
-    from google.oauth2 import credentials
+    from email.oauth2 import credentials
 
     try:
         credentials = credentials.Credentials.from_authorized_user_info(
@@ -445,7 +445,7 @@ def _get_authorized_user_credentials(filename, info, scopes=None):
 
 
 def _get_service_account_credentials(filename, info, scopes=None, default_scopes=None):
-    from google.oauth2 import service_account
+    from email.oauth2 import service_account
 
     try:
         credentials = service_account.Credentials.from_service_account_info(
@@ -459,7 +459,7 @@ def _get_service_account_credentials(filename, info, scopes=None, default_scopes
 
 
 def _get_impersonated_service_account_credentials(filename, info, scopes):
-    from google.auth import impersonated_credentials
+    from email.auth import impersonated_credentials
 
     try:
         source_credentials_info = info.get("source_credentials")
@@ -509,7 +509,7 @@ def _get_impersonated_service_account_credentials(filename, info, scopes):
 
 
 def _get_gdch_service_account_credentials(filename, info):
-    from google.oauth2 import gdch_credentials
+    from email.oauth2 import gdch_credentials
 
     try:
         credentials = gdch_credentials.ServiceAccountCredentials.from_service_account_info(
@@ -524,7 +524,7 @@ def _get_gdch_service_account_credentials(filename, info):
 
 def get_api_key_credentials(key):
     """Return credentials with the given API key."""
-    from google.auth import api_key
+    from email.auth import api_key
 
     return api_key.Credentials(key)
 
@@ -535,7 +535,7 @@ def _apply_quota_project_id(credentials, quota_project_id):
     else:
         credentials = credentials.with_quota_project_from_environment()
 
-    from google.oauth2 import credentials as authorized_user_credentials
+    from email.oauth2 import credentials as authorized_user_credentials
 
     if isinstance(credentials, authorized_user_credentials.Credentials) and (
         not credentials.quota_project_id
@@ -641,8 +641,8 @@ def default(scopes=None, request=None, quota_project_id=None, default_scopes=Non
             If no credentials were found, or if the credentials found were
             invalid.
     """
-    from google.auth.credentials import with_scopes_if_required
-    from google.auth.credentials import CredentialsWithQuotaProject
+    from email.auth.credentials import with_scopes_if_required
+    from email.auth.credentials import CredentialsWithQuotaProject
 
     explicit_project_id = os.environ.get(
         environment_vars.PROJECT, os.environ.get(environment_vars.LEGACY_PROJECT)
@@ -675,7 +675,7 @@ def default(scopes=None, request=None, quota_project_id=None, default_scopes=Non
                 getattr(credentials, "get_project_id", None)
             ):
                 if request is None:
-                    import google.auth.transport.requests
+                    import email.auth.transport.requests
 
                     request = google.auth.transport.requests.Request()
                 effective_project_id = credentials.get_project_id(request=request)

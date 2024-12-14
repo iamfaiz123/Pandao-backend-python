@@ -38,8 +38,8 @@ Or asynchronously using callbacks and :meth:`Operation.add_done_callback`:
 
 import threading
 
-from google.api_core import exceptions
-from google.api_core.future import polling
+from email.api_core import exceptions
+from email.api_core.future import polling
 
 
 class ExtendedOperation(polling.PollingFuture):

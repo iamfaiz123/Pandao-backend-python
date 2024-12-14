@@ -16,7 +16,7 @@ import copy
 import logging
 import threading
 
-import google.auth.exceptions as e
+import email.auth.exceptions as e
 
 _LOGGER = logging.getLogger(__name__)
 

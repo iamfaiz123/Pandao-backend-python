@@ -19,9 +19,9 @@ import collections.abc
 import copy
 import inspect
 
-from google.protobuf import field_mask_pb2
-from google.protobuf import message
-from google.protobuf import wrappers_pb2
+from email.protobuf import field_mask_pb2
+from email.protobuf import message
+from email.protobuf import wrappers_pb2
 
 
 _SENTINEL = object()

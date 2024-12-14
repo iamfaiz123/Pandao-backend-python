@@ -3,6 +3,7 @@ import uuid
 from fastapi import FastAPI, Query
 from starlette import status
 
+from smtp_email import send_email
 from .forms.blueprint import DeployCommunity
 from .forms.community import CommunityParticipant, ProposalComment, CommunityDiscussion, CommunityDiscussionComment, \
     CommunityFilter
@@ -29,6 +30,7 @@ from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
 from .logic.wallet import get_user_wallet_nfts, get_asset_details
 from .utils.presignsignature import generate_signature
+
 
 
 def load_server(app):
@@ -124,6 +126,7 @@ def load_server(app):
             sort: Optional[str] = Query(None, description="Category of the community"),
             tags: Optional[List[str]] = Query(None, description="Tags associated with the community")
     ):
+        send_email()
         return get_all_community_of_platform(name,sort,tags)
 
     @app.get('/community/{user_addr}', summary="get communities of user ",

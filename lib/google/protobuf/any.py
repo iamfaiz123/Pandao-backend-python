@@ -9,10 +9,10 @@
 
 from typing import Optional
 
-from google.protobuf import descriptor
-from google.protobuf.message import Message
+from email.protobuf import descriptor
+from email.protobuf.message import Message
 
-from google.protobuf.any_pb2 import Any
+from email.protobuf.any_pb2 import Any
 
 
 def pack(

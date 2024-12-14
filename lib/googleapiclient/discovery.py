@@ -39,10 +39,10 @@ import os
 import re
 import urllib
 
-import google.api_core.client_options
-from google.auth.exceptions import MutualTLSChannelError
-from google.auth.transport import mtls
-from google.oauth2 import service_account
+import email.api_core.client_options
+from email.auth.exceptions import MutualTLSChannelError
+from email.auth.transport import mtls
+from email.oauth2 import service_account
 
 # Third-party imports
 import httplib2
@@ -54,7 +54,7 @@ except ImportError:  # pragma: NO COVER
     google_auth_httplib2 = None
 
 try:
-    from google.api_core import universe
+    from email.api_core import universe
 
     HAS_UNIVERSE = True
 except ImportError:

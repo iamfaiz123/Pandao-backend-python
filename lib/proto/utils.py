@@ -17,7 +17,7 @@ import functools
 
 def has_upb():
     try:
-        from google._upb import _message  # pylint: disable=unused-import
+        from email._upb import _message  # pylint: disable=unused-import
 
         has_upb = True
     except ImportError:

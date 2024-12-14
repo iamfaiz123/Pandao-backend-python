@@ -22,10 +22,10 @@ credentials file google.oauth2.service_account
 
 """
 
-from google.auth import _credentials_async as credentials_async
-from google.auth import _helpers
-from google.oauth2 import _client_async
-from google.oauth2 import service_account
+from email.auth import _credentials_async as credentials_async
+from email.auth import _helpers
+from email.oauth2 import _client_async
+from email.oauth2 import service_account
 
 
 class Credentials(

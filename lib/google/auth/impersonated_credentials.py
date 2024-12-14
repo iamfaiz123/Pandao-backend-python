@@ -31,13 +31,13 @@ from datetime import datetime
 import http.client as http_client
 import json
 
-from google.auth import _exponential_backoff
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.auth import iam
-from google.auth import jwt
-from google.auth import metrics
+from email.auth import _exponential_backoff
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.auth import iam
+from email.auth import jwt
+from email.auth import metrics
 
 
 _REFRESH_ERROR = "Unable to acquire impersonated credentials"
@@ -285,7 +285,7 @@ class Credentials(
         )
 
     def sign_bytes(self, message):
-        from google.auth.transport.requests import AuthorizedSession
+        from email.auth.transport.requests import AuthorizedSession
 
         iam_sign_endpoint = iam._IAM_SIGN_ENDPOINT.replace(
             credentials.DEFAULT_UNIVERSE_DOMAIN, self.universe_domain
@@ -437,7 +437,7 @@ class IDTokenCredentials(credentials.CredentialsWithQuotaProject):
 
     @_helpers.copy_docstring(credentials.Credentials)
     def refresh(self, request):
-        from google.auth.transport.requests import AuthorizedSession
+        from email.auth.transport.requests import AuthorizedSession
 
         iam_sign_endpoint = iam._IAM_IDTOKEN_ENDPOINT.replace(
             credentials.DEFAULT_UNIVERSE_DOMAIN,

@@ -26,8 +26,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 import cryptography.x509
 
-from google.auth import _helpers
-from google.auth.crypt import base
+from email.auth import _helpers
+from email.auth.crypt import base
 
 _CERTIFICATE_MARKER = b"-----BEGIN CERTIFICATE-----"
 _BACKEND = backends.default_backend()

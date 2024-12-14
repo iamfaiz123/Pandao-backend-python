@@ -16,7 +16,7 @@ import asyncio
 import random
 import time
 
-from google.auth import exceptions
+from email.auth import exceptions
 
 # The default amount of retry attempts
 _DEFAULT_RETRY_TOTAL_ATTEMPTS = 3

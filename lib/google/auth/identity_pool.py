@@ -45,10 +45,10 @@ import json
 import os
 from typing import NamedTuple
 
-from google.auth import _helpers
-from google.auth import exceptions
-from google.auth import external_account
-from google.auth.transport import _mtls_helper
+from email.auth import _helpers
+from email.auth import exceptions
+from email.auth import external_account
+from email.auth.transport import _mtls_helper
 
 
 class SubjectTokenSupplier(metaclass=abc.ABCMeta):

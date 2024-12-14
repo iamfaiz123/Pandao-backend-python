@@ -57,7 +57,7 @@ from __future__ import unicode_literals
 import datetime
 import functools
 
-from google.api_core import datetime_helpers
+from email.api_core import datetime_helpers
 
 _DEFAULT_INITIAL_TIMEOUT = 5.0  # seconds
 _DEFAULT_MAXIMUM_TIMEOUT = 30.0  # seconds

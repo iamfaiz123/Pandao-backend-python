@@ -26,7 +26,7 @@ from typing import AsyncGenerator, Generic, Iterator, Optional, TypeVar
 import grpc
 from grpc import aio
 
-from google.api_core import exceptions, grpc_helpers
+from email.api_core import exceptions, grpc_helpers
 
 # denotes the proto response type for grpc calls
 P = TypeVar("P")

@@ -43,8 +43,8 @@ NOTE: This async support is experimental and marked internal. This surface may
 change in minor releases.
 """
 
-from google.auth import _credentials_async
-from google.auth import jwt
+from email.auth import _credentials_async
+from email.auth import jwt
 
 
 def encode(signer, payload, header=None, key_id=None):

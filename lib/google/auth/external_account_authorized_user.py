@@ -37,11 +37,11 @@ import datetime
 import io
 import json
 
-from google.auth import _helpers
-from google.auth import credentials
-from google.auth import exceptions
-from google.oauth2 import sts
-from google.oauth2 import utils
+from email.auth import _helpers
+from email.auth import credentials
+from email.auth import exceptions
+from email.oauth2 import sts
+from email.oauth2 import utils
 
 _EXTERNAL_ACCOUNT_AUTHORIZED_USER_JSON_TYPE = "external_account_authorized_user"
 

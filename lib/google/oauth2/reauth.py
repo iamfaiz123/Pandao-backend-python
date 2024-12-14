@@ -34,10 +34,10 @@ Those steps are:
 
 import sys
 
-from google.auth import exceptions
-from google.auth import metrics
-from google.oauth2 import _client
-from google.oauth2 import challenges
+from email.auth import exceptions
+from email.auth import metrics
+from email.oauth2 import _client
+from email.oauth2 import challenges
 
 
 _REAUTH_SCOPE = "https://www.googleapis.com/auth/accounts.reauth"

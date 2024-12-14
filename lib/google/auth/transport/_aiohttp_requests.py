@@ -26,9 +26,9 @@ import functools
 import aiohttp  # type: ignore
 import urllib3  # type: ignore
 
-from google.auth import exceptions
-from google.auth import transport
-from google.auth.transport import requests
+from email.auth import exceptions
+from email.auth import transport
+from email.auth.transport import requests
 
 # Timeout can be re-defined depending on async requirement. Currently made 60s more than
 # sync timeout.

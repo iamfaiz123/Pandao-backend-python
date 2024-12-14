@@ -17,8 +17,8 @@
 import io
 import json
 
-from google.auth import crypt
-from google.auth import exceptions
+from email.auth import crypt
+from email.auth import exceptions
 
 
 def from_dict(data, require=None, use_rsa_signer=True):

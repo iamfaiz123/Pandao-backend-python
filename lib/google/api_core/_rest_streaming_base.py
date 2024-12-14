@@ -20,8 +20,8 @@ from typing import Deque, Union
 import types
 
 import proto
-import google.protobuf.message
-from google.protobuf.json_format import Parse
+import email.protobuf.message
+from email.protobuf.json_format import Parse
 
 
 class BaseResponseIterator:
