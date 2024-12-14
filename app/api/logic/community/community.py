@@ -216,53 +216,152 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
 
 
 def get_community_participants(community_id: UUID):
-    from sqlalchemy import func, and_
-
-    result = (
-        conn.query(
-            User.name,
-            User.public_address,
-            UserMetaData.image_url,
-            func.count(Proposal.id).label("number_of_proposals"),
-            func.count(UserActivity.transaction_id).label("activities"),
-            func.sum(CommunityExpense.xrd_spent).label("total_invested"),
-            func.sum(CommunityFunds.xrd_added).label("xrd_added"),
+    from sqlalchemy import func, case, distinct, and_
+    try:
+        result = (
+            conn.query(
+                User.name.label("name"),
+                User.public_address,
+                UserMetaData.image_url,
+                func.count(distinct(UserActivity.transaction_id)).label("activities"),
+                func.coalesce(func.sum(CommunityExpense.xrd_spent), 0).label("total_invested"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "token_bought", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("token_bought"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "token_sold", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("token_sold"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "proposal_voted", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("proposal_voted"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "commented on a proposal", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("commented_on_proposal"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "discussion_comment", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("discussion_comment"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "proposal_created", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("proposal_created"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "zero_coupon_bond_created", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("zero_coupon_bond_created"),
+                func.coalesce(
+                    func.sum(
+                        case(
+                            (UserActivity.activity_type == "discussion", 1),
+                            else_=0
+                        )
+                    ),
+                    0,
+                ).label("discussion"),
+            )
+            .join(UserMetaData, UserMetaData.user_address == User.public_address)
+            .join(
+                Participants,
+                and_(
+                    Participants.user_addr == User.public_address,
+                    Participants.community_id == community_id,
+                ),
+            )
+            .join(
+                UserActivity,
+                and_(
+                    UserActivity.user_address == User.public_address,
+                    UserActivity.community_id == Participants.community_id,
+                ),
+            )
+            .outerjoin(
+                CommunityExpense,
+                and_(
+                    CommunityExpense.creator == UserActivity.user_address,
+                    CommunityExpense.community_id == UserActivity.community_id,
+                    CommunityExpense.tx_hash == UserActivity.transaction_id,
+                ),
+            )
+            .group_by(User.public_address, User.name, UserMetaData.image_url)
+            .all()
         )
-        # Join Participants with User to get user information
-        .join(Participants, Participants.user_addr == User.public_address)
-        # Join UserActivity with a condition based on both user and community
-        .outerjoin(UserActivity, and_(UserActivity.user_address == User.public_address,
-                                 UserActivity.community_id == Participants.community_id))
-        # Join CommunityExpense on the creator of the expense
-        .outerjoin(CommunityExpense, CommunityExpense.creator == User.public_address)
-        # Join CommunityFunds on the creator of the funds
-        .outerjoin(CommunityFunds, CommunityFunds.creator == User.public_address)
-        # Join UserMetaData to get image URL
-        .outerjoin(UserMetaData, UserMetaData.user_address == User.public_address)
-        # Join Proposal to count proposals created by the user
-        .outerjoin(Proposal, Proposal.creator == User.public_address)
-        # Filter by community_id
-        .filter(Participants.community_id == community_id)
-        .group_by(User.public_address, User.name, UserMetaData.image_url,UserActivity.user_address,Proposal.creator)
-        .all()
-    )
 
-    # Example of using the result
-    result_list = [
-        {
-            "name": row.name,
-            "public_address": row.public_address,
-            "image_url": row.image_url,
-            "number_of_proposals": row.number_of_proposals,
-            "activities": row.activities,
-            "total_invested": row.total_invested,
-            "xrd_added": row.xrd_added,
-        }
-        for row in result
-    ]
+        # Return the result as a list of dictionaries
+        return [
+            {
+                "name": row.name,
+                "public_address": row.public_address,
+                "image_url": row.image_url,
+                "activities": row.activities,
+                "total_invested": row.total_invested,
+                "token_bought": row.token_bought,
+                "token_sold": row.token_sold,
+                "proposal_voted": row.proposal_voted,
+                "commented_on_proposal": row.commented_on_proposal,
+                "discussion_comment": row.discussion_comment,
+                "proposal_created": row.proposal_created,
+                "zero_coupon_bond_created": row.zero_coupon_bond_created,
+                "discussion": row.discussion,
+            }
+            for row in result
+        ]
+    except IntegrityError as e:
+        conn.rollback()
+        print(e)
 
-    # Return the list of dictionaries
-    return result_list
+        raise HTTPException(status_code=400,
+                            detail="Integrity error: possibly duplicate entry or foreign key constraint.")
+
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    except Exception as e:
+        print(e)
+        conn.rollback()
+
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 
 def check_user_community_status(user_addr: str, community_id: uuid.UUID):

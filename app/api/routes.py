@@ -3,7 +3,7 @@ import uuid
 from fastapi import FastAPI, Query
 from starlette import status
 
-from smtp_email import send_email
+
 from .forms.blueprint import DeployCommunity
 from .forms.community import CommunityParticipant, ProposalComment, CommunityDiscussion, CommunityDiscussionComment, \
     CommunityFilter
@@ -126,7 +126,7 @@ def load_server(app):
             sort: Optional[str] = Query(None, description="Category of the community"),
             tags: Optional[List[str]] = Query(None, description="Tags associated with the community")
     ):
-        send_email()
+
         return get_all_community_of_platform(name,sort,tags)
 
     @app.get('/community/{user_addr}', summary="get communities of user ",

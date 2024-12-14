@@ -128,7 +128,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'created {community_name}',
                         user_address=user_address,
-                        community_id=community_id
+                        community_id=community_id,
                         activity_type='community_create'
                     )
                     conn.add(activity)
@@ -140,7 +140,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=random_string,
                         transaction_info=f'participated in {community_name}',
                         user_address=user_address,
-                        community_id=community_id,
+                        community_id=community_id ,
                         activity_type='participate'
                     )
                     conn.add(participate_activity)
@@ -191,7 +191,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'bought {token_bought} tokens in {community.name}',
                         user_address=user_address,
-                        community_id=community.id
+                        community_id=community.id,
+                        activity_type='token_bought'
                     )
                     conn.add(activity)
 
@@ -244,7 +245,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'sold {token_bought} tokens in {community.name}',
                         user_address=user_address,
-                        community_id=community.id
+                        community_id=community.id,
+                        activity_type='token_sold'
                     )
                     conn.add(activity)
                     community_expense = CommunityExpense(
@@ -295,7 +297,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'created a proposal',
                         user_address=user_address,
-                        community_id=community.id
+                        community_id=community.id,
+                        activity_type='proposal_created'
                     )
                     conn.add(activity)
                     conn.add(new_proposal)
@@ -330,7 +333,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'voted in a proposal',
                         user_address=user_address,
-                        community_id=proposal.community_id
+                        community_id=proposal.community_id,
+                        activity_type='proposal_voted'
                     )
                     conn.add(activity)
 
@@ -355,7 +359,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
                         user_address=user_address,
-                        community_id=proposal.community_id
+                        community_id=proposal.community_id,
+                        activity_type='proposal_executed'
                     )
                     conn.add(activity)
                     community_expense = CommunityExpense(
@@ -409,7 +414,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         transaction_id=tx_id,
                         transaction_info=f'created a zero coupon bond',
                         user_address=user_address,
-                        community_id=community.id
+                        community_id=community.id,
+                        activity_type='zero_coupon_bond_created'
                     )
                     conn.add(activity)
                     # create an activity for same
