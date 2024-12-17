@@ -24,7 +24,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_proposal_comment, add_proposal_comment, add_community_discussion_comment, get_discussion_comments, \
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
     get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history, \
-    get_user_expense, get_proposal_bond, get_communities_user_might_be_int_in
+    get_user_expense, get_proposal_bond, get_communities_user_might_be_int_in, check_user_has_voted
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -224,7 +224,9 @@ def load_server(app):
     def get_community_proposal_comment(req: ProposalComment):
         return add_proposal_comment(req)
 
-
+    @app.get('/community/proposal/is-voted', summary="check if user has already voted", tags=(['community']))
+    def get_community_proposal_comment(proposal_id:uuid,user_address:str):
+        return check_user_has_voted(proposal_id,user_address)
 
     @app.post('/community/discussion/comments', summary="add comment in community discussion", tags=(['community']))
     def get_community_discussion_comment(req: CommunityDiscussionComment):
@@ -266,3 +268,5 @@ def load_server(app):
              tags=(['User wallet']))
     def invalid_function(user_address: str):
         return  {}
+
+

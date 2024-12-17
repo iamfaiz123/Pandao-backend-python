@@ -13,7 +13,8 @@ from app.api.logic.wallet import get_asset_details
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
-    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference
+    CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
+    UserToProposalVote
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -990,3 +991,24 @@ def get_communities_user_might_be_int_in(user_address:str):
         return resp
     finally:
         pass
+
+
+def check_user_has_voted(proposal_id:uuid, user_address:str):
+    try:
+        vote = conn.query(UserToProposalVote).filter(UserToProposalVote.proposal_id == proposal_id).filter(UserToProposalVote.user_address == user_address).first()
+        if vote is None:
+            return {
+                'voted':False
+            }
+        else:
+            return {
+                'voted':True
+            }
+    except SQLAlchemyError as e:
+        conn.rollback()
+        print(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception as e:
+        conn.rollback()
+        print(f"Unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

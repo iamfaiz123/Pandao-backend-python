@@ -186,7 +186,10 @@ class Proposal(Base):
     proposal_vote_type: Mapped[str] = mapped_column(String)
     status = Column(Integer)
 
-
+class UserToProposalVote(Base):
+    __tablename__ = "user_to_proposal_vote"
+    user_address: Mapped[str] = mapped_column(String, ForeignKey("users.public_address"), primary_key=True)
+    proposal_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
 class ZeroCouponBond(Base):
     __tablename__ = 'zero_coupon_bond'
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
-    ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions
+    ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote
 
 
 ## pending , add logger
@@ -314,6 +314,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(community_expense)
                     conn.commit()
                 elif resources['event_type'] == 'VOTE':
+                    ## take voter address from events
                     proposal_address = resources['component_address']
                     proposal_address = metadata['praposal_address']
                     proposal = conn.query(Proposal).filter(Proposal.proposal_address == proposal_address).first()
@@ -332,7 +333,12 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal.number_of_people_voted = 1
                     else:
                         proposal.number_of_people_voted += 1
+                    user_proposal_vote = UserToProposalVote(
+                        user_address = user_address,
+                        proposal_id = proposal.id
+                    )
 
+                    conn.add( user_proposal_vote)
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'voted in a proposal',
