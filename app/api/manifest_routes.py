@@ -44,7 +44,7 @@ def transaction_manifest_routes(app):
         tags_array += ",\n".join(f'    "{tag}"' for tag in req.tags)
         tags_array += "\n)"
 
-        manifest = command_string = (
+        manifest  = (
             f'CALL_FUNCTION\n'
             f'Address("{req.package_addr}")\n'
             f'"TokenWeigtedDao"\n'
@@ -354,7 +354,8 @@ def transaction_manifest_routes(app):
                 description=req.description,
                 created_on_blockchain=False,
                 contract_identity=req.bond_identity,
-                asset_address=req.nft
+                asset_address=req.nft,
+                has_accepted=False
             )
             conn.add(zcb)
             conn.commit()
