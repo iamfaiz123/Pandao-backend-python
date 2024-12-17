@@ -323,11 +323,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         else:
                             proposal.voted_for += 1
                     else:
-                        pass
-                    if vote_against:
-                        proposal.voted_against += float(metadata['voting_amount'])
+                        if vote_against:
+                            proposal.voted_against += float(metadata['voting_amount'])
+                        else:
+                            proposal.voted_for += float(metadata['voting_amount'])
+                    if proposal.number_of_people_voted is None:
+                        proposal.number_of_people_voted = 1
                     else:
-                        proposal.voted_for += float(metadata['voting_amount'])
+                        proposal.number_of_people_voted += 1
 
                     activity = UserActivity(
                         transaction_id=tx_id,
@@ -337,7 +340,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         activity_type='proposal_voted'
                     )
                     conn.add(activity)
-
                     community_expense = CommunityExpense(
                         community_id=proposal.community_id,
                         xrd_spent= - ( xrd_paid ),
@@ -348,13 +350,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(community_expense)
                     conn.commit()
-                elif resources['event_type'] == 'EXECUTE_PROPOSAL':
+                elif resources['event_type'] == 'QUORUM_MET':
                     component_address = resources['component_address']
-                    proposal_address = metadata['praposal_address']
+                    proposal_id = metadata['proposal_id']
                     community = conn.query(Community).filter(Community.component_address == component_address).first()
                     community.funds = community.funds - 40
-                    proposal = conn.query(Proposal).filter(Proposal.proposal_address == proposal_address).first()
+                    proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
                     proposal.is_active = False
+                    proposal.result = f"executed successfully , number of people voted { metadata['number_of_voters']}"
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
@@ -377,7 +380,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
                     # get community names and detail
-
                     asset_detail = get_asset_details(metadata['collateral_resource_address'])
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     bond = (conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community.id)
