@@ -291,7 +291,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         result='' ,
                         zcb_bond_creator= metadata['address_issued_bonds_to_sell'],
                         proposal_vote_type = metadata['token_type'] ,
-                        status = 1
+                        status = 1 ,
+                        number_of_people_voted = 1
                     )
                     activity = UserActivity(
                         transaction_id=tx_id,
