@@ -205,8 +205,8 @@ def load_server(app):
         return get_community_all_proposal(c_id)
 
     @app.get('/community/zcb/all/{c_id}', summary="get community ero_coupon_bonds", tags=(['community']))
-    def get_community_zero_coupon_bonds(c_id: uuid.UUID):
-        return get_community_all_zero_coupon_bonds(c_id)
+    def get_community_zero_coupon_bonds(c_id: uuid.UUID,purchased:bool):
+        return get_community_all_zero_coupon_bonds(c_id,purchased)
 
     @app.get('/community/ann/all/{c_id}', summary="get community anns tokens", tags=(['community']))
     def get_community_all_ann_tokens_routes(c_id: uuid.UUID):

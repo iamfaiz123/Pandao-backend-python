@@ -800,8 +800,8 @@ def get_user_communities(user_addr: str, owner: bool):
         raise HTTPException(status_code=500, detail="Internal Servesvsvsvsdvr Error")
 
 
-def get_community_all_zero_coupon_bonds(community_id: uuid.UUID):
-    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).filter(ZeroCouponBond.created_on_blockchain == True).all()
+def get_community_all_zero_coupon_bonds(community_id: uuid.UUID,purchased:bool):
+    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).filter(ZeroCouponBond.created_on_blockchain == True).filter(ZeroCouponBond.has_accepted ==purchased ).all()
     return proposal
 
 def get_community_all_ann_tokens(community_id: uuid.UUID):
