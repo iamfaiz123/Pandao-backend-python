@@ -225,7 +225,7 @@ def load_server(app):
         return add_proposal_comment(req)
 
     @app.get('/community/proposal/is-voted', summary="check if user has already voted", tags=(['community']))
-    def get_community_proposal_comment(proposal_id:uuid,user_address:str):
+    def get_community_proposal_comment(proposal_id:uuid.UUID,user_address:str):
         return check_user_has_voted(proposal_id,user_address)
 
     @app.post('/community/discussion/comments', summary="add comment in community discussion", tags=(['community']))
