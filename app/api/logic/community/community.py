@@ -813,7 +813,8 @@ def get_bonds_name(community_id: uuid.UUID):
     try:
         query = conn.query(ZeroCouponBond.creator, ZeroCouponBond.name).filter(
             ZeroCouponBond.community_id == community_id,
-            ZeroCouponBond.created_on_blockchain == True
+            ZeroCouponBond.created_on_blockchain == True,
+            ZeroCouponBond.has_accepted == False
         )
 
         results = query.all()

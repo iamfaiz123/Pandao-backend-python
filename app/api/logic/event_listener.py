@@ -357,14 +357,20 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(community_expense)
                     conn.commit()
-                elif resources['event_type'] == 'QUORUM_MET':
+                elif resources['event_type'] == 'QUORUM_MET_AND_SUCCESS':
                     component_address = resources['component_address']
                     proposal_id = metadata['proposal_id']
                     community = conn.query(Community).filter(Community.component_address == component_address).first()
-                    community.funds = community.funds - 40
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
+                    zcb = conn.query(ZeroCouponBond).filter(
+                        ZeroCouponBond.contract_identity == metadata['contract_identity']).first()
+
                     proposal.is_active = False
-                    proposal.result = f"executed successfully , number of people voted { metadata['number_of_voters']}"
+                    proposal.status = 0
+                    zcb.amount_stored = zcb.price
+                    zcb.has_accepted = True
+                    proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
+                    community.funds = community.funds - zcb.price
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
@@ -372,7 +378,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         community_id=proposal.community_id,
                         activity_type='proposal_executed'
                     )
-                    conn.add(activity)
+
                     community_expense = CommunityExpense(
                         community_id=proposal.community_id,
                         xrd_spent= - ( xrd_paid ),
@@ -381,9 +387,19 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         xrd_spent_on='executed in a proposal',
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
+
+                    cf = CommunityFunds(
+                            community_id = community.id,
+                            xrd_added= - zcb.price,
+                            current_xrd = community.funds ,
+                            creator= user_address,
+                            tx_hash= tx_id,
+                            date=datetime.now() ,
+                     )
+                    conn.add(activity)
+                    conn.add(cf)
                     conn.add(community_expense)
                     conn.commit()
-
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
                     # get community names and detail
