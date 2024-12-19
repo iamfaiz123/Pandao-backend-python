@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, SellBondRequest
+    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
 from models import dbsession as conn
 
@@ -427,19 +427,31 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
-    @app.post('/manifest/sell-bond', tags=['manifest_builder'])
-    def sell_bond(req: SellBondRequest):
-        community = conn.query(Community).filter(Community.id == req.community_id).first()
-        if community is None:
-            return {"error": "Community not found"}
-
+    @app.post('/manifest/zcb/withdraw-all')
+    def take_money_from_zcb(req: WithDrawMoneyFromBond):
+        # get community component address
+        zcb = conn.query(ZeroCouponBond).filter(ZeroCouponBond.id == req.bond_id).first()
+        if zcb is None:
+            raise HTTPException(status=401,message='invalid bond id')
+        community = conn.query(Community).filter(Community.id == zcb.community_id).first()
+        user_address = req.user_address
         transaction_string = f"""
-            CALL_METHOD
-            Address("{community.component_address}")
-            "sell_bond"
-            Address("{req.bond_creator_address}");
+              CALL_METHOD
+                    Address("{community.component_address}")
+                    "take_out_the_invested_XRDs_by_the_community"
+                    Address("{user_address}")
+              ;
+              
+              CALL_METHOD
+                    Address("{user_address}")
+                    "deposit_batch"
+                    Expression("ENTIRE_WORKTOP")
+            ;
         """
         return transaction_string
+
+
+
 
 
 

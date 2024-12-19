@@ -93,15 +93,14 @@ def load_server(app):
         return get_user_expense(public_address)
 
     @app.get('/user/created-bonds/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-detail']))
-    def get_user_all_created_bonds_route(public_address: str):
-        return get_user_created_bonds(public_address)
+    def get_user_all_created_bonds_route(public_address: str,is_accepted:bool):
+        return get_user_created_bonds(public_address,is_accepted)
 
     @app.get('/user/pending-transactions/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-detail']))
     def get_user_all_pending_transaction_route(public_address: str):
         return get_pending_transactions(public_address)
 
     # define routes for blueprints
-
     @app.post('/blueprint', summary="add a blueprint ", description="add blue print by admin", tags=(['blue-print']))
     def add_blueprint_route(req: BlurPrintForm):
         add_blueprint_logic(req)

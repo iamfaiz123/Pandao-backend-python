@@ -263,11 +263,12 @@ def get_pending_transactions(user_address: str):
 
 
 
-def get_user_created_bonds(user_address:str):
+def get_user_created_bonds(user_address:str,is_accepted:bool):
     try:
         # Perform an inner join between ZeroCouponBond and Community
-        results = conn.query(ZeroCouponBond, Community).join(Community,
-                                                                ZeroCouponBond.community_id == Community.id).filter(ZeroCouponBond.created_on_blockchain == True).filter(ZeroCouponBond.creator == user_address).distinct(ZeroCouponBond.contract_identity).all()
+        results = (conn.query(ZeroCouponBond, Community).join(Community,
+                                                                ZeroCouponBond.community_id == Community.id).filter(ZeroCouponBond.created_on_blockchain == True)
+                   .filter(ZeroCouponBond.has_accepted == is_accepted).filter(ZeroCouponBond.creator == user_address).distinct(ZeroCouponBond.contract_identity).all())
 
         # Convert the results to a list of dictionaries
         bond_data = []

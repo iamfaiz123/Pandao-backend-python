@@ -92,9 +92,9 @@ class IssueAnnTokenRequest(BaseModel):
     name:str
     description: str
 
-class SellBondRequest(BaseModel):
-    community_id: uuid.UUID = Field(..., description="community id")
-    bond_creator_address:str
+class WithDrawMoneyFromBond(BaseModel):
+        bond_id: uuid.UUID = Field(..., description="community id")
+        user_address: str
 
 
 
