@@ -981,7 +981,9 @@ def get_communities_user_might_be_int_in(user_address:str):
         query = (
             conn.query(CommunityTags.community_id)
             .join(UserPreference, CommunityTags.tag == UserPreference.tag)
+            .outerjoin(Participants,Participants.community_id == CommunityTags.community_id )
             .filter(UserPreference.user_address == user_address)
+            .filter(Participants.user_addr is None)
             .filter(UserPreference.tag.in_(query))  # Check if the tag is in the user's preference list
             .distinct()  # Ensure no duplicates
         )
