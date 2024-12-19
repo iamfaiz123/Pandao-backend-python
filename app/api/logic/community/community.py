@@ -167,6 +167,11 @@ def create_community(community: DeployCommunity):
 def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
     try:
         # create new user participant
+
+        # first check if user exist in the community or not
+        already_participated =  conn.query(Participants).filter(Participants.user_addr == user_addr).filter(Participants.community_id == community_id).first()
+        if already_participated is not None:
+            raise HTTPException(status_code=401, detail="user is already part of community")
         participant = Participants(
             user_addr=user_addr,
             community_id=community_id,
