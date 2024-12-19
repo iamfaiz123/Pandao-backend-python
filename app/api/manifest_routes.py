@@ -429,26 +429,29 @@ def transaction_manifest_routes(app):
 
     @app.post('/manifest/zcb/withdraw-all')
     def take_money_from_zcb(req: WithDrawMoneyFromBond):
-        # get community component address
-        zcb = conn.query(ZeroCouponBond).filter(ZeroCouponBond.id == req.bond_id).first()
+        zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
         if zcb is None:
-            raise HTTPException(status=401,message='invalid bond id')
+            raise HTTPException(status_code=401, detail='invalid bond id')
+
         community = conn.query(Community).filter(Community.id == zcb.community_id).first()
         user_address = req.user_address
         transaction_string = f"""
-              CALL_METHOD
-                    Address("{community.component_address}")
-                    "take_out_the_invested_XRDs_by_the_community"
-                    Address("{user_address}")
-              ;
-              
-              CALL_METHOD
-                    Address("{user_address}")
-                    "deposit_batch"
-                    Expression("ENTIRE_WORKTOP")
-            ;
+        CALL_METHOD
+            Address("{community.component_address}")
+            "take_out_the_invested_XRDs_by_the_community"
+            Address("{user_address}")
+        ;
+
+        CALL_METHOD
+            Address("{user_address}")
+            "deposit_batch"
+            Expression("ENTIRE_WORKTOP")
+        ;
         """
         return transaction_string
+
+        # get community component address
+
 
 
 
