@@ -17,7 +17,6 @@ from smtp_email import send_email
 ## pending , add logger
 
 def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
-
         url = "https://babylon-stokenet-gateway.radixdlt.com/transaction/committed-details"
         data = {
             "intent_hash": tx_id,
@@ -76,7 +75,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                     elif _m_d['field_name'] == 'token_type':
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     else:
-                                        print(_m_d['field_name'])
+
                                         metadata[_m_d['field_name']] = _m_d['value']
                         else:
                             resources[field['field_name']] = field.get('value') or field.get('variant_name') or ''
@@ -365,21 +364,11 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
                     zcb = conn.query(ZeroCouponBond).filter(
                         ZeroCouponBond.contract_identity == metadata['contract_identity']).first()
-                    print(zcb.name)
+
+                    proposal_status = fetch_proposal_status(proposal.proposal_address)
+
                     proposal.is_active = False
-                    proposal.status = 0
-                    zcb.amount_stored = zcb.price
-                    zcb.has_accepted = True
-                    current_utc_time = datetime.utcnow()
-                    # Format the time in a human-readable format
-                    readable_utc_time = current_utc_time.strftime('%Y-%m-%d %H:%M:%S')
-                    proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
-                    print(' yo yo yo')
-                    print(zcb.price)
-                    community.funds = community.funds - zcb.price
-                    # create email object
-                    email_object = {"proposal_name": proposal.name, "bond_name": zcb.name, "community_name": community.name, "date": readable_utc_time}
-                    send_email('proposal_execute',email_object)
+
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
@@ -387,28 +376,45 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         community_id=proposal.community_id,
                         activity_type='proposal_executed'
                     )
-                    print(' yo yo yo 2')
-                    print( xrd_paid)
-                    community_expense = CommunityExpense(
-                        community_id=proposal.community_id,
-                        xrd_spent= -xrd_paid,
-                        creator=user_address,
-                        tx_hash=tx_id,
-                        xrd_spent_on='executed in a proposal',
-                        date=datetime.now() # You can omit this if you want to use the default value
-                    )
-                    print(' yo yo yo 3')
-                    cf = CommunityFunds(
-                            community_id = community.id,
-                            xrd_added= - zcb.price,
-                            current_xrd = community.funds ,
-                            creator= user_address,
-                            tx_hash= tx_id,
-                            date=datetime.now() ,
-                     )
-                    conn.add(activity)
-                    conn.add(cf)
-                    conn.add(community_expense)
+
+                    # if proposal is failed
+                    if int(proposal_status['for']) < int(proposal_status['against']):
+                        proposal.status = -1
+                        proposal.result = f"executed unsuccessfully , number of people voted {metadata['number_of_voters']} . Proposal failed"
+                    else:
+                        proposal.status = 0
+                        proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
+                        zcb.amount_stored = zcb.price
+                        zcb.has_accepted = True
+                        community.funds = community.funds - zcb.price
+                        current_utc_time = datetime.utcnow()
+                        # Format the time in a human-readable format
+                        readable_utc_time = current_utc_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                        # create email object
+                        email_object = {"proposal_name": proposal.proposal, "bond_name": zcb.name,
+                                        "community_name": community.name, "date": readable_utc_time}
+                        # send_email('proposal_execute',email_object)
+                        community_expense = CommunityExpense(
+                            community_id=proposal.community_id,
+                            xrd_spent=-xrd_paid,
+                            creator=user_address,
+                            tx_hash=tx_id,
+                            xrd_spent_on='executed in a proposal',
+                            date=datetime.now()  # You can omit this if you want to use the default value
+                        )
+
+                        cf = CommunityFunds(
+                            community_id=community.id,
+                            xrd_added=- zcb.price,
+                            current_xrd=community.funds,
+                            creator=user_address,
+                            tx_hash=tx_id,
+                            date=datetime.now(),
+                        )
+                        conn.add(activity)
+                        conn.add(cf)
+                        conn.add(community_expense)
                     conn.commit()
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
@@ -548,4 +554,66 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
     #     raise HTTPException(status_code=500,
     #                         detail="Seems like there are some internal errors , Don't worry we have record your transaction and it will be reelected once services are online")
 
+
+import requests
+def fetch_proposal_status(p_c_addr:str):
+    url = "https://babylon-stokenet-gateway.radixdlt.com/state/entity/details"
+    payload = {
+        "opt_ins": {
+            "ancestor_identities": False,
+            "component_royalty_vault_balance": False,
+            "package_royalty_vault_balance": False,
+            "non_fungible_include_nfids": False,
+            "explicit_metadata": [],
+            "dapp_two_way_links": False,
+            "native_resource_details": False
+        },
+        "addresses": [
+            p_c_addr
+        ],
+        "aggregation_level": "Vault"
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    try:
+        # Send a POST request
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+
+        # Parse the response JSON
+        data = response.json()
+
+        # Extract proposal status
+        items = data.get("items", [])
+        if not items:
+            return "No items found in response."
+
+        proposal_details = items[0].get("details", {}).get("state", {}).get("fields", [])
+        proposal_status = {
+            "creation_status": None,
+            "execution_status": None,
+            "denial_status": None
+        }
+
+        for field in proposal_details:
+            if field.get("field_name") == "proposal_creation_status":
+                proposal_status["creation_status"] = field.get("value")
+            elif field.get("field_name") == "proposal_execution_status":
+                proposal_status["execution_status"] = field.get("value")
+            elif field.get("field_name") == "proposal_denied_status":
+                proposal_status["denial_status"] = field.get("value")
+            elif field.get("field_name") == 'voted_for':
+                proposal_status["for"] = field.get("value")
+            elif field.get("field_name") ==  'voted_against':
+                proposal_status["against"] = field.get("value")
+        return proposal_status
+
+    except requests.exceptions.RequestException as e:
+        return f"An error occurred: {e}"
+
+
+# Fetch and print the proposal status
 
