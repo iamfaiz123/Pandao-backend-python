@@ -75,7 +75,7 @@ def get_all_community_of_platform(name,sort,tag):
     query = (
         conn.query(
             Community,
-            func.count(Participants.id).label('participants_count')
+            func.count(func.distinct(Participants.id)).label('participants_count')
         )
         .outerjoin(Participants, Community.id == Participants.community_id)
         .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)

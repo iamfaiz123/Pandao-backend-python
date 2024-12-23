@@ -32,7 +32,6 @@ from .logic.wallet import get_user_wallet_nfts, get_asset_details
 from .utils.presignsignature import generate_signature
 
 
-
 def load_server(app):
     # defines routes
 
@@ -246,9 +245,6 @@ def load_server(app):
     def get_user_community_suggestions(user_addr: str):
         return  get_communities_user_might_be_int_in(user_addr)
 
-
-
-
     @app.get('/users/wallets/assets/{user_address}', summary="get all assets from users wallet",
              tags=(['User wallet']))
     def get_user_wallet_asset(user_address: str):
@@ -258,9 +254,6 @@ def load_server(app):
              tags=(['User wallet']))
     def get_user_wallet_asset(resource_address: str):
         return get_asset_details(resource_address)
-
-
-
 
     ### invalid apis
     @app.get('/user/metadata/{user_address}', summary="get all assets from users wallet",

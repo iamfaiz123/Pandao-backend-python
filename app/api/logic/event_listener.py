@@ -364,12 +364,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
                     zcb = conn.query(ZeroCouponBond).filter(
                         ZeroCouponBond.contract_identity == metadata['contract_identity']).first()
-
+                    print(zcb.name)
                     proposal.is_active = False
                     proposal.status = 0
                     zcb.amount_stored = zcb.price
                     zcb.has_accepted = True
                     proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
+                    print(' yo yo yo')
+                    print(zcb.price)
                     community.funds = community.funds - zcb.price
                     activity = UserActivity(
                         transaction_id=tx_id,
@@ -378,16 +380,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         community_id=proposal.community_id,
                         activity_type='proposal_executed'
                     )
-
+                    print(' yo yo yo 2')
+                    print( xrd_paid)
                     community_expense = CommunityExpense(
                         community_id=proposal.community_id,
-                        xrd_spent= - ( xrd_paid ),
+                        xrd_spent= -xrd_paid,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='executed in a proposal',
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
-
+                    print(' yo yo yo 3')
                     cf = CommunityFunds(
                             community_id = community.id,
                             xrd_added= - zcb.price,

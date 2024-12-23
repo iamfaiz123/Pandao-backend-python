@@ -12,16 +12,15 @@ from .engine import Base
 class User(Base):
     __tablename__ = 'users'
     name: Mapped[str] = Column(String)
-    # user public address represents the user unique id
     public_address: Mapped[str] = Column(String(256), primary_key=True)
     last_login: Mapped[DateTime] = Column(DateTime, default=func.now())
     usermetadata: Mapped["UserMetaData"] = relationship("UserMetaData", back_populates="user")
+    created_at: Mapped[DateTime] = Column(DateTime, default=func.now())
 
 
 class UserMetaData(Base):
     __tablename__ = 'user_meta_data'
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'), primary_key=True)
-    # about is a detail version about user details
     about: Mapped[str] = Column(String)
     image_url: Mapped[str] = Column(String)
     cover_url: Mapped[str] = Column(String)
@@ -29,12 +28,12 @@ class UserMetaData(Base):
     linkedin: Mapped[str] = Column(String)
     website: Mapped[str] = Column(String)
     tiktok: Mapped[str] = Column(String)
-    # bio is short description about user detail
     bio: Mapped[str] = Column(String)
     address: Mapped[str] = Column(String)
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
 
-# class UserBadge
+# class ProfileSettings(Base):
+#     can_see_created_communities:Mapped[bool] = Column(bool)
 
 class UserWork(Base):
     __tablename__ = 'user_work'
@@ -51,7 +50,6 @@ class Tag(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
-
 
 class UserPreference(Base):
     __tablename__ = 'user_preference'
