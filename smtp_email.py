@@ -14,18 +14,21 @@ def load_html_template(content):
         print(f"this Error: File '{file_path}' not found.")
         return ""
 
-def send_email():
+def send_email(email_type:str,email_object):
     # SMTP credentials and server configuration
     SMTP_SERVER = "smtp-relay.brevo.com"  # Replace with your SMTP server
     SMTP_PORT = 587  # Usually 587 for TLS, 465 for SSL
-    SMTP_USERNAME = "81dd53001@smtp-brevo.com"  # Replace with your username
-    SMTP_PASSWORD = "FrnB7yLpxGmRkADU"  # Replace with your password
+    SMTP_USERNAME = "823074001@smtp-brevo.com"  # Replace with your username
+    SMTP_PASSWORD = "wIyGDBHp7aJhcfxr"  # Replace with your password
 
+    if email_type != 'proposal_execute':
+        print('invalid email_type, expected [proposal_execute]')
+        return
     # Email details
-    sender_email = "iamfaizalkhn@gmail.com"  # Replace with sender's email
+    sender_email = "lukeouko@gmail.com"  # Replace with sender's email
     recipient_email = "faizalkhn98641@gmail.com"  # Replace with recipient's email
     subject = "Test Email"
-    html_body = load_html_template({"name":"faizal khan"})
+    html_body = load_html_template(email_object)
     # mail_templates/email_verification.html
     try:
         # Create the email message

@@ -11,6 +11,7 @@ from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote
+from smtp_email import send_email
 
 
 ## pending , add logger
@@ -369,10 +370,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal.status = 0
                     zcb.amount_stored = zcb.price
                     zcb.has_accepted = True
+                    current_utc_time = datetime.utcnow()
+                    # Format the time in a human-readable format
+                    readable_utc_time = current_utc_time.strftime('%Y-%m-%d %H:%M:%S')
                     proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
                     print(' yo yo yo')
                     print(zcb.price)
                     community.funds = community.funds - zcb.price
+                    # create email object
+                    email_object = {"proposal_name": proposal.name, "bond_name": zcb.name, "community_name": community.name, "date": readable_utc_time}
+                    send_email('proposal_execute',email_object)
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
