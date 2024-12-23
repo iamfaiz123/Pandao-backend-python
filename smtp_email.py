@@ -45,6 +45,3 @@ def send_email(email_type:str,email_object):
         print("Email sent successfully!")
     except Exception as e:
         print(f"Failed to send email: {e}")
-
-
-send_email()
