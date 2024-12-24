@@ -763,9 +763,9 @@ def get_community_active_proposal(community_id: uuid.UUID):
 def get_community_all_proposal(community_id: uuid.UUID,status:str):
     proposal = None
     if status == 'PENDING':
-        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status == 0).all()
+        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status == 1).all()
     elif status == 'EXECUTED':
-        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status != 0).all()
+        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status != 1).all()
     else:
         proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).all()
     return proposal
