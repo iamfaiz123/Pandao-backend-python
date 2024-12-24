@@ -760,8 +760,14 @@ def get_community_active_proposal(community_id: uuid.UUID):
     return proposal
 
 
-def get_community_all_proposal(community_id: uuid.UUID):
-    proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).all()
+def get_community_all_proposal(community_id: uuid.UUID,status:str):
+    proposal = None
+    if status == 'PENDING':
+        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status == 0).all()
+    elif status == 'EXECUTED':
+        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).filter(Proposal.status != 0).all()
+    else:
+        proposal = conn.query(Proposal).filter(Proposal.community_id == community_id).all()
     return proposal
 
 
@@ -816,7 +822,7 @@ def get_community_all_ann_tokens(community_id: uuid.UUID):
 
 def get_bonds_name(community_id: uuid.UUID):
     try:
-        query = conn.query(ZeroCouponBond.creator, ZeroCouponBond.name).filter(
+        query = conn.query(ZeroCouponBond.creator, ZeroCouponBond.name,ZeroCouponBond.price).filter(
             ZeroCouponBond.community_id == community_id,
             ZeroCouponBond.created_on_blockchain == True,
             ZeroCouponBond.has_accepted == False
@@ -831,6 +837,7 @@ def get_bonds_name(community_id: uuid.UUID):
             {
                 "bond_name": row.name,
                 "creator_address": row.creator,
+                "price":row.price
 
             }
             for row in results
