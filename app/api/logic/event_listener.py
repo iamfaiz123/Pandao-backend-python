@@ -394,7 +394,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         # create email object
                         email_object = {"proposal_name": proposal.proposal, "bond_name": zcb.name,
                                         "community_name": community.name, "date": readable_utc_time}
-                        # send_email('proposal_execute',email_object)
+                        send_email('proposal_execute',email_object)
                         community_expense = CommunityExpense(
                             community_id=proposal.community_id,
                             xrd_spent=-xrd_paid,
