@@ -1,29 +1,20 @@
-# Define the HTML template with placeholders
-template = """
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Work+Sans:wght@400;500;700;900"
-    />
     <title>Pandao</title>
-  </head>
+    <style>
+      body {
+        font-family: "Work Sans", "Noto Sans", sans-serif;
+        min-height: 100vh;
+        background: #ffffff;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
 
-  <body
-    style="
-      font-family: 'Work Sans', 'Noto Sans', sans-serif;
-      min-height: 100vh;
-      background: #ffffff;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-    "
-  >
-    <header
-      style="
+      header {
         position: fixed;
         top: 0;
         z-index: 50;
@@ -37,206 +28,172 @@ template = """
         padding: 0 1rem;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      "
-    >
-      <a href="/" style="display: flex; align-items: center;">
-        <img
-          src="https://www.pandao.live/logo.png"
-          alt="Logo"
-          style="height: 3rem;"
-        />
-      </a>
-    </header>
+      }
 
-    <main
-      style="
+      header img {
+        height: 3rem;
+      }
+
+      main {
         flex: 1;
         display: flex;
         justify-content: center;
         align-items: flex-start;
         padding: 1rem;
         margin-top: 4rem;
-      "
-    >
-      <div
-        style="
-          width: 100%;
-          max-width: 960px;
-          padding: 1.25rem;
-          text-align: center;
-        "
-      >
-        <h3
-          style="
-            color: #151217;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            font-weight: 700;">Proposal Has Been Executed
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="green"
-                width="24px"
-                height="24px"
-                style="vertical-align: middle; margin-right: 0.5rem; margin-bottom: 6px ;"
-              >
-                <path
-                  d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-2 17l-4-4 1.414-1.414L10 14.172l6.586-6.586L18 9l-8 8z"
-                />
-              </svg>
+      }
 
-        </h3>
-        <h2
-          style="
-            color: #151217;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-            font-size: 1.5rem;
-            line-height: 2rem;
-            font-weight: 700;
-          ">Proposal Details
-        </h2>
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin: 1.5rem 0;
-            padding: 0.5rem;
-            text-align: left;
-            border: 1px solid #e1dce4;
-            border-radius: 8px;
-          "
-        >
+      .content-container {
+        width: 100%;
+        max-width: 960px;
+        padding: 1.25rem;
+        text-align: center;
+      }
 
-        <div style="padding: 1rem;">
-          <p
-            style="
-              color: #776685;
-              font-size: 0.875rem;
-              line-height: 1.25rem;
-              font-weight: 400;
-            "
+      h3,
+      h2 {
+        color: #151217;
+        margin: 1.25rem 0 0.75rem;
+        font-weight: 700;
+      }
+
+      h3 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+
+      .details-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+        padding: 0.5rem;
+        text-align: left;
+        border: 1px solid #e1dce4;
+        border-radius: 8px;
+      }
+
+      .details-container div {
+        padding: 1rem;
+      }
+
+      .details-container div:not(:first-child) {
+        border-top: 1px solid #e1dce4;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
+
+      p:first-child {
+        color: #776685;
+        font-weight: 400;
+      }
+
+      p:last-child {
+        color: #151217;
+        font-weight: 400;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2.5rem 1.25rem;
+        font-size: 0.875rem;
+        color: #776685;
+      }
+
+      footer a {
+        color: #776685;
+        margin-right: 1rem;
+        text-decoration: none;
+      }
+
+      footer svg {
+        vertical-align: middle;
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a href="/" style="display: flex; align-items: center;">
+        <img src="https://www.pandao.live/logo.png" alt="Logo" />
+      </a>
+    </header>
+
+    <main>
+      <div class="content-container">
+        <h3>
+          Proposal Has Been Executed
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="green"
+            width="24px"
+            height="24px"
           >
-            Proposal Name
-          </p>
-          <p
-            style="
-              color: #151217;
-              font-size: 0.875rem;
-              line-height: 1.25rem;
-              font-weight: 400;">{{ proposal_name }}</p>
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-2 17l-4-4 1.414-1.414L10 14.172l6.586-6.586L18 9l-8 8z"
+            />
+          </svg>
+        </h3>
+        <h2>Proposal Details</h2>
+
+        <div class="details-container">
+          <div>
+            <p>Proposal Name</p>
+            <p>{{ proposal_name }}</p>
+          </div>
+
+          <div>
+            <p>Bond Name</p>
+            <p>{{ bond_name }}</p>
+          </div>
+
+          <div>
+            <p>Community Name</p>
+            <p>{{ community_name }}</p>
+          </div>
+
+          <div>
+            <p>Date</p>
+            <p>{{ date }}</p>
+          </div>
+
+          <div>
+            <p>Contract Type</p>
+            <p>{{ contract_type }}</p>
+          </div>
         </div>
+      </div>
+    </main>
 
-          <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
-            <p
-              style="
-                color: #776685;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;">Bond Name</p>
-            <p
-              style="
-                color: #151217;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;
-              "
-            >
-              {{ bond_name }}
-            </p>
-          </div>
+    <footer>
+      <p>Support Email: support@pandaoxyz.com</p>
+      <p>© 2024 PanDao Association. All rights reserved.</p>
 
-          <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
-            <p
-              style="
-                color: #776685;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;
-              "
-            >
-              Community Name
-            </p>
-            <p
-              style="
-                color: #151217;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;">{{ community_name }}</p>
-          </div>
+      <div>
+        <a href="/terms">Terms and Conditions</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/contact">Contact Us</a>
+      </div>
 
-          <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
-            <p
-              style="
-                color: #776685;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;
-              "
-            >
-              Date
-            </p>
-            <p
-              style="
-                color: #151217;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;
-              "
-            >
-              {{ date }}
-            </p>
-          </div>
-
-          <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
-            <p
-              style="
-                color: #776685;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;
-              "
-            >
-              Contract Type
-            </p>
-            <p
-              style="
-                color: #151217;
-                font-size: 0.875rem;
-                line-height: 1.25rem;
-                font-weight: 400;">{{ contract_type }}</p>
-          </div>
-
-        </div>
-
-        <footer
-          style="
-            text-align: center;
-            padding: 2.5rem 1.25rem;
-            font-size: 0.875rem;
-            color: #776685;">
-          <p>Support Email: support@pandaoxyz.com</p>
-          <p>© 2024 PanDao Association. All rights reserved.</p>
-
-          <div style="margin-top: 1rem;">
-            <a href="/terms" style="color: #776685; margin-right: 1rem;">Terms and Conditions</a>
-            <a href="/privacy" style="color: #776685; margin-right: 1rem;">Privacy Policy</a>
-            <a href="/contact" style="color: #776685; margin-right: 1rem;">Contact Us</a>
-          </div>
-
-          <div style="margin-top: 1rem;">
-
-            <a href="https://www.facebook.com" target="_blank" aria-label="Facebook">
-              <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 16 16" width="24" height="24" id="facebook">
-                <path d="M14 0H2C.897 0 0 .897 0 2v12c0 1.103.897 2 2 2h6v-5.5H6V8h2V6a3 3 0 0 1 3-3h2v2.5h-1c-.552 0-1-.052-1 .5v2h2.5l-1 2.5H11V16h3c1.103 0 2-.897 2-2V2c0-1.103-.897-2-2-2z"></path>
-              </svg>
-            </a>
-
-            <a href="https://www.twitter.com" target="_blank" aria-label="Twitter">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 512 512" id="twitter">
-                <g clip-path="url(#clip0_84_15697)">
-                  <rect width="512" height="512" fill="#000" rx="60"></rect>
-                  <path fill="#fff" d="M355.904 100H408.832L293.2 232.16L429.232 412H322.72L239.296 302.928L143.84 412H90.8805L214.56 270.64
+      <div style="margin-top: 1rem;">
+        <a href="https://www.facebook.com" target="_blank" aria-label="Facebook">
+          <img src="https://cdn.iconscout.com/icon/free/png-256/facebook-circle-1868966-1583142.png" alt="Facebook" width="24" height="24" />
+        </a>
+        <a href="https://www.twitter.com" target="_blank" aria-label="Twitter">
+          <img src="https://cdn.iconscout.com/icon/free/png-256/twitter-circle-1868967-1583143.png" alt="Twitter" width="24" height="24" />
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>
