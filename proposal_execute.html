@@ -1,3 +1,5 @@
+# Define the HTML template with placeholders
+template = """
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -125,7 +127,7 @@
               color: #151217;
               font-size: 0.875rem;
               line-height: 1.25rem;
-              font-weight: 400;">{}</p>
+              font-weight: 400;">{{ proposal_name }}</p>
         </div>
 
           <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
@@ -143,7 +145,7 @@
                 font-weight: 400;
               "
             >
-              {}
+              {{ bond_name }}
             </p>
           </div>
 
@@ -163,7 +165,7 @@
                 color: #151217;
                 font-size: 0.875rem;
                 line-height: 1.25rem;
-                font-weight: 400;">{}</p>
+                font-weight: 400;">{{ community_name }}</p>
           </div>
 
           <div style="padding: 1rem; border-top: 1px solid #e1dce4;">
@@ -185,7 +187,7 @@
                 font-weight: 400;
               "
             >
-              {}
+              {{ date }}
             </p>
           </div>
 
@@ -205,7 +207,7 @@
                 color: #151217;
                 font-size: 0.875rem;
                 line-height: 1.25rem;
-                font-weight: 400;">{}</p>
+                font-weight: 400;">{{ contract_type }}</p>
           </div>
 
         </div>
@@ -237,20 +239,4 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 512 512" id="twitter">
                 <g clip-path="url(#clip0_84_15697)">
                   <rect width="512" height="512" fill="#000" rx="60"></rect>
-                  <path fill="#fff" d="M355.904 100H408.832L293.2 232.16L429.232 412H322.72L239.296 302.928L143.84 412H90.8805L214.56 270.64L84.0645 100H193.28L268.688 199.696L355.904 100ZM337.328 380.32H366.656L177.344 130.016H145.872L337.328 380.32Z"></path>
-                </g>
-              </svg>
-            </a>
-
-            <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn">
-              <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24" height="24" viewBox="0 0 512 512" id="linkedin">
-                <path fill="#1A1A1A" fill-rule="evenodd" d="M434.478 16H77.522C43.718 16 16 43.721 16 77.521v356.957C16 468.278 43.718 496 77.522 496h356.955C468.285 496 496 468.278 496 434.479V77.521C496 43.721 468.285 16 434.478 16zM181 247.812V396h-65V209h65v38.812zm-32.63-66.684c-18.083 0-32.756-14.662-32.756-32.756 0-18.097 14.673-32.741 32.756-32.741 18.108 0 32.767 14.645 32.767 32.741 0 18.094-14.658 32.756-32.767 32.756zM396 294v102h-56v-90.833c0-21.75-2.355-49.724-32.164-49.724-30.262 0-34.836 23.679-34.836 48.156V396h-54V209h52v25h.554c7.756-14 26.757-25.02 55.051-25.02 47.672 0 63.872 22.543 68.305 57.812 1.052 8.277 1.458 17.208 1.458 27.208H396z" clip-rule="evenodd"></path>
-              </svg>
-            </a>
-
-          </div>
-        </footer>
-      </div>
-    </main>
-  </body>
-</html>
+                  <path fill="#fff" d="M355.904 100H408.832L293.2 232.16L429.232 412H322.72L239.296 302.928L143.84 412H90.8805L214.56 270.64

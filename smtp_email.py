@@ -5,7 +5,7 @@ import resend
 
 resend.api_key = "re_8ZzRzVuc_FNfi9V9Kk8o6QjiA4FUsHGDw"
 def load_html_template(content):
-    file_path = "mail_templates/email_verification.html"
+    file_path = "proposal_execute.html"
     try:
         with open(file_path, "r", encoding="utf-8") as file:  # Corrected line
             template = file.read()
