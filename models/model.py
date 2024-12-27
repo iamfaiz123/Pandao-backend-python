@@ -217,6 +217,7 @@ class ZeroCouponBond(Base):
     asset_name:  Mapped[str] = mapped_column(String, nullable=True)
     amount_stored = Column(Float, nullable=True)
     has_accepted = Column(Boolean, nullable=True)
+    has_withdrawn = Column(Boolean, nullable=True)
 
 class AnnTokens(Base):
     __tablename__ = 'ann_tokens'

@@ -386,6 +386,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
                         zcb.amount_stored = zcb.price
                         zcb.has_accepted = True
+                        zcb.has_withdrawn = False
                         community.funds = community.funds - zcb.price
                         current_utc_time = datetime.utcnow()
                         # Format the time in a human-readable format
@@ -495,8 +496,21 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(community_expense)
                     conn.commit()
+                elif resources['event_type'] == 'TAKE_OUT_INVESTED_XRDs':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    bond = (conn.query(ZeroCouponBond)
+                        .filter(ZeroCouponBond.community_id == community.id)
+                        .filter(ZeroCouponBond.creator == metadata['bond_creator_address'])
+                        .filter(ZeroCouponBond.created_on_blockchain == True)
+                        .first())
+                    bond.amount_stored = 0
+                    bond.has_withdrawn = True
+                    conn.commit()
+
                 else:
                     pass
+
             except Exception as e:
                 # in case of exceptions insert data in pending transactions table with error
                 print(e)
