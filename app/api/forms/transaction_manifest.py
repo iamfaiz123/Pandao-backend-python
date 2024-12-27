@@ -97,4 +97,10 @@ class WithDrawMoneyFromBond(BaseModel):
         user_address: str
 
 
+class AddMoneyInBond(BaseModel):
+    bond_id: uuid.UUID = Field(..., description="community id")
+    user_address: str
+    xrd_to_add : float
+
+
 

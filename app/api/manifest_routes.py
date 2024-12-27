@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond
+    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
 from models import dbsession as conn
 
@@ -449,6 +449,43 @@ def transaction_manifest_routes(app):
         ;
         """
         return transaction_string
+
+    @app.post('/manifest/zcb/add-xrds')
+    def add_money_money_zcb(req: AddMoneyInBond):
+            zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
+            if zcb is None:
+                raise HTTPException(status_code=401, detail='invalid bond id')
+
+            community = conn.query(Community).filter(Community.id == zcb.community_id).first()
+            user_address = req.user_address
+            transaction_string = f"""
+                         CALL_METHOD
+                         Address("{user_address}")
+                         "withdraw"
+                         Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+                         Decimal("{req.xrd_to_add}")
+            ;
+            
+             TAKE_FROM_WORKTOP
+                         Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+                         Decimal("{req.xrd_to_add}")
+                         Bucket("bucket1")
+            ;
+            
+            CALL_METHOD
+            Address("{community.id}")
+            "put_in_money_plus_interest_for_the_community_to_redeem"
+            Address("{user_address}")
+            Bucket("bucket1")
+            ;
+            
+             CALL_METHOD
+                         Address("{user_address}")
+                         "deposit_batch"
+                         Expression("ENTIRE_WORKTOP")
+            ;
+            """
+            return transaction_string
 
         # get community component address
 
