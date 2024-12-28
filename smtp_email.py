@@ -25,9 +25,6 @@ def load_html_template(content,email_type):
         return ""
 
 def send_email(email_type:str,email_object,user_mail:str):
-    if email_type != 'proposal_execute':
-        print('invalid email_type, expected [proposal_execute]')
-        return
     html_body = load_html_template(email_object,email_type)
     try:
         r = resend.Emails.send({
