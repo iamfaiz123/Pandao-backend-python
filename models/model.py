@@ -44,8 +44,7 @@ class UserEmailPreference(Base):
 
 class UserEmailVerification(Base):
     __tablename__ = 'user_email_verification'
-    id = Column(Integer, primary_key=True, autoincrement=True)  # Primary key
-    user_email = Column(String, nullable=False)  # Corrected type
+    user_email = Column(String, nullable=False, primary_key=True)  # Corrected type
     otp = Column(Integer, nullable=False)  # Corrected type
     expire_time = Column(DateTime, nullable=False)
 

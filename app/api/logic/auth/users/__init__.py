@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
-    Community, UserEmailVerification
+    Community, UserEmailVerification, UserEmailPreference
 from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
@@ -18,10 +18,17 @@ logging.basicConfig(level=logging.ERROR)
 
 def user_sign_up(signup: UserSignupForm):
     try:
-        # insert user details first
+        # first match the otp
+        otp = conn.query(UserEmailVerification).filter(UserEmailVerification.user_email == signup.email).filter(UserEmailVerification.otp == signup.otp).first()
+        if otp is None:
+            return {
+            "status": 401,
+            "cause": "invalid otp"
+        }
         user = User(
             name=signup.username,
             public_address=signup.public_address,
+            user_email=signup.email
         )
         # create user meta data
         usermetadata = UserMetaData(
@@ -31,9 +38,7 @@ def user_sign_up(signup: UserSignupForm):
         )
         user.usermetadata = usermetadata
         conn.add(user)
-
         # try to iter through tags that user send
-
         # tags will always present
         for t in signup.tags:
             preference = UserPreference(
@@ -52,18 +57,29 @@ def user_sign_up(signup: UserSignupForm):
                     user_address=signup.public_address,
                 )
                 conn.add(u_wh)
+        new_preference = UserEmailPreference(
+            user_address=signup.public_address,
+            new_letters=True,
+            community_notice=True,
+            bond_notice=True,
+            proposal_notice=True
+        )
+        conn.add(new_preference)
         conn.commit()
+        send_email('welcome',{},signup.email)
         return {
             "status": 201,
             "message": "user created "
         }
     except IntegrityError as e:
+        print(e)
         conn.rollback()
         return {
             "status": 401,
             "cause": "user with same wallet address already exists"
         }
     except Exception as e:
+        print(e)
         conn.rollback()
         logging.error("error at user signup : {}", e)
         raise HTTPException()
@@ -330,10 +346,14 @@ def get_user_created_bonds(user_address:str,is_accepted:bool):
         conn.rollback()
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
-
-
-
-
+def get_user_email_preference(user_address:str):
+    try:
+        preference = conn.query(UserEmailPreference).filter(UserEmailPreference.user_address == user_address).first()
+        return preference
+    except Exception as e:
+        conn.rollback()
+        logging.error(e)
+        return ApiError("Something went wrong, we're working on it", 500).as_http_response()
 
 def send_email_verification_otp(user_email: str):
     try:
@@ -341,23 +361,23 @@ def send_email_verification_otp(user_email: str):
         otp = random.randint(100000, 999999)
         # Set the expiration time to 15 minutes from now
         expire_time = datetime.utcnow() + timedelta(minutes=15)
+        verification_data = conn.query(UserEmailVerification).filter(UserEmailVerification.user_email == user_email).first()
+        if verification_data is None:
+            # Create a new verification record
+            verification_data = UserEmailVerification(
+                user_email=user_email,
+                otp=str(otp),
+                expire_time=expire_time
+            )
+        else:
+            verification_data.otp = str(otp)
+            verification_data.expire_time = expire_time
 
-        # Create a new verification record
-        verification_data = UserEmailVerification(
-            user_email=user_email,
-            otp=otp,
-            expire_time=expire_time
-        )
-
-        # Add the record to the database session
         conn.add(verification_data)
-
         # Commit the transaction to save the record
         conn.commit()
-
         # Send the OTP via email (pseudo-function, implement your email-sending logic)
         send_email("email_verification",{"otp":otp},user_email)
-
         return {"success": True, "message": "OTP sent successfully."}
 
     except Exception as e:
