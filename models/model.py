@@ -16,6 +16,7 @@ class User(Base):
     last_login: Mapped[DateTime] = Column(DateTime, default=func.now())
     usermetadata: Mapped["UserMetaData"] = relationship("UserMetaData", back_populates="user")
     created_at: Mapped[DateTime] = Column(DateTime, default=func.now())
+    user_email = Column(String, nullable=False)  # Corrected type
 
 
 class UserMetaData(Base):
@@ -32,8 +33,21 @@ class UserMetaData(Base):
     address: Mapped[str] = Column(String)
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
 
-# class ProfileSettings(Base):
-#     can_see_created_communities:Mapped[bool] = Column(bool)
+class UserEmailPreference(Base):
+    __tablename__='user_email_preference'
+    user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'), primary_key=True)
+    new_letters = Column(Boolean, nullable=True,default=True)
+    community_notice = Column(Boolean, nullable=True, default=True)
+    bond_notice = Column(Boolean, nullable=True, default=True)
+    proposal_notice = Column(Boolean, nullable=True, default=True)
+
+
+class UserEmailVerification(Base):
+    __tablename__ = 'user_email_verification'
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Primary key
+    user_email = Column(String, nullable=False)  # Corrected type
+    otp = Column(Integer, nullable=False)  # Corrected type
+    expire_time = Column(DateTime, nullable=False)
 
 class UserWork(Base):
     __tablename__ = 'user_work'

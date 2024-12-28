@@ -1,11 +1,14 @@
+from datetime import datetime, timedelta
 from http.client import HTTPException
+from random import random
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
-    Community
+    Community, UserEmailVerification
+from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
 import logging
@@ -331,3 +334,34 @@ def get_user_created_bonds(user_address:str,is_accepted:bool):
 
 
 
+
+def send_email_verification_otp(user_email: str):
+    try:
+        # Generate a random 6-digit OTP
+        otp = random.randint(100000, 999999)
+        # Set the expiration time to 15 minutes from now
+        expire_time = datetime.utcnow() + timedelta(minutes=15)
+
+        # Create a new verification record
+        verification_data = UserEmailVerification(
+            user_email=user_email,
+            otp=otp,
+            expire_time=expire_time
+        )
+
+        # Add the record to the database session
+        conn.add(verification_data)
+
+        # Commit the transaction to save the record
+        conn.commit()
+
+        # Send the OTP via email (pseudo-function, implement your email-sending logic)
+        send_email("email_verification",{"otp":otp},user_email)
+
+        return {"success": True, "message": "OTP sent successfully."}
+
+    except Exception as e:
+        # Rollback in case of any failure
+        conn.rollback()
+        print(f"Error: {e}")
+        return {"success": False, "message": f"Error sending OTP: {e}"}

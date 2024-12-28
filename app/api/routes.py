@@ -12,7 +12,7 @@ from .forms.transaction_manifest import TransactionSubmit
 from .logic import health as health_handler
 from .logic.activity.user_activity import get_user_activity, UserActivityModel, get_community_activity
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile, \
-    delete_user, get_pending_transactions, get_user_created_bonds
+    delete_user, get_pending_transactions, get_user_created_bonds, send_email_verification_otp
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
@@ -46,6 +46,13 @@ def load_server(app):
     @app.get('/')
     def health_check():
         return health_handler()
+
+    @app.post('/email-verification')
+    def send_email_verification_route(user_email:str):
+        send_email_verification_otp(user_email)
+        return {
+            "status":True
+        }
 
     # define public apis here
     @app.get('/tags', tags=(['TAGS']), description="get all tags from the platform")
