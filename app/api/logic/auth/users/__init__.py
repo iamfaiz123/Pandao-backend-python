@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from http.client import HTTPException
-from random import random
+import random
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
