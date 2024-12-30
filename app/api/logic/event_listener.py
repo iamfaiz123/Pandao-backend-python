@@ -363,13 +363,11 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal_id = metadata['proposal_id']
                     community = conn.query(Community).filter(Community.component_address == component_address).first()
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
-                    zcb = conn.query(ZeroCouponBond).filter(
-                        ZeroCouponBond.contract_identity == metadata['contract_identity']).first()
-
+                    zcb = (conn.query(ZeroCouponBond).filter(
+                        ZeroCouponBond.contract_identity == metadata['contract_identity'])
+                           .filter(ZeroCouponBond.created_on_blockchain == True).first())
                     proposal_status = fetch_proposal_status(proposal.proposal_address)
-
                     proposal.is_active = False
-
                     activity = UserActivity(
                         transaction_id=tx_id,
                         transaction_info=f'executed a proposal',
@@ -377,7 +375,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         community_id=proposal.community_id,
                         activity_type='proposal_executed'
                     )
-
                     # if proposal is failed
                     if int(proposal_status['for']) < int(proposal_status['against']):
                         proposal.status = -1
@@ -385,7 +382,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     else:
                         proposal.status = 0
                         proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
-                        zcb.amount_stored = zcb.price
+                        zcb.amount_stored = 0
                         zcb.has_accepted = True
                         zcb.has_withdrawn = False
                         community.funds = community.funds - zcb.price
@@ -395,7 +392,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         user_data = conn.query(User).filter(User.public_address == user_address).first()
                         user_md = conn.query(UserMetaData).filter(UserMetaData.user_address == user_address).first()
                         creator = conn.query(User).filter(User.public_address == proposal.creator).first()
-
                         # create email object
                         email_object = {"proposal_name": proposal.proposal,
                                         "bond_name": zcb.name,
