@@ -10,7 +10,8 @@ from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
-    ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote
+    ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
+    UserMetaData
 from smtp_email import send_email
 
 
@@ -391,10 +392,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         current_utc_time = datetime.utcnow()
                         # Format the time in a human-readable format
                         readable_utc_time = current_utc_time.strftime('%Y-%m-%d %H:%M:%S')
+                        user_data = conn.query(User).filter(User.public_address == user_address).first()
+                        user_md = conn.query(UserMetaData).filter(UserMetaData.user_address == user_address).first()
 
                         # create email object
-                        email_object = {"proposal_name": proposal.proposal, "bond_name": zcb.name,
-                                        "community_name": community.name, "date": readable_utc_time}
+                        email_object = {"proposal_name": proposal.proposal,
+                                        "bond_name": zcb.name,
+                                        "community_name": community.name,
+                                        "executed_by":user_data.name,
+                                        "community_image":community.image,
+                                        "user_image":user_md.image_url
+                                        }
                         send_email('proposal_execute',email_object)
                         community_expense = CommunityExpense(
                             community_id=proposal.community_id,
