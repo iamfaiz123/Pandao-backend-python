@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import resend
 
-resend.api_key = "re_8ZzRzVuc_FNfi9V9Kk8o6QjiA4FUsHGDw"
+resend.api_key = "re_XEbFu2pS_NzRcUvTKfBuZcWRBoejdgYKS"
 def load_html_template(content,email_type):
     file_path = None
     match email_type:
@@ -42,7 +42,7 @@ def send_email(email_type:str,email_object,user_mail:str):
                 return ""
 
         r = resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": "no-reply@pandao.live",
             "to": user_mail,
             "subject": subject,
             "html": f"{html_body}"
