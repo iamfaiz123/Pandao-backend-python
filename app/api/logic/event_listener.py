@@ -394,6 +394,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         readable_utc_time = current_utc_time.strftime('%Y-%m-%d %H:%M:%S')
                         user_data = conn.query(User).filter(User.public_address == user_address).first()
                         user_md = conn.query(UserMetaData).filter(UserMetaData.user_address == user_address).first()
+                        creator = conn.query(User).filter(User.public_address == proposal.creator).first()
 
                         # create email object
                         email_object = {"proposal_name": proposal.proposal,
@@ -403,7 +404,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         "community_image":community.image,
                                         "user_image":user_md.image_url
                                         }
-                        send_email('proposal_execute',email_object)
+                        send_email('proposal_execute',email_object,creator.user_email)
                         community_expense = CommunityExpense(
                             community_id=proposal.community_id,
                             xrd_spent=-xrd_paid,
