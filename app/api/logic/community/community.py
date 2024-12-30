@@ -192,13 +192,13 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         conn.add(activity)
 
         # create a community notice
-        c_n = CommunityNotice(
-            creator = user_addr ,
-            date = datetime.now() ,
-            notice = 'welcome new member !',
-            community_id = community_id
-        )
-        conn.add(c_n)
+        # c_n = CommunityNotice(
+        #     creator = user_addr ,
+        #     date = datetime.now() ,
+        #     notice = 'welcome new member !',
+        #     community_id = community_id
+        # )
+        # conn.add(c_n)
         conn.commit()
         return {
             "participated":True
