@@ -12,6 +12,8 @@ def load_html_template(content,email_type):
             file_path = "mail_templates/email_verification.html"
         case 'welcome':
             file_path = "mail_templates/welcome.html"
+        case 'bond_bought':
+            file_path = "mail_templates/bond_bought.html"
         case _ :
             print("unkown email type")
             return ""
@@ -37,6 +39,8 @@ def send_email(email_type:str,email_object,user_mail:str):
                 subject = "Pandao email verification"
             case 'welcome':
                 subject = "Welcome to Pandao"
+            case 'bond_bought':
+                subject = "Bond has been purchased"
             case _:
                 print("unkown email type")
                 return ""

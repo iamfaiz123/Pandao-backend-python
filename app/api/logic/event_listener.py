@@ -385,6 +385,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         zcb.amount_stored = 0
                         zcb.has_accepted = True
                         zcb.has_withdrawn = False
+                        zcb.amount_own = zcb.bond_price + (zcb.bond_price * (zcb.notional_principle / 100))
                         community.funds = community.funds - zcb.price
                         current_utc_time = datetime.utcnow()
                         # Format the time in a human-readable format
