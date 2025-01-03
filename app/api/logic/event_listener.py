@@ -393,6 +393,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         user_data = conn.query(User).filter(User.public_address == user_address).first()
                         user_md = conn.query(UserMetaData).filter(UserMetaData.user_address == user_address).first()
                         creator = conn.query(User).filter(User.public_address == proposal.creator).first()
+                        zcb_owner_detail = conn.query(User).filter(User.public_address == zcb.creator).first()
                         # create email object
                         email_object = {"proposal_name": proposal.proposal,
                                         "bond_name": zcb.name,
@@ -402,6 +403,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         "user_image":user_md.image_url
                                         }
                         send_email('proposal_execute',email_object,creator.user_email)
+                        email_object = {
+                            "proposal_name": proposal.proposal,
+                            "bond_name": zcb.name,
+                            "community_name": community.name,
+                            "community_image": community.image,
+                        }
+                        send_email('bond_bought', email_object, zcb_owner_detail.user_email)
                         community_expense = CommunityExpense(
                             community_id=proposal.community_id,
                             xrd_spent=-xrd_paid,
