@@ -521,7 +521,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     bond.amount_stored = 0
                     bond.has_withdrawn = True
                     conn.commit()
-
+                elif resources['event_type'] == 'PUT_IN_MONEY_PLUS_INTEREST':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    zcb = (conn.query(ZeroCouponBond).filter(
+                        ZeroCouponBond.community_id == community.id)
+                           .filter(ZeroCouponBond.created_on_blockchain == True)
+                           .filter(ZeroCouponBond.creator == metadata['bond_creator_address'])
+                           .first())
+                    zcb.amount_stored += float(metadata['amount'])
+                    conn.commit()
                 else:
                     pass
 
