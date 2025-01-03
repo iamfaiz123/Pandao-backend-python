@@ -102,5 +102,7 @@ class AddMoneyInBond(BaseModel):
     user_address: str
     xrd_to_add : float
 
-
+class ClaimBond(BaseModel):
+    bond_id: uuid.UUID = Field(..., description="bond id")
+    community_id: uuid.UUID = Field(..., description="community id")
 

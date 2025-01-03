@@ -5,7 +5,8 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
-    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond
+    ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
+    ClaimBond
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
 from models import dbsession as conn
 
@@ -488,6 +489,22 @@ def transaction_manifest_routes(app):
             return transaction_string
 
         # get community component address
+    @app.post('/manifest/zcb/claim')
+    def add_money_money_zcb(req: ClaimBond):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
+        transaction_string = f"""
+                        CALL_METHOD
+                        Address("{community.component_address}")
+                        "claim_the_invested_XRDs_plus_interest"
+                        Address("{zcb.creator}")
+                    ;
+                    """
+        return transaction_string
+
+
+
+
 
 
 
