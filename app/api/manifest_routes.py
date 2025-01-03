@@ -473,7 +473,7 @@ def transaction_manifest_routes(app):
             ;
             
             CALL_METHOD
-            Address("{community.id}")
+            Address("{community.component_address}")
             "put_in_money_plus_interest_for_the_community_to_redeem"
             Address("{user_address}")
             Bucket("bucket1")
