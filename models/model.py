@@ -232,6 +232,7 @@ class ZeroCouponBond(Base):
     has_accepted = Column(Boolean, nullable=True)
     has_withdrawn = Column(Boolean, nullable=True)
     amount_own = Column(Float, nullable=True)
+    claimed = Column(Boolean, nullable=True)
 
 class AnnTokens(Base):
     __tablename__ = 'ann_tokens'

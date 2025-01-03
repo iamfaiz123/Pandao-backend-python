@@ -531,6 +531,34 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                            .first())
                     zcb.amount_stored += float(metadata['amount'])
                     conn.commit()
+                elif resources['event_type'] == 'CLAIM_INVESTED_XRDs_PLUS_INTEREST':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    community.funds += float(metadata['claimed_amount'])
+                    zcb = (conn.query(ZeroCouponBond).filter(
+                        ZeroCouponBond.community_id == community.id)
+                           .filter(ZeroCouponBond.created_on_blockchain == True)
+                           .filter(ZeroCouponBond.creator == metadata['bond_creator_address'])
+                           .first())
+                    zcb.claimed = True
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'claimed a bond',
+                        user_address=user_address,
+                        community_id=community.id,
+                        activity_type='bond_claimed'
+                    )
+                    cf = CommunityFunds(
+                        community_id=community.id,
+                        xrd_added= float(metadata['claimed_amount']),
+                        current_xrd=community.funds,
+                        creator=user_address,
+                        tx_hash=tx_id,
+                        date=datetime.now(),
+                    )
+                    conn.add(cf)
+                    conn.add(activity)
+                    conn.commit()
                 else:
                     pass
 
