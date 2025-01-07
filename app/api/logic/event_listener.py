@@ -366,6 +366,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     zcb = (conn.query(ZeroCouponBond).filter(
                         ZeroCouponBond.contract_identity == metadata['contract_identity'])
                            .filter(ZeroCouponBond.created_on_blockchain == True).first())
+                    print(zcb.name)
                     proposal_status = fetch_proposal_status(proposal.proposal_address)
                     proposal.is_active = False
                     activity = UserActivity(

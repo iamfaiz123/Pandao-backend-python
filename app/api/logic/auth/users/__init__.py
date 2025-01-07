@@ -317,7 +317,7 @@ def get_user_created_bonds(user_address:str,is_accepted:bool):
                 'asset_name': bond.asset_name,
                 'amount_stored': bond.amount_stored,
                 'has_withdrawn':bond.has_withdrawn,
-                'amount-owned':bond.amount_own,
+                'amount_owned':bond.amount_own,
                 'community': {
                     'community_id': community.id,
                     'name': community.name,
