@@ -123,7 +123,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         community_id=community_id,
                     )
                     conn.add(participant)
-
                     # create community create activity
                     activity = UserActivity(
                         transaction_id=tx_id,
@@ -133,7 +132,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         activity_type='community_create'
                     )
                     conn.add(activity)
-
                     random_string = generate_random_string()
                     # add comment activity
                     participate_activity = UserActivity(
@@ -521,6 +519,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         .first())
                     bond.amount_stored = 0
                     bond.has_withdrawn = True
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'borrowed money from community',
+                        user_address=user_address,
+                        community_id=community.id,
+                        activity_type='TAKE_OUT_INVESTED_XRDs'
+                    )
+                    conn.add(activity)
                     conn.commit()
                 elif resources['event_type'] == 'PUT_IN_MONEY_PLUS_INTEREST' or resources['event_type'] == 'PUT_IN_LESS_MONEY_PLUS_INTEREST':
                     community_address = resources['component_address']
