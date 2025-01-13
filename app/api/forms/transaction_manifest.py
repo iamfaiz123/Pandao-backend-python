@@ -26,6 +26,7 @@ class DeployTokenWeightedDao(BaseModel):
     proposal_right: Optional[str] = Field(..., description="proposal right , ie who can create proposal")
     proposal_minimum_token: Optional[int] = Field(..., description="minimum number of token required for proposal "                                                        "creation")
     package_addr: str = Field(..., description="token image")
+    community_token_name: str = Field(..., description="community_token_name")
 
 
 class BuyTokenWeightedDaoToken(BaseModel):
@@ -43,8 +44,9 @@ class DeployProposal(BaseModel):
     proposal: str = Field(..., description="proposal")
     userAddress: str = Field(..., description="user address")
     description: str = Field(..., description="description")
-    vote_type: str = Field(..., description="voting system of proposal")
-    bond_issuer_address: str = Field(..., description="voting system of proposal")
+    vote_type: Optional[str] = Field(..., description="voting system of proposal")
+    bond_issuer_address: Optional[str] = Field(None, description="voting system of proposal")
+    desire_token_price:Optional[float] = Field(None,description="desire token price of user")
 
 
 class ProposalVote(BaseModel):

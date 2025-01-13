@@ -61,7 +61,7 @@ def transaction_manifest_routes(app):
             f'{tags_array}\n'
             f'"{purpose}"\n'
             f'{proposal_right}'
-            f'pandao-test-token'
+            f'"{req.community_token_name}"'
             f';\n'
             f'CALL_METHOD\n'
             f'    Address("{user_account}")\n'
@@ -503,9 +503,80 @@ def transaction_manifest_routes(app):
                     """
         return transaction_string
 
+    @app.post('/manifest/proposal/update-token-price')
+    def create_token_price_change_proposal(req:DeployProposal):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
 
+        start_time = req.start_time
+        end_time = req.end_time
+        account_address = req.userAddress
+        end_time_unix = int(end_time)  # Convert string to integer Unix timestamp
+        end_time_dt = datetime.utcfromtimestamp(end_time_unix)
 
+        # Extract year, month, day, hour, minute, second
+        end_year = end_time_dt.year
+        end_month = end_time_dt.month
+        end_day = end_time_dt.day
+        end_hour = end_time_dt.hour
+        end_minute = end_time_dt.minute
+        end_second = end_time_dt.second
 
+        start_time_unix = int(start_time)  # Convert string to integer Unix timestamp
+        start_time_dt = datetime.utcfromtimestamp(start_time_unix)
+
+        # Extract year, month, day, hour, minute, second
+        start_year = start_time_dt.year
+        start_month = start_time_dt.month
+        start_day = start_time_dt.day
+        start_hour = start_time_dt.hour
+        start_minute = start_time_dt.minute
+        start_second = start_time_dt.second
+        transaction_string = f"""
+                CALL_METHOD
+                             Address("{req.userAddress}")
+                             "withdraw"
+                             Address("resource_tdx_2_1t4lv0sddxdurk9dy6584qutfvlvx4h8nh6gczu2agpjr53rm97p68v")
+                             Decimal("1")
+                         ;
+                
+                TAKE_FROM_WORKTOP
+                             Address("resource_tdx_2_1t4lv0sddxdurk9dy6584qutfvlvx4h8nh6gczu2agpjr53rm97p68v")
+                             Decimal("1")
+                             Bucket("bucket1")
+                         ;
+                
+                
+                CALL_METHOD
+                  Address("{community.component_address}")
+                  "create_proposal_to_change_token_price"
+                  "{req.proposal}"
+                  "{req.description}"
+                1u8
+                Tuple(
+                {start_year}u32 ,
+                {start_month}u8 ,
+                {start_day}u8 ,
+                {start_hour}u8 ,
+                {start_minute}u8 ,
+                {start_second}u8)
+                Tuple(
+                {end_year}u32 ,
+                {end_month}u8 ,
+                {end_day}u8 ,
+                {end_hour}u8 ,
+                {end_minute}u8 ,
+                {end_second}u8)
+                  Enum<1u8>(
+                    Address("{req.userAddress}")
+                  )
+                  Bucket("bucket1")
+                  Enum<1u8>()
+                  Enum<1u8>(
+                    Decimal("{req.desire_token_price}")
+                  )
+                ;
+                           """
+        return transaction_string
 
 
 
