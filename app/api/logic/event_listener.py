@@ -218,7 +218,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(new_funds)
                     conn.commit()
 
-
+    
                 elif resources['event_type'] == 'TOKEN_SELL':
                     # in case of token bought , get community details and add activity
                     community_address = resources['component_address']

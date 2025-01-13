@@ -61,6 +61,7 @@ def transaction_manifest_routes(app):
             f'{tags_array}\n'
             f'"{purpose}"\n'
             f'{proposal_right}'
+            f'pandao-test-token'
             f';\n'
             f'CALL_METHOD\n'
             f'    Address("{user_account}")\n'
