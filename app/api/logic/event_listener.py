@@ -53,6 +53,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                             for m_d in field['fields']:
                                 for _m_d in m_d['fields']:
+                                    print(_m_d['field_name'])
 
                                     if _m_d['field_name'] == 'tags':
                                         for tags in _m_d['elements']:
@@ -75,6 +76,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     elif _m_d['field_name'] == 'token_type':
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
+                                    elif _m_d['field_name'] == 'desired_token_price':
+                                        if _m_d['variant_name'] == 'None':
+                                            pass
                                     else:
 
                                         metadata[_m_d['field_name']] = _m_d['value']
