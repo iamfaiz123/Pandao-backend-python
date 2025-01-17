@@ -79,7 +79,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                     elif _m_d['field_name'] == 'token_type':
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     elif _m_d['field_name'] == 'desired_token_price' or _m_d['field_name'] == 'desired_token_buy_back_price':
-                                        metadata[_m_d['field_name']] =  _m_d['fields'][0]['value']
+                                        if len(_m_d['fields']) != 0:
+                                            metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
+                                        else:
+                                            pass
                                     else:
 
                                         metadata[_m_d['field_name']] = _m_d['value']
