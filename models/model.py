@@ -198,6 +198,7 @@ class Proposal(Base):
     status = Column(Integer)
     proposed_token_price = Column(Float)
     proposed_token_buy_back_price = Column(Float)
+    proposal_type: Mapped[str] = mapped_column(String)
 
 class UserToProposalVote(Base):
     __tablename__ = "user_to_proposal_vote"

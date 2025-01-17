@@ -61,8 +61,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                     elif (_m_d['field_name'] == 'address_issued_bonds_to_sell' or
                                           _m_d['field_name'] == 'target_xrd_amount' or
                                           _m_d['field_name'] == 'proposal_creator_address'):
-
-                                        metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
+                                        if len(_m_d['fields']) != 0:
+                                            metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
+                                        else:
+                                            pass
                                     elif _m_d['field_name'] == 'amount_of_tokens_should_be_minted':
                                         pass
                                     elif _m_d['field_name'] == 'amount_of_tokens_should_be_minted':
@@ -76,9 +78,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     elif _m_d['field_name'] == 'token_type':
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
-                                    elif _m_d['field_name'] == 'desired_token_price':
-                                        if _m_d['variant_name'] == 'None':
-                                            pass
+                                    elif _m_d['field_name'] == 'desired_token_price' or _m_d['field_name'] == 'desired_token_buy_back_price':
+                                        metadata[_m_d['field_name']] =  _m_d['fields'][0]['value']
                                     else:
 
                                         metadata[_m_d['field_name']] = _m_d['value']
@@ -273,11 +274,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(new_funds)
                     conn.commit()
 
-                elif resources['event_type'] == 'PRAPOSAL':
+                elif resources['event_type'] == 'PRAPOSAL' or resources['event_type'] == 'PROPOSAL_TO_CHANGE_TOKEN_PRICE':
                     community_address = resources['component_address']
-
                     # get community names and detail
+                    proposal_type = ''
+                    if metadata.get('address_issued_bonds_to_sell') is None:
+                        proposal_type = 'token_price_change'
+                    else:
+                        proposal_type = 'buy_bond'
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    print(metadata.get('desired_token_buy_back_price'))
                     new_proposal = Proposal(
                         proposal=metadata['title'],
                         description=metadata['description'],
@@ -292,10 +298,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal_id=metadata['proposal_id'],
                         creator=metadata['proposal_creator_address'],
                         result='' ,
-                        zcb_bond_creator= metadata['address_issued_bonds_to_sell'],
+                        zcb_bond_creator= metadata.get('address_issued_bonds_to_sell'),
                         proposal_vote_type = metadata['token_type'] ,
                         status = 1 ,
-                        number_of_people_voted = 1
+                        number_of_people_voted = 0 ,
+                        proposed_token_price = metadata.get('desired_token_price'),
+                        proposed_token_buy_back_price = metadata.get('desired_token_buy_back_price'),
+                        proposal_type = proposal_type
                     )
                     activity = UserActivity(
                         transaction_id=tx_id,
