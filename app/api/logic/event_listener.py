@@ -79,10 +79,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                     elif _m_d['field_name'] == 'token_type':
                                         metadata[_m_d['field_name']] = _m_d['variant_name']
                                     elif _m_d['field_name'] == 'desired_token_price' or _m_d['field_name'] == 'desired_token_buy_back_price':
-                                        if len(_m_d['fields']) != 0:
-                                            metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
+                                        if resources['event_type'] == 'PRICE_CHANGE_QUORUM_MET_AND_SUCCESS':
+                                            metadata[_m_d['field_name']] = _m_d['value']
                                         else:
-                                            pass
+                                            if len(_m_d['fields']) != 0:
+                                                metadata[_m_d['field_name']] = _m_d['value']
+                                                metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
+                                            else:
+                                                pass
+                                    elif _m_d['field_name'] == 'proposal_type':
+                                        pass
                                     else:
 
                                         metadata[_m_d['field_name']] = _m_d['value']
@@ -582,6 +588,19 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(cf)
                     conn.add(activity)
                     conn.commit()
+                elif resources['event_type'] == 'PRICE_CHANGE_QUORUM_MET_AND_SUCCESS':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    proposal_id = metadata['proposal_id']
+                    proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
+                    community.token_price = metadata['desired_token_price']
+                    community.token_buy_back_price = metadata['desired_token_buy_back_price']
+                    proposal.status = -1
+                    proposal.result = f"executed unsuccessfully , number of people voted {metadata['number_of_voters']} . Proposal failed"
+                    conn.add(community)
+                    conn.add(proposal)
+                    conn.commit()
+
                 else:
                     pass
 
