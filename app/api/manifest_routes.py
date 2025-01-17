@@ -337,10 +337,15 @@ def transaction_manifest_routes(app):
         proposal = conn.query(Proposal).filter(Proposal.proposal_address == req.proposal_address).first()
         community_id = proposal.community_id
         community = conn.query(Community).filter(Community.id == community_id).first()
+        method = ""
+        if proposal.proposal_type == 'buy_bond':
+            method = 'execute_proposal'
+        else:
+            method = 'execute_proposal_to_change_token_price'
         transaction_string = f"""
                CALL_METHOD
                Address("{community.component_address}")
-               "execute_proposal"
+               "{method}"
                {proposal.proposal_id}u64
             ;
         """
