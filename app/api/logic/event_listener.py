@@ -277,7 +277,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(new_funds)
                     conn.commit()
 
-                elif resources['event_type'] == 'PRAPOSAL' or resources['event_type'] == 'PROPOSAL_TO_CHANGE_TOKEN_PRICE':
+                elif resources['event_type'] == 'PROPOSAL_TO_PURCHASE_BOND' or resources['event_type'] == 'PROPOSAL_TO_CHANGE_TOKEN_PRICE':
                     community_address = resources['component_address']
                     # get community names and detail
                     proposal_type = ''
