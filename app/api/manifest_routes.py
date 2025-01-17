@@ -531,53 +531,62 @@ def transaction_manifest_routes(app):
         start_minute = start_time_dt.minute
         start_second = start_time_dt.second
         transaction_string = f"""
-                CALL_METHOD
-                             Address("{req.userAddress}")
-                             "withdraw"
-                             Address("{community.token_address}")
-                             Decimal("1")
-                         ;
-                
-                TAKE_FROM_WORKTOP
-                             Address("{community.token_address}")
-                             Decimal("1")
-                             Bucket("bucket1")
-                ;
-                
-                CALL_METHOD
-                  Address("{community.component_address}")
-                  "create_proposal_to_change_token_price"
-                  "{req.proposal}"
-                  "{req.description}"
+            CALL_METHOD
+                Address("{req.userAddress}")
+                "withdraw"
+                Address("{community.token_address}")
+                Decimal("1")
+            ;
+
+            TAKE_FROM_WORKTOP
+                Address("{community.token_address}")
+                Decimal("1")
+                Bucket("bucket1")
+            ;
+
+            CALL_METHOD
+                Address("{community.component_address}")
+                "create_proposal_to_change_token_price"
+                "{req.proposal}"
+                "{req.description}"
                 1u8
                 Tuple(
-                {start_year}u32 ,
-                {start_month}u8 ,
-                {start_day}u8 ,
-                {start_hour}u8 ,
-                {start_minute}u8 ,
-                {start_second}u8)
+                    {start_year}u32,
+                    {start_month}u8,
+                    {start_day}u8,
+                    {start_hour}u8,
+                    {start_minute}u8,
+                    {start_second}u8
+                )
                 Tuple(
-                {end_year}u32 ,
-                {end_month}u8 ,
-                {end_day}u8 ,
-                {end_hour}u8 ,
-                {end_minute}u8 ,
-                {end_second}u8)
-                  Enum<1u8>(
+                    {end_year}u32,
+                    {end_month}u8,
+                    {end_day}u8,
+                    {end_hour}u8,
+                    {end_minute}u8,
+                    {end_second}u8
+                )
+                Enum<1u8>(
                     Address("{req.userAddress}")
-                  )
-                  Bucket("bucket1")
-                  Enum<1u8>()
-                  Enum<1u8>(
+                )
+                Bucket("bucket1")
+                Enum<1u8>()
+                Enum<1u8>(
                     Decimal("{req.desire_token_price}")
-                  )
-                   Enum<1u8>(
+                )
+                Enum<1u8>(
                     Decimal("{req.desire_token_buy_back_price}")
-                  )
-                  
-                ;
-            """
+                )
+            ;
+
+            CALL_METHOD
+                Address("{req.userAddress}")
+                "try_deposit_batch_or_refund"
+                Expression("ENTIRE_WORKTOP")
+                Enum<0u8>()
+            ;
+        """
+
         return transaction_string
 
 

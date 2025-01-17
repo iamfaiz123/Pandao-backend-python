@@ -196,6 +196,8 @@ class Proposal(Base):
     zcb_bond_creator: Mapped[str] = mapped_column(String)
     proposal_vote_type: Mapped[str] = mapped_column(String)
     status = Column(Integer)
+    proposed_token_price = Column(Float)
+    proposed_token_buy_back_price = Column(Float)
 
 class UserToProposalVote(Base):
     __tablename__ = "user_to_proposal_vote"
