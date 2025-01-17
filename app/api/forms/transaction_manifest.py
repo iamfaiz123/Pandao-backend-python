@@ -47,6 +47,7 @@ class DeployProposal(BaseModel):
     vote_type: Optional[str] = Field(..., description="voting system of proposal")
     bond_issuer_address: Optional[str] = Field(None, description="voting system of proposal")
     desire_token_price:Optional[float] = Field(None,description="desire token price of user")
+    desire_token_buy_back_price:Optional[float] = Field(None,description="desire token price of user")
 
 
 class ProposalVote(BaseModel):

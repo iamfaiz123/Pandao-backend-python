@@ -506,7 +506,6 @@ def transaction_manifest_routes(app):
     @app.post('/manifest/proposal/update-token-price')
     def create_token_price_change_proposal(req:DeployProposal):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
-
         start_time = req.start_time
         end_time = req.end_time
         account_address = req.userAddress
@@ -535,16 +534,15 @@ def transaction_manifest_routes(app):
                 CALL_METHOD
                              Address("{req.userAddress}")
                              "withdraw"
-                             Address("resource_tdx_2_1t4lv0sddxdurk9dy6584qutfvlvx4h8nh6gczu2agpjr53rm97p68v")
+                             Address("{community.token_address}")
                              Decimal("1")
                          ;
                 
                 TAKE_FROM_WORKTOP
-                             Address("resource_tdx_2_1t4lv0sddxdurk9dy6584qutfvlvx4h8nh6gczu2agpjr53rm97p68v")
+                             Address("{community.token_address}")
                              Decimal("1")
                              Bucket("bucket1")
-                         ;
-                
+                ;
                 
                 CALL_METHOD
                   Address("{community.component_address}")
@@ -574,8 +572,12 @@ def transaction_manifest_routes(app):
                   Enum<1u8>(
                     Decimal("{req.desire_token_price}")
                   )
+                   Enum<1u8>(
+                    Decimal("{req.desire_token_buy_back_price}")
+                  )
+                  
                 ;
-                           """
+            """
         return transaction_string
 
 
