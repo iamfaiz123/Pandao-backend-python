@@ -83,7 +83,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                             metadata[_m_d['field_name']] = _m_d['value']
                                         else:
                                             if len(_m_d['fields']) != 0:
-                                                metadata[_m_d['field_name']] = _m_d['value']
                                                 metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
                                             else:
                                                 pass

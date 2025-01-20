@@ -342,6 +342,7 @@ def transaction_manifest_routes(app):
             method = 'execute_proposal'
         else:
             method = 'execute_proposal_to_change_token_price'
+
         transaction_string = f"""
                CALL_METHOD
                Address("{community.component_address}")
