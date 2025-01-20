@@ -70,8 +70,8 @@ def load_server(app):
         return user_sign_up(req)
 
     @app.get('/user/activity', status_code=status.HTTP_201_CREATED, tags=(['user-auth']))
-    def get_user_activity_route(user_address: str, page: int = 1, page_size: int = 10):
-        return get_user_activity(user_address, page, page_size)
+    def get_user_activity_route(user_address: str, page: int = 1, page_size: int = 100,community_id:uuid.UUID=None):
+        return get_user_activity(user_address, page, page_size,community_id)
 
     @app.get('/user/check-signup/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-auth']))
     def user_check_signup_route(public_address: str):
@@ -158,8 +158,8 @@ def load_server(app):
     ## routes related to activity
     @app.get('/activity/{community_id}', summary='get all the activity on the platform',
              description="get all the activity on the platform", tags=(['user-activity ']))
-    def get_activity_route(community_id: uuid.UUID):
-        return get_community_activity(community_id)
+    def get_activity_route(community_id: uuid.UUID,user_address=None):
+        return get_community_activity(community_id,user_address)
 
     @app.get('/community/check/user_status', summary="check if user is participant of community", tags=(['community']))
     def check_user_community_status_route(user_addr: str, community_id: uuid.UUID):

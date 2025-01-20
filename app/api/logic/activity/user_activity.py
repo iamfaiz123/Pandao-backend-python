@@ -21,26 +21,50 @@ class UserActivityModel(BaseModel):
     image_url: str
 
 
-def get_community_activity(community_id: uuid):
+def get_community_activity(community_id: uuid,user_address=None):
     try:
         response = []
-        results = (conn.query(
-            UserActivity.transaction_id,
-            UserActivity.user_address,
-            User.name,
-            UserMetaData.image_url,
-            UserActivity.transaction_info,
-            UserActivity.created_at
-        ).join(
-            User, UserActivity.user_address == User.public_address
-        ).join(
-            UserMetaData, User.public_address == UserMetaData.user_address
-        ).filter(
-            UserActivity.community_id == community_id
-        ).order_by(
-            UserActivity.created_at.desc()
-        )
-                   .all())
+        result = ""
+        if user_address is not None:
+            results = (conn.query(
+                UserActivity.transaction_id,
+                UserActivity.user_address,
+                User.name,
+                UserMetaData.image_url,
+                UserActivity.transaction_info,
+                UserActivity.created_at
+            ).join(
+                User, UserActivity.user_address == User.public_address
+            ).join(
+                UserMetaData, User.public_address == UserMetaData.user_address
+            ).filter(
+                UserActivity.community_id == community_id
+            ).filter(
+                UserActivity.user_address == user_address
+            ).order_by(
+                UserActivity.created_at.desc()
+            ).all())
+        else:
+            results = (conn.query(
+                UserActivity.transaction_id,
+                UserActivity.user_address,
+                User.name,
+                UserMetaData.image_url,
+                UserActivity.transaction_info,
+                UserActivity.created_at
+            ).join(
+                User, UserActivity.user_address == User.public_address
+            ).join(
+                UserMetaData, User.public_address == UserMetaData.user_address
+            ).filter(
+                UserActivity.community_id == community_id
+            ).order_by(
+                UserActivity.created_at.desc()
+            ).all())
+
+
+
+
         for data in results:
             activity = {
                 'tx_id': data[0],
@@ -59,28 +83,51 @@ def get_community_activity(community_id: uuid):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-def get_user_activity(user_address: str, page: int, limit: int):
+def get_user_activity(user_address: str, page: int, limit: int,community_id=None):
     try:
         response = []
         offset = (page - 1) * limit
         total_rows = conn.query(func.count(UserActivity.transaction_id)).filter(
             UserActivity.user_address == user_address).scalar()
-        results = (conn.query(
-            UserActivity.transaction_id,
-            UserActivity.user_address,
-            User.name,
-            UserMetaData.image_url,
-            UserActivity.transaction_info,
-            UserActivity.created_at
-        ).join(
-            User, UserActivity.user_address == User.public_address
-        ).join(
-            UserMetaData, User.public_address == UserMetaData.user_address
-        ).filter(
-            UserActivity.user_address == user_address
-        ).order_by(
-            UserActivity.created_at.desc()
-        ).limit(limit).offset(offset).all())
+
+        if community_id is not None:
+            results = (conn.query(
+                UserActivity.transaction_id,
+                UserActivity.user_address,
+                User.name,
+                UserMetaData.image_url,
+                UserActivity.transaction_info,
+                UserActivity.created_at
+            ).join(
+                User, UserActivity.user_address == User.public_address
+            ).join(
+                UserMetaData, User.public_address == UserMetaData.user_address
+            ).filter(
+                UserActivity.user_address == user_address
+            ).filter(
+                UserActivity.community_id == community_id
+            ).order_by(
+                UserActivity.created_at.desc()
+            ).limit(limit).offset(offset).all())
+        else:
+            results = (conn.query(
+                UserActivity.transaction_id,
+                UserActivity.user_address,
+                User.name,
+                UserMetaData.image_url,
+                UserActivity.transaction_info,
+                UserActivity.created_at
+            ).join(
+                User, UserActivity.user_address == User.public_address
+            ).join(
+                UserMetaData, User.public_address == UserMetaData.user_address
+            ).filter(
+                UserActivity.user_address == user_address
+            ).order_by(
+                UserActivity.created_at.desc()
+            ).limit(limit).offset(offset).all())
+
+
 
         for data in results:
             activity = {
