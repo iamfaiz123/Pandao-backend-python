@@ -382,6 +382,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal_id = metadata['proposal_id']
                     community = conn.query(Community).filter(Community.component_address == component_address).first()
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
+                    print("bond ci")
+                    print(metadata['contract_identity'])
                     zcb = (conn.query(ZeroCouponBond).filter(
                         ZeroCouponBond.contract_identity == metadata['contract_identity'])
                            .filter(ZeroCouponBond.created_on_blockchain == True).first())
@@ -396,10 +398,12 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         activity_type='proposal_executed'
                     )
                     # if proposal is failed
-                    if int(proposal_status['for']) < int(proposal_status['against']):
+
+                    if int(proposal_status['for']) <= int(proposal_status['against']):
                         proposal.status = -1
                         proposal.result = f"executed unsuccessfully , number of people voted {metadata['number_of_voters']} . Proposal failed"
                     else:
+                        print("i come here")
                         proposal.status = 0
                         proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
                         zcb.amount_stored = 0
@@ -450,6 +454,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         conn.add(activity)
                         conn.add(cf)
                         conn.add(community_expense)
+                        conn.add(zcb)
                     conn.commit()
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']

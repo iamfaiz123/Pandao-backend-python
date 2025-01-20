@@ -403,12 +403,37 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
 
 def get_community_comments(c_id: uuid.UUID):
     # Join the tables
-    results = conn.query(CommunityDiscussion.created_at, CommunityDiscussion.id, CommunityDiscussion.title, User.name,
-                         UserMetaData.image_url,
-                         User.public_address).join(User,
-                                                   CommunityDiscussion.created_by == User.public_address).join(
-        UserMetaData, User.public_address == UserMetaData.user_address).filter(
-        CommunityDiscussion.community_id == c_id).all()
+    latest_comment_subquery = (
+        conn.query(
+            DiscussionComment.discussion_id,
+            func.max(DiscussionComment.created_at).label('last_comment_at')
+        )
+        .group_by(DiscussionComment.discussion_id)
+        .subquery()
+    )
+
+    # Alias the subquery for joining
+    LatestComment = latest_comment_subquery
+
+    # Main query
+    results = (
+        conn.query(
+            distinct(CommunityDiscussion.id).label('id'),
+            CommunityDiscussion.created_at,
+            CommunityDiscussion.title,
+            User.name,
+            UserMetaData.image_url,
+            User.public_address,
+            LatestComment.c.last_comment_at
+        )
+        .join(User, CommunityDiscussion.created_by == User.public_address)
+        .join(UserMetaData, User.public_address == UserMetaData.user_address)
+        .join(LatestComment, LatestComment.c.discussion_id == CommunityDiscussion.id)
+        .filter(CommunityDiscussion.community_id == c_id)
+        .order_by(LatestComment.c.last_comment_at)
+        .all()
+    )
+
 
     # Format the response
     comments = [
@@ -418,7 +443,8 @@ def get_community_comments(c_id: uuid.UUID):
             "user_image": row.image_url,
             "user_address": row.public_address,
             "id": row.id,
-            "created_at": row.created_at
+            "created_at": row.created_at,
+            "last_comment":row.last_comment_at
         }
         for row in results
     ]
