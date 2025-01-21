@@ -13,7 +13,7 @@ from .logic import health as health_handler
 from .logic.activity.user_activity import get_user_activity, UserActivityModel, get_community_activity
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile, \
     delete_user, get_pending_transactions, get_user_created_bonds, send_email_verification_otp, \
-    get_user_email_preference
+    get_user_email_preference, get_user_notification
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
@@ -94,6 +94,10 @@ def load_server(app):
     @app.get('/user/community/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-detail']))
     def get_user_all_communities(public_address: str, owner: bool):
         return get_user_communities(public_address, owner)
+
+    @app.get('/user/notification/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-notification']))
+    def get_user_all_communities(public_address: str):
+        return get_user_notification(public_address)
 
     @app.get('/user/expense/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-detail']))
     def get_user_all_expense_route(public_address: str):

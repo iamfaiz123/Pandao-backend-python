@@ -300,6 +300,20 @@ class CommunityNotice(Base):
     notice:Mapped[str] = mapped_column(String, nullable=True)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
 
+class UserNotification(Base):
+    __tablename__ = 'user_notification'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    is_read = Column(Boolean, nullable=True)
+    type: Mapped[str] = mapped_column(String, nullable=True, primary_key=True)
+    user_address:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    title:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    text:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    image:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
+    date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+
+
+
 from .engine import engine
 
 Base.metadata.create_all(engine)

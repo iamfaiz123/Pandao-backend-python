@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
-    Community, UserEmailVerification, UserEmailPreference
+    Community, UserEmailVerification, UserEmailPreference, UserNotification
 from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
@@ -381,6 +381,17 @@ def send_email_verification_otp(user_email: str):
         send_email("email_verification",{"otp":otp},user_email)
         return {"success": True, "message": "OTP sent successfully."}
 
+    except Exception as e:
+        # Rollback in case of any failure
+        conn.rollback()
+        print(f"Error: {e}")
+        return {"success": False, "message": f"Error sending OTP: {e}"}
+
+def get_user_notification(user_address:str):
+    try:
+        query = select(UserNotification)
+        result = conn.execute(query).scalars().all()
+        return result
     except Exception as e:
         # Rollback in case of any failure
         conn.rollback()
