@@ -389,7 +389,8 @@ def send_email_verification_otp(user_email: str):
 
 def get_user_notification(user_address:str):
     try:
-        query = select(UserNotification).filter(UserNotification.user_address == user_address).filter(UserNotification.is_read == False)
+        query = select(UserNotification).filter(UserNotification.user_address == user_address)
+        # .filter(UserNotification.is_read == False)
         result = conn.execute(query).scalars().all()
         update_query = (
             update(UserNotification)

@@ -6,12 +6,13 @@ import requests
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
+from sqlalchemy.orm import joinedload
 
 from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
-    UserMetaData
+    UserMetaData, UserNotification
 from smtp_email import send_email
 
 
@@ -230,6 +231,24 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(new_funds)
                     conn.commit()
+
+                    # also send noitifications to all users of the community
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='People are investing in your community!',
+                            text=f'{user.name} has bought some tokens in {community.name}, People are investing in your community!',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
 
     
                 elif resources['event_type'] == 'TOKEN_SELL':
