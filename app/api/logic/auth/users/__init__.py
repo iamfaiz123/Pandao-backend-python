@@ -12,7 +12,7 @@ from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
 import logging
-
+from sqlalchemy import update
 logging.basicConfig(level=logging.ERROR)
 
 
@@ -389,8 +389,14 @@ def send_email_verification_otp(user_email: str):
 
 def get_user_notification(user_address:str):
     try:
-        query = select(UserNotification)
+        query = select(UserNotification).filter(UserNotification.user_address == user_address).filter(UserNotification.is_read == False)
         result = conn.execute(query).scalars().all()
+        update_query = (
+            update(UserNotification)
+            .where(UserNotification.user_address == user_address)
+            .values(is_read=True)
+        )
+        conn.execute(update_query)
         return result
     except Exception as e:
         # Rollback in case of any failure

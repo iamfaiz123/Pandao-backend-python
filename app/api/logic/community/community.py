@@ -14,7 +14,7 @@ from app.api.logic.wallet import get_asset_details
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
     CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
-    UserToProposalVote
+    UserToProposalVote, UserNotification
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -180,6 +180,8 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         conn.add(participant)
         community = conn.query(Community).filter(Community.id == community_id).first()
         community_name = community.name
+        user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+            User.public_address == user_addr).first()
         random_string = generate_random_string()
         # add comment activity
         activity = UserActivity(
@@ -200,6 +202,23 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         # )
         # conn.add(c_n)
         conn.commit()
+        # once commit send notficiation to all partcipants of community
+        p = conn.query(Participants).filter(Participants.user_addr != user_addr).filter(
+            Participants.community_id == community_id).all()
+        for participant in p:
+            n = UserNotification(
+                # id=uuid4(),  # Generate a new UUID for the notification ID
+                user_address=participant.user_addr,
+                title='New member join your community',
+                text=f'{user.name} has joined {community_name}, be sure to welcome your new member',
+                image=community.image,
+                date=datetime.utcnow(),  # Current timestamp in UTC
+                is_read=False,
+                type='Info'
+            )
+            conn.add(n)
+        conn.commit()
+
         return {
             "participated":True
         }
