@@ -242,13 +242,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                             # id=uuid4(),  # Generate a new UUID for the notification ID
                             user_address=participant.user_addr,
                             title='People are investing in your community!',
-                            text=f'{user.name} has bought some tokens in {community.name}, People are investing in your community!',
+                            text=f'{user.name} has bought some tokens in {community.name}',
                             image=community.image,
                             date=datetime.utcnow(),  # Current timestamp in UTC
                             is_read=False,
                             type='Info'
                         )
                         conn.add(n)
+                    conn.commit()
 
     
                 elif resources['event_type'] == 'TOKEN_SELL':
@@ -299,6 +300,24 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         date=current_time  # You can omit this if you want to use the default value
                     )
                     conn.add(new_funds)
+
+                    conn.commit()
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='Some one withdraw their shares from your community!',
+                            text=f'{user.name} has withdraw some tokens from {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
                     conn.commit()
 
                 elif resources['event_type'] == 'PROPOSAL_TO_PURCHASE_BOND' or resources['event_type'] == 'PROPOSAL_TO_CHANGE_TOKEN_PRICE':
@@ -351,6 +370,24 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         date=datetime.now() # You can omit this if you want to use the default value
                     )
                     conn.add(community_expense)
+                    conn.commit()
+                    proposal_name = metadata['title']
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='A new proposal has been created in one of your community!',
+                            text=f'{user.name} has created a new proposal named {proposal_name} in {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
                     conn.commit()
                 elif resources['event_type'] == 'VOTE':
                     ## take voter address from events
@@ -475,6 +512,24 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         conn.add(community_expense)
                         conn.add(zcb)
                     conn.commit()
+                    proposal_name = proposal.name
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='A proposal has been executed in one of your community',
+                            text=f'{user.name} has executed {proposal_name} proposal in {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
+                    conn.commit()
                 elif resources['event_type'] == 'ZERO_COUPON_BOND_CREATION':
                     community_address = resources['component_address']
                     # get community names and detail
@@ -520,6 +575,23 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(activity)
                     # create an activity for same
                     conn.add(community_expense)
+                    conn.commit()
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='A Zero coupon bond has been created in your community',
+                            text=f'{user.name} has created a new bond  in {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
                     conn.commit()
 
                 elif resources['event_type'] == 'ANN_TOKEN_CREATION':
@@ -622,6 +694,23 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal.result = f"executed unsuccessfully , number of people voted {metadata['number_of_voters']} . Proposal failed"
                     conn.add(community)
                     conn.add(proposal)
+                    conn.commit()
+                    user = conn.query(User).options(joinedload(User.usermetadata)).filter(
+                        User.public_address == user_address).first()
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='New token prices has been set in the community',
+                            text=f'New token prices has been set in {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
                     conn.commit()
 
                 else:
