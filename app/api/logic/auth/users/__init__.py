@@ -389,7 +389,7 @@ def send_email_verification_otp(user_email: str):
 
 def get_user_notification(user_address:str):
     try:
-        query = select(UserNotification).filter(UserNotification.user_address == user_address).filter(UserNotification.is_read == False)
+        query = (select(UserNotification).filter(UserNotification.user_address == user_address).filter(UserNotification.is_read == False))
         result = conn.execute(query).scalars().all()
         update_query = (
             update(UserNotification)
@@ -397,6 +397,17 @@ def get_user_notification(user_address:str):
             .values(is_read=True)
         )
         conn.execute(update_query)
+        return result
+    except Exception as e:
+        # Rollback in case of any failure
+        conn.rollback()
+        print(f"Error: {e}")
+        return {"success": False, "message": f"Error sending OTP: {e}"}
+
+def get_user_all_notification(user_address:str):
+    try:
+        query = (select(UserNotification).filter(UserNotification.user_address == user_address))
+        result = conn.execute(query).scalars().all()
         return result
     except Exception as e:
         # Rollback in case of any failure
