@@ -653,7 +653,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                            .filter(ZeroCouponBond.created_on_blockchain == True)
                            .filter(ZeroCouponBond.creator == metadata['bond_creator_address'])
                            .first())
-                    zcb.amount_stored += float(metadata['amount_getting_deposited'])
+                    amount_deposited = metadata.get('amount_getting_deposited')
+                    if amount_deposited is None:
+                        amount_deposited = metadata.get('amount')
+                    zcb.amount_stored += float(amount_deposited)
                     conn.commit()
                 elif resources['event_type'] == 'CLAIM_INVESTED_XRDs_PLUS_INTEREST':
                     community_address = resources['component_address']
@@ -711,6 +714,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                             type='Info'
                         )
                         conn.add(n)
+                        conn.commit()
                     conn.commit()
 
                 else:
