@@ -1,4 +1,4 @@
-annotated-types==0.6.0
+
 anyio==4.3.0
 astroid==3.2.4
 autopep8==2.1.0
