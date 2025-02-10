@@ -103,6 +103,7 @@ def transaction_manifest_routes(app):
         "obtain_community_token"
         Bucket("bucket1")
         Decimal("{token_take}")
+        Address("{account_address}")
         ;
 
         CALL_METHOD
