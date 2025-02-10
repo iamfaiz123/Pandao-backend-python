@@ -596,10 +596,23 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
-
-
-
-
-
-
+    @app.post('/mint/executive-token')
+    def add_money_money_zcb(req: ClaimBond):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
+        transaction_string = f"""
+                       CALL_METHOD
+                            Address("{community.component_address}")
+                            "mint_executive_badge"
+                            "Abdul Ahmed"
+                            1u64
+                            ;
+                        CALL_METHOD
+                            Address("{req.user_address}")
+                            deposit_batch"
+                            Expression("ENTIRE_WORKTOP")
+                            ;
+                    
+                    """
+        return transaction_string
 

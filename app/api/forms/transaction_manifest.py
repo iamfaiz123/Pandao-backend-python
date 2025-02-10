@@ -109,3 +109,7 @@ class ClaimBond(BaseModel):
     bond_id: uuid.UUID = Field(..., description="bond id")
     community_id: uuid.UUID = Field(..., description="community id")
 
+class MintExecutiveToken(BaseModel):
+    user_address: str = Field(..., description="wallet address of user")
+    community_id: uuid.UUID = Field(..., description="community id")
+
