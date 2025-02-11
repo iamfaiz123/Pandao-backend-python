@@ -609,7 +609,7 @@ def transaction_manifest_routes(app):
                             ;
                         CALL_METHOD
                             Address("{req.user_address}")
-                            deposit_batch"
+                            "deposit_batch"
                             Expression("ENTIRE_WORKTOP")
                             ;
                     
