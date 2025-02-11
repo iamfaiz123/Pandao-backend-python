@@ -598,7 +598,7 @@ def transaction_manifest_routes(app):
 
 
     @app.post('/mint/executive-token')
-    def add_money_money_zcb(req: ClaimBond):
+    def mint_executive_badge(req: MintExecutiveToken):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
         transaction_string = f"""
