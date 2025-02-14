@@ -604,8 +604,8 @@ def transaction_manifest_routes(app):
                        CALL_METHOD
                             Address("{community.component_address}")
                             "mint_executive_badge"
-                            "Abdul Ahmed"
-                            1u64
+                            "{req.name}"
+                            {req.amount}u64
                             ;
                         CALL_METHOD
                             Address("{req.user_address}")
