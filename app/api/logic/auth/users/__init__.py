@@ -41,11 +41,10 @@ def user_sign_up(signup: UserSignupForm):
             UserEmailVerification.user_email == signup.email,
             UserEmailVerification.otp == signup.otp
         ).first()
-
         if otp is None:
             raise HTTPException(status_code=401, detail="invalid otp ")
 
-        if signup.otp != otp:
+        if signup.otp != otp.otp:
             raise HTTPException(status_code=401, detail="invalid otp ")
 
         # No need for the second OTP check as the first one already covers it.  Removing for efficiency.
