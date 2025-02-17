@@ -2,7 +2,7 @@ import uuid
 
 import requests
 import sqlalchemy
-from sqlalchemy import or_, select, func, desc, distinct
+from sqlalchemy import or_, select, func, desc, distinct, join
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
@@ -857,8 +857,30 @@ def get_user_communities(user_addr: str, owner: bool):
 
 
 def get_community_all_zero_coupon_bonds(community_id: uuid.UUID,purchased:bool):
-    proposal = conn.query(ZeroCouponBond).filter(ZeroCouponBond.community_id == community_id).filter(ZeroCouponBond.created_on_blockchain == True).filter(ZeroCouponBond.has_accepted ==purchased ).all()
-    return proposal
+    zcb_results = conn.execute(
+        select(
+            ZeroCouponBond,
+            User
+        ).select_from(
+            join(ZeroCouponBond, User, ZeroCouponBond.creator == User.public_address)
+        ).where(ZeroCouponBond.community_id == community_id).where(ZeroCouponBond.created_on_blockchain == True).where(
+            ZeroCouponBond.has_accepted == purchased)
+    ).all()
+
+    zcb = []
+    for bond, user in zcb_results:
+        merged_dict = bond.__dict__.copy()  # Create a copy of the bond's dictionary
+        merged_dict.update(user.__dict__)  # Update it with the user's dictionary
+
+        # Remove SQLAlchemy internal attributes (if needed)
+        if '_sa_instance_state' in merged_dict:
+            del merged_dict['_sa_instance_state']
+        merged_dict['creator_name'] = merged_dict.pop('name')
+        zcb.append(merged_dict)
+
+    return zcb
+
+
 
 def get_community_all_ann_tokens(community_id: uuid.UUID):
     ann = conn.query(AnnTokens).filter(AnnTokens.community_id == community_id).all()
