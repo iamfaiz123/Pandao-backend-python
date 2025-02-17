@@ -213,7 +213,7 @@ class ZeroCouponBond(Base):
     name: Mapped[str] = mapped_column(String, nullable=True)
     symbol: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
-    creator: Mapped[str] = mapped_column(String, ForeignKey("users.public_address"), primary_key=True)
+    creator: Mapped[str] = mapped_column(String, ForeignKey("users.public_address"),nullable=True)
     bond_price = Column(Float, nullable=True)
     interest_rate = Column(Float, nullable=True)
     contract_type: Mapped[str] = mapped_column(String, nullable=True)
