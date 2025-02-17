@@ -186,6 +186,23 @@ def transaction_manifest_routes(app):
                     }
                     raise HTTPException(status_code=400, detail=error_message)
 
+            if req.bond_issuer_address:
+                zcb = conn.query(ZcpModel).filter(ZcpModel.creator == req.bond_issuer_address, ZcpModel.community_id == community.id).first()
+                if zcb is None:
+                    error_message = {
+                        "error": f"Invalid bond address",
+                        "message": f"Invalid bond address"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+                if zcb.price > community.funds:
+                    error_message = {
+                        "error": f"Community Must have funds of at least {zcb.price} to create proposal to purchase this bond",
+                        "message": f"Community Must have funds of at least {zcb.price} to create proposal to purchase this bond"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+
+
+
             if proposal_right == 'ADMIN':
                 token_address = community.owner_token_address
                 if community.owner_address != req.userAddress:
