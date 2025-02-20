@@ -24,10 +24,10 @@ class UserSignupForm(BaseModel):
     username: str = Field(..., description="user username")
     display_image: str = Field(..., description="user display image")
     bio: Optional[str] = Field(None, description="User cover url")
-    tags: list[str] = Field(None, description="community tags that user likes")
+    tags: List[str] = Field(None, description="community tags that user likes")
     email:str = Field(description="user email")
     otp:int  = Field(description="email otp")
-    work_history: Optional[list[UserWorkHistory]] = Field(None, description="user work history")
+    work_history: Optional[List[UserWorkHistory]] = Field(None, description="user work history")
 
 
 class UserLogin(BaseModel):
@@ -53,4 +53,4 @@ class UserProfileUpdate(BaseModel):
     tiktok: Optional[str] = Field(None, description="User updated TikTok URL")
     cover_url: Optional[str] = Field(None, description="User cover url")
     bio: Optional[str] = Field(None, description="User cover url")
-    work_history: Optional[list[UserWorkHistoryUpdate]] = Field(None, description="work history")
+    work_history: Optional[List[UserWorkHistoryUpdate]] = Field(None, description="work history")

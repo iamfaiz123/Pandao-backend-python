@@ -22,7 +22,7 @@ class DeployTokenWeightedDao(BaseModel):
     description: str = Field(..., description="description of community ")
     tokenImage: str = Field(..., description="token image")
     purpose: str = Field(..., description="purpose of community")
-    tags: list[str] = Field(..., description="tags of the community")
+    tags: List[str] = Field(..., description="tags of the community")
     proposal_right: Optional[str] = Field(..., description="proposal right , ie who can create proposal")
     proposal_minimum_token: Optional[int] = Field(..., description="minimum number of token required for proposal "                                                        "creation")
     package_addr: str = Field(..., description="token image")
