@@ -112,4 +112,6 @@ class ClaimBond(BaseModel):
 class MintExecutiveToken(BaseModel):
     user_address: str = Field(..., description="wallet address of user")
     community_id: uuid.UUID = Field(..., description="community id")
+    id : int =  Field(..., description="amount of badge to mint")
+    name : str = Field(..., description="name of user")
 
