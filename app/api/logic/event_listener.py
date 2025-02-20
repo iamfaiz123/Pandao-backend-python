@@ -388,7 +388,23 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                             type='Info'
                         )
                         conn.add(n)
+                    n = UserNotification(
+                        # id=uuid4(),  # Generate a new UUID for the notification ID
+                        user_address=metadata.get('address_issued_bonds_to_sell'),
+                        title='People are showing interest in your bond request!',
+                        text=f'{community.name} has created a proposal in to buy your bond',
+                        image=community.image,
+                        date=datetime.utcnow(),  # Current timestamp in UTC
+                        is_read=False,
+                        type='Info'
+                    )
+                    conn.add(n)
                     conn.commit()
+
+
+                    # also send notification to the user who has created this bond
+
+
                 elif resources['event_type'] == 'VOTE':
                     ## take voter address from events
                     proposal_address = resources['component_address']
