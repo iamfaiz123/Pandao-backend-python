@@ -266,7 +266,8 @@ class CommunityExpense(Base):
     __tablename__ = 'community_expense'
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True) , default=uuid.uuid4)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
-    xrd_spent: Mapped[float] = mapped_column(Float, nullable=False)
+    xrd_spent_transactions: Mapped[float] = mapped_column(Float, nullable=False)
+    xrd_spend_on_asset: Mapped[float] = mapped_column(Float, nullable=True)
     creator: Mapped[str] = mapped_column(String, nullable=True)
     tx_hash: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
     xrd_spent_on: Mapped[str] = mapped_column(String, nullable=True,primary_key=True)

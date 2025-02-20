@@ -154,14 +154,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     # create a community expense object to insert into this data
                     community_expense = CommunityExpense(
                         community_id=community_id,
-                        xrd_spent= -( xrd_paid ),
+                        xrd_spent_transactions= - xrd_paid ,
                         creator=user_address,
                         tx_hash=tx_id,
+                        xrd_spend_on_asset=None,
                         xrd_spent_on='This Community Creation',
                         date=datetime.now()  # You can omit this if you want to use the default value
                     )
                     conn.add(community_expense)
-                    # finally commit
                     conn.commit()
                 elif resources['event_type'] == 'TOKEN_BOUGHT':
                     # in case of token bought , get community details and add activity
@@ -200,16 +200,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         activity_type='token_bought'
                     )
                     conn.add(activity)
-
                     # create a community expense object to insert into this data
                     community_expense = CommunityExpense(
                         community_id=community.id,
                         # also add xrd send in this
-                        xrd_spent= - (float(xrd_paid)+float(metadata['amount_paid'])),
+                        xrd_spent_transactions= -float(xrd_paid),
+                        xrd_spend_on_asset = - funds_added ,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='buy tokens in community',
                         date=current_time  # You can omit this if you want to use the default value
+
                     )
                     conn.add(community_expense)
                     # create a community funds chart
@@ -275,7 +276,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(activity)
                     community_expense = CommunityExpense(
                         community_id=community.id,
-                        xrd_spent=  ( float(metadata['amount_paid']) - xrd_paid ),
+                        xrd_spent_transactions =  - float(metadata['amount_paid']) ,
+                        xrd_spend_on_asset = funds_added,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='sold tokens in community',
@@ -285,7 +287,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     # create a community funds chart
                     new_funds = CommunityFunds(
                         community_id=community.id,
-                        xrd_added=funds_added,
+                        xrd_added= - funds_added,
                         current_xrd=current_community_funds,
                         creator=user_address,
                         tx_hash=tx_id,
@@ -355,7 +357,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(new_proposal)
                     community_expense = CommunityExpense(
                         community_id=community.id,
-                        xrd_spent=- ( xrd_paid ) ,
+                        xrd_spent_transactions = - xrd_paid ,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='created a proposal in community',
@@ -429,7 +431,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(activity)
                     community_expense = CommunityExpense(
                         community_id=proposal.community_id,
-                        xrd_spent= - ( xrd_paid ),
+                        xrd_spent_transactions =  - xrd_paid ,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='voted in a proposal',
@@ -492,7 +494,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         send_email('bond_bought', email_object, zcb_owner_detail.user_email)
                         community_expense = CommunityExpense(
                             community_id=proposal.community_id,
-                            xrd_spent=-xrd_paid,
+                            xrd_spent_transactions = -xrd_paid,
                             creator=user_address,
                             tx_hash=tx_id,
                             xrd_spent_on='executed in a proposal',
@@ -559,7 +561,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                     community_expense = CommunityExpense(
                         community_id=community.id,
-                        xrd_spent= - ( xrd_paid ),
+                        xrd_spent_transactions =  - xrd_paid ,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='created a zero coupon bond',
@@ -618,7 +620,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(ann)
                     community_expense = CommunityExpense(
                         community_id=community.id,
-                        xrd_spent= - ( xrd_paid ),
+                        xrd_spent_transactions =  - xrd_paid ,
                         creator=user_address,
                         tx_hash=tx_id,
                         xrd_spent_on='created an ANN token',
@@ -658,6 +660,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         amount_deposited = metadata.get('amount')
                     zcb.amount_stored += float(amount_deposited)
                     conn.commit()
+
                 elif resources['event_type'] == 'CLAIM_INVESTED_XRDs_PLUS_INTEREST':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
