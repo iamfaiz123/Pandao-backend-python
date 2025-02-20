@@ -357,6 +357,12 @@ def transaction_manifest_routes(app):
     def create_zero_coupon_bond(req: ZeroCouponBond):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         if community is not None:
+            # check if bond with same contract identity already exist
+            zcb = conn.query(ZeroCouponBond).filter(
+                ZeroCouponBond.contract_identity == req.bond_identity,
+                ZeroCouponBond.created_on_blockchain == True).first()
+            if zcb:
+                raise HTTPException(status_code=401, detail='bond with same contract identity already exist')
             zcb = ZcpModel(
                 community_id=req.community_id,
                 name=req.bond_name,
@@ -366,8 +372,17 @@ def transaction_manifest_routes(app):
                 asset_address=req.nft,
                 has_accepted=False
             )
+            # check if the zcb being created has no money more than community has
+            if community.funds is not None:
+                if community.funds > req.req.bond_price:
+                    raise HTTPException(status_code=401, detail='community does not have enough funds')
+            else:
+                raise HTTPException(status_code=401, detail='community does not have enough funds')
             conn.add(zcb)
             conn.commit()
+        else:
+            raise HTTPException(status_code=401, detail='invalid community id')
+
         asset_address = req.nft
         transaction_string = f"""
                 CALL_METHOD

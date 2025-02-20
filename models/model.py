@@ -262,7 +262,6 @@ class AnnTokens(Base):
     created_on_blockchain = Column(Boolean, nullable=True)
 
 
-
 class CommunityExpense(Base):
     __tablename__ = 'community_expense'
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True) , default=uuid.uuid4)
@@ -312,10 +311,7 @@ class UserNotification(Base):
     date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
 
-
-
 from .engine import engine
-
 Base.metadata.create_all(engine)
 
 #

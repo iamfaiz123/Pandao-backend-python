@@ -438,12 +438,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     proposal_id = metadata['proposal_id']
                     community = conn.query(Community).filter(Community.component_address == component_address).first()
                     proposal = conn.query(Proposal).filter(Proposal.proposal_id == proposal_id).first()
-                    print("bond ci")
-                    print(metadata['contract_identity'])
                     zcb = (conn.query(ZeroCouponBond).filter(
                         ZeroCouponBond.contract_identity == metadata['contract_identity'])
                            .filter(ZeroCouponBond.created_on_blockchain == True).first())
-                    print(zcb.name)
                     proposal_status = fetch_proposal_status(proposal.proposal_address)
                     proposal.is_active = False
                     activity = UserActivity(
@@ -459,7 +456,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal.status = -1
                         proposal.result = f"executed unsuccessfully , number of people voted {metadata['number_of_voters']} . Proposal failed"
                     else:
-                        print("i come here")
                         proposal.status = 0
                         proposal.result = f"executed successfully , number of people voted {metadata['number_of_voters']}. And bought {zcb.contract_identity}"
                         zcb.amount_stored = 0
