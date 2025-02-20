@@ -29,9 +29,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         }
 
         # Send a POST request with the JSON dataxs
-
         response = requests.post(url, json=data)
-
         # Check if the request was successful
         if response.status_code == 200:
             # create an empty dict to store data
@@ -40,7 +38,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             # Parse the response JSON data
             response_data = response.json()
             # Print the response JSON data
-
             # Store the response data in a dictionary
             response_data = response_data
             tx_events = response_data['transaction']['receipt']['events']
@@ -51,11 +48,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 if event['name'] == 'PandaoEvent':
                     for field in event['data']['fields']:
                         if field['field_name'] == 'meta_data':
-
                             for m_d in field['fields']:
                                 for _m_d in m_d['fields']:
-                                    print(_m_d['field_name'])
-
                                     if _m_d['field_name'] == 'tags':
                                         for tags in _m_d['elements']:
                                             community_tags.append(tags['value'])
@@ -157,7 +151,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         activity_type='participate'
                     )
                     conn.add(participate_activity)
-
                     # create a community expense object to insert into this data
                     community_expense = CommunityExpense(
                         community_id=community_id,
@@ -167,7 +160,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         xrd_spent_on='This Community Creation',
                         date=datetime.now()  # You can omit this if you want to use the default value
                     )
-
                     conn.add(community_expense)
                     # finally commit
                     conn.commit()
@@ -400,11 +392,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(n)
                     conn.commit()
-
-
                     # also send notification to the user who has created this bond
-
-
                 elif resources['event_type'] == 'VOTE':
                     ## take voter address from events
                     proposal_address = resources['component_address']
