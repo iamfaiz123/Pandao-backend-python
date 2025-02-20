@@ -62,3 +62,4 @@ urllib3==2.2.3
 uvicorn==0.29.0
 watchfiles==0.21.0
 resend==2.5.1
+psycopg2==2.9.3
