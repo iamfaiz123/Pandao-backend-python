@@ -622,7 +622,6 @@ def transaction_manifest_routes(app):
                             Address("{community.component_address}")
                             "mint_executive_badge"
                             "{req.name}"
-                             {req.id}u64
                             ;
                         CALL_METHOD
                             Address("{req.user_address}")
