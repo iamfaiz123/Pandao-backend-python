@@ -249,7 +249,7 @@ def get_community_participants(community_id: UUID):
                 User.public_address,
                 UserMetaData.image_url,
                 func.count(distinct(UserActivity.transaction_id)).label("activities"),
-                func.coalesce(func.sum(CommunityExpense.xrd_spent), 0).label("total_invested"),
+                func.coalesce(func.sum(CommunityExpense.xrd_spent_transactions), 0).label("total_invested"),
                 func.coalesce(
                     func.sum(
                         case(
