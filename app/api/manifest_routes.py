@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
     ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
-    ClaimBond, MintExecutiveToken
+    ClaimBond, MintExecutiveToken, TransferExecutiveBadge
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
 from models import dbsession as conn
 
@@ -633,7 +633,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
     @app.post('/manifest/transfer-executive-token')
-    def transfer_executive_badge(req: MintExecutiveToken):
+    def transfer_executive_badge(req: TransferExecutiveBadge):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
                      CALL_METHOD
