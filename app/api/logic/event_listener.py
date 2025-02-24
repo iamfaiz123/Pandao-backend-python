@@ -12,7 +12,7 @@ from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
-    UserMetaData, UserNotification
+    UserMetaData, UserNotification, CommunityExecutiveBadge
 from smtp_email import send_email
 
 
@@ -725,6 +725,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_executive_badge_address = metadata['resource_address']
                     community.executive_badge_address = community_executive_badge_address
                     conn.add(community)
+                    conn.commit()
+
+                elif resources['event_type'] == 'EXECUTIVE_APPOINTED':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    receiver = metadata['account_address']
+                    new_executive_member = CommunityExecutiveBadge(
+                        holder_address = receiver ,
+                        community_id = community.id
+                    )
+                    conn.add(new_executive_member)
                     conn.commit()
                 else:
                     pass
