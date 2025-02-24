@@ -14,7 +14,7 @@ from app.api.logic.wallet import get_asset_details
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
     CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
-    UserToProposalVote, UserNotification
+    UserToProposalVote, UserNotification, CommunityExecutiveBadge
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -722,10 +722,6 @@ def get_proposal_comment(proposal_id: uuid.UUID):
     return result
 
 
-class Praposalomment:
-    pass
-
-
 def add_proposal_comment(req: ProposalComment):
     try:
         new_comment = ProposalComments(
@@ -1093,4 +1089,17 @@ def check_user_has_voted(proposal_id:uuid, user_address:str):
     except Exception as e:
         conn.rollback()
         print(f"Unexpected error occurred: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail="Internal Server Error")\
+
+
+def get_community_executives(community_id:uuid):
+    query = (
+        conn.query(User.name, UserMetaData.image_url)
+        .join(CommunityExecutiveBadge, CommunityExecutiveBadge.holder_address == User.public_address)
+        .join(UserMetaData, UserMetaData.user_address == User.public_address)
+        .filter(CommunityExecutiveBadge.community_id == community_id)
+    )
+    # Execute the query
+    result = query.all()
+    response_data = [{"user_name": name, "image_url": image_url} for name, image_url in result]
+    return response_data
