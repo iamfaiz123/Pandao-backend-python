@@ -122,9 +122,7 @@ class Community(Base):
     # proposal rights tells about who can create a proposal in Pandao/community
     proposal_rights = Column(String)
     proposal_minimum_token = Column(Integer)
-    # community_comment: Mapped[list['CommunityDiscussion']] = relationship("CommunityDiscussion",
-    # back_populates="community")
-
+    executive_badge_address = Column(String)
 
 class CommunityTags(Base):
     __tablename__ = 'community_tags'
@@ -310,6 +308,11 @@ class UserNotification(Base):
     text:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
     image:Mapped[str] = mapped_column(String, nullable=True,primary_key=True)
     date: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
+
+class CommunityExecutiveBadge(Base):
+    __tablename__ = 'community_executive_badge'
+    holder_address: Mapped[str] = mapped_column(String, primary_key=True)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False, primary_key=True)
 
 
 from .engine import engine

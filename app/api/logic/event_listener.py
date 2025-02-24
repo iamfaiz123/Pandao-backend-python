@@ -719,7 +719,13 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         conn.add(n)
                         conn.commit()
                     conn.commit()
-
+                elif resources['event_type'] == 'EXECUTIVE_BADGE_MINTED':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    community_executive_badge_address = metadata['resource_address']
+                    community.executive_badge_address = community_executive_badge_address
+                    conn.add(community)
+                    conn.commit()
                 else:
                     pass
 

@@ -114,3 +114,7 @@ class MintExecutiveToken(BaseModel):
     community_id: uuid.UUID = Field(..., description="community id")
     name : str = Field(..., description="name of user")
 
+class TransferExecutiveBadge(BaseModel):
+    user_address: str = Field(..., description="wallet address of user")
+    community_id: uuid.UUID = Field(..., description="community id")
+    recipient: str = Field(..., description="wallet address of recipient")

@@ -632,3 +632,37 @@ def transaction_manifest_routes(app):
                     """
         return transaction_string
 
+    @app.post('/manifest/transfer-executive-token')
+    def transfer_executive_badge(req: MintExecutiveToken):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        transaction_string = f"""
+                     CALL_METHOD
+                          Address("{req.user_address}")
+                         "withdraw"
+                          Address("{community.executive_badge_address}")
+                          Decimal("1")
+                    ;
+                    
+                     TAKE_FROM_WORKTOP
+                        Address("{community.executive_badge_address}")
+                        Decimal("1")
+                        Bucket("bucket1")
+                    ;
+                    
+                    CALL_METHOD
+                        Address("{community.component_address}")
+                        "make_an_executive"
+                        Address("{req.recipient}")
+                        Bucket("bucket1")
+                    ;
+            
+                    CALL_METHOD
+                        Address("{req.user_address}")
+                        "try_deposit_batch_or_refund"
+                        Expression("ENTIRE_WORKTOP")
+                        Enum<0u8>()
+                    ;
+                    
+                """
+        return transaction_string
+
