@@ -240,7 +240,7 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-def get_community_participants(community_id: UUID):
+def get_community_participants(community_id: UUID,page = 1, limit = 10):
     from sqlalchemy import func, case, distinct, and_
     try:
         result = (
@@ -249,7 +249,7 @@ def get_community_participants(community_id: UUID):
                 User.public_address,
                 UserMetaData.image_url,
                 func.count(distinct(UserActivity.transaction_id)).label("activities"),
-                func.coalesce(func.sum(CommunityExpense.xrd_spent_transactions), 0).label("total_invested"),
+                func.coalesce(func.sum(CommunityExpense.xrd_spend_on_asset), 0).label("total_invested"),
                 func.coalesce(
                     func.sum(
                         case(
@@ -347,7 +347,8 @@ def get_community_participants(community_id: UUID):
                 ),
             )
             .group_by(User.public_address, User.name, UserMetaData.image_url)
-            .all()
+            .offset((page - 1) * limit)
+            .limit(limit)
         )
 
         # Return the result as a list of dictionaries
