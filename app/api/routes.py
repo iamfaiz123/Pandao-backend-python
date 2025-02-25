@@ -133,6 +133,10 @@ def load_server(app):
     def get_all_blueprint_route(slug: str):
         return get_blueprint(slug)
 
+    @app.get('/community/top', summary="get top 3 community of platform", description="get top 3 community of the platform",)
+    def get_top_community_route():
+        return get_community(None)
+
     @app.get('/community', summary="get communities of the platform ", description="get communities of platform",
              tags=(['community']))
     def get_community_route(sort: str = 'participants'):

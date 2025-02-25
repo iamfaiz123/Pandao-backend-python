@@ -36,7 +36,7 @@ def generate_random_string(length=12):
     return random_string
 
 
-def get_community(sort: str):
+def get_community(sort: str = 'participants'):
     query = conn.query(Community, func.count(Participants.id).label('participants_count')) \
         .outerjoin(Participants, Community.id == Participants.community_id) \
         .group_by(Community.id)
@@ -47,7 +47,7 @@ def get_community(sort: str):
     elif sort == 'name':
         query = query.order_by(Community.name.asc())
 
-    communities_with_participants = query.limit(6).all()
+    communities_with_participants = query.limit(3).all()
 
     # Now you can iterate over the result
     response = []
