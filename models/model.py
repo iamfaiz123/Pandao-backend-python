@@ -123,6 +123,7 @@ class Community(Base):
     proposal_rights = Column(String)
     proposal_minimum_token = Column(Integer)
     executive_badge_address = Column(String)
+    is_featured = Column(Boolean)
 
 class CommunityTags(Base):
     __tablename__ = 'community_tags'

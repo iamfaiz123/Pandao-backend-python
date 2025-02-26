@@ -13,7 +13,7 @@ from models import dbsession as conn
 
 #
 def transaction_manifest_routes(app):
-    @app.post('/manifest/build/deploy_token_weighted_dao', tags=(['manifest_builder']))
+    @app.post('/manifest/build/deploy_token_weighted_dao', tags=(['manifest-builder']))
     def build_token_weight_deploy_manifest(req: DeployTokenWeightedDao):
         organization_name = req.communityName
         token_supply = req.tokenSupply
@@ -71,7 +71,7 @@ def transaction_manifest_routes(app):
         )
         return manifest
 
-    @app.post('/manifest/build/buy_token/token_weighted_dao', tags=(['manifest_builder']))
+    @app.post('/manifest/build/buy_token/token_weighted_dao', tags=(['manifest-builder']))
     def buy_token_token_weighted_dao(req: BuyTokenWeightedDaoToken):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
@@ -119,7 +119,7 @@ def transaction_manifest_routes(app):
             print(e)
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    @app.post('/manifest/build/sell_token/token_weighted_dao', tags=(['manifest_builder']))
+    @app.post('/manifest/build/sell_token/token_weighted_dao', tags=(['manifest-builder']))
     def sell_token_token_weighted_dao(req: BuyTokenWeightedDaoToken):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
@@ -162,7 +162,7 @@ def transaction_manifest_routes(app):
             print(e)
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    @app.post('/manifest/build/praposal', tags=(['manifest_builder']))
+    @app.post('/manifest/build/praposal', tags=(['manifest-builder']))
     def build_proposal(req: DeployProposal):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
@@ -302,7 +302,7 @@ def transaction_manifest_routes(app):
             print(e)
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    @app.post('/manifest/proposal/vote', tags=(['manifest_builder']))
+    @app.post('/manifest/proposal/vote', tags=(['manifest-builder']))
     def vote_in_proposal(req: ProposalVote):
         proposal = conn.query(Proposal).filter(Proposal.proposal_address == req.proposal_address).first()
         community_id = proposal.community_id
@@ -350,7 +350,7 @@ def transaction_manifest_routes(app):
         """
         return transaction_string
 
-    @app.post('/manifest/proposal/execute', tags=(['manifest_builder']))
+    @app.post('/manifest/proposal/execute', tags=(['manifest-builder']))
     def vote_in_proposal(req: ExecuteProposal):
         proposal = conn.query(Proposal).filter(Proposal.proposal_address == req.proposal_address).first()
         community_id = proposal.community_id
@@ -370,7 +370,7 @@ def transaction_manifest_routes(app):
         """
         return transaction_string
 
-    @app.post('/manifest/zero-coupon-bond', tags=(['manifest_builder']))
+    @app.post('/manifest/zero-coupon-bond', tags=(['manifest-builder']))
     def create_zero_coupon_bond(req: ZeroCouponBond):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         if community is not None:
@@ -419,7 +419,7 @@ def transaction_manifest_routes(app):
         """
         return transaction_string
 
-    @app.post('/manifest/create-ann', tags=(['manifest_builder']))
+    @app.post('/manifest/create-ann', tags=(['manifest-builder']))
     def create_zero_coupon_bond(req:   IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         if community is not None:
@@ -453,7 +453,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
-    @app.post('/manifest/zcb/withdraw-all')
+    @app.post('/manifest/zcb/withdraw-all',tags=(['manifest-builder']))
     def take_money_from_zcb(req: WithDrawMoneyFromBond):
         zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
         if zcb is None:
@@ -476,7 +476,7 @@ def transaction_manifest_routes(app):
         """
         return transaction_string
 
-    @app.post('/manifest/zcb/add-xrds')
+    @app.post('/manifest/zcb/add-xrds',tags=(['manifest-builder']))
     def add_money_money_zcb(req: AddMoneyInBond):
             zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
             if zcb is None:
@@ -514,7 +514,7 @@ def transaction_manifest_routes(app):
             return transaction_string
 
         # get community component address
-    @app.post('/manifest/zcb/claim')
+    @app.post('/manifest/zcb/claim',tags=(['manifest-builder']))
     def add_money_money_zcb(req: ClaimBond):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         zcb = conn.query(ZcpModel).filter(ZcpModel.id == req.bond_id).first()
@@ -527,7 +527,7 @@ def transaction_manifest_routes(app):
                     """
         return transaction_string
 
-    @app.post('/manifest/proposal/update-token-price')
+    @app.post('/manifest/proposal/update-token-price',tags=(['manifest-builder']))
     def create_token_price_change_proposal(req:DeployProposal):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         start_time = req.start_time
@@ -614,7 +614,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
 
-    @app.post('/mint/executive-token')
+    @app.post('/mint/executive-token',tags=(['manifest-builder']))
     def mint_executive_badge(req: MintExecutiveToken):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
@@ -632,7 +632,7 @@ def transaction_manifest_routes(app):
                     """
         return transaction_string
 
-    @app.post('/manifest/transfer-executive-token')
+    @app.post('/manifest/transfer-executive-token',tags=(['manifest-builder']))
     def transfer_executive_badge(req: TransferExecutiveBadge):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
