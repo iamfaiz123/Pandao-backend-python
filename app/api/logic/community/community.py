@@ -47,7 +47,7 @@ def get_community(sort: str = 'participants'):
     elif sort == 'name':
         query = query.order_by(Community.name.asc())
 
-    communities_with_participants = query.limit(3).all()
+    communities_with_participants = query.limit(3).filter(Community.is_featured == True).all()
 
     # Now you can iterate over the result
     response = []
@@ -119,7 +119,8 @@ def get_all_community_of_platform(name,sort,tag):
                 "funds": community.funds,
                 "description": community.description,
                 "tags": tags,
-                "purpose": community.purpose
+                "purpose": community.purpose,
+                "is_featured": community.is_featured
             }
         )
     return response

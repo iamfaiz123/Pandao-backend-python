@@ -2,7 +2,9 @@ from collections import defaultdict
 
 import resend
 
-resend.api_key = "re_XEbFu2pS_NzRcUvTKfBuZcWRBoejdgYKS"
+from config.config import config
+
+resend.api_key = config.get('RESEND_API_KEY')
 def load_html_template(content,email_type):
     file_path = None
     match email_type:
