@@ -336,6 +336,7 @@ def delete_user(u_a: str):
         conn.query(UserMetaData).filter(UserMetaData.user_address == u_a).delete(synchronize_session=False)
         conn.query(UserWork).filter(UserWork.user_address == u_a).delete(synchronize_session=False)
         conn.query(UserPreference).filter(UserPreference.user_address == u_a).delete(synchronize_session=False)
+        conn.query(UserEmailPreference).filter(UserEmailPreference.user_address == u_a).delete(synchronize_session=False)
         conn.query(User).filter(User.public_address == u_a).delete(synchronize_session=False)
         conn.commit()  # Commit all deletions at once
 
