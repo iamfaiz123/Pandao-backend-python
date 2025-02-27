@@ -37,15 +37,17 @@ def user_sign_up(signup: UserSignupForm):
     """
     try:
         # 1. Verify OTP
-        otp = conn.query(UserEmailVerification).filter(
-            UserEmailVerification.user_email == signup.email,
-            UserEmailVerification.otp == signup.otp
-        ).first()
-        if otp is None:
-            raise HTTPException(status_code=401, detail="invalid otp ")
+        # otp = conn.query(UserEmailVerification).filter(
+        #     UserEmailVerification.user_email == signup.email,
+        #     UserEmailVerification.otp == signup.otp
+        # ).first()
+        # if otp is None:
+        #     raise HTTPException(status_code=401, detail="invalid otp ")
+        #
+        # if signup.otp != otp.otp:
+        #     raise HTTPException(status_code=401, detail="invalid otp ")
 
-        if signup.otp != otp.otp:
-            raise HTTPException(status_code=401, detail="invalid otp ")
+        # email is not working , remove email verify for now
 
         # No need for the second OTP check as the first one already covers it.  Removing for efficiency.
 
