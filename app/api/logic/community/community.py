@@ -976,10 +976,10 @@ def get_user_expense(user_addr: str):
         query = conn.query(
             CommunityExpense.id,
             CommunityExpense.community_id,
-            CommunityExpense.xrd_spent,
+            CommunityExpense.xrd_spent_transactions,
             CommunityExpense.creator,
             CommunityExpense.tx_hash,
-            CommunityExpense.xrd_spent_on,
+            CommunityExpense.xrd_spend_on_asset,
             CommunityExpense.date,
             Community.name.label('community_name'),
             Community.image.label('community_image')
@@ -1001,10 +1001,10 @@ def get_user_expense(user_addr: str):
             response.append({
                 "id": str(result.id),
                 "community_id": str(result.community_id),
-                "xrd_spent": result.xrd_spent,
+                "xrd_spent_on_transactions": result.xrd_spent_transactions,
                 "creator": result.creator,
                 "tx_hash": result.tx_hash,
-                "xrd_spent_on": result.xrd_spent_on,
+                "xrd_spent_on_assets": result.xrd_spend_on_asset,
                 "date": result.date.isoformat(),
                 "community_name": result.community_name,
                 "community_image":result.community_image
