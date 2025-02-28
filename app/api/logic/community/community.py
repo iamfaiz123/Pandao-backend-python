@@ -66,7 +66,8 @@ def get_community(sort: str = 'participants'):
                 "number_of_participants": participant_count,
                 "image": community.image,
                 "funds": community.funds,
-                "description": community.description
+                "description": community.description,
+                "is_disable":community.is_disabled_by_admin
             }
         )
     return response
@@ -121,7 +122,8 @@ def get_all_community_of_platform(name,sort,tag):
                 "description": community.description,
                 "tags": tags,
                 "purpose": community.purpose,
-                "is_featured": community.is_featured
+                "is_featured": community.is_featured,
+                "is_disable":community.is_disabled_by_admin
             }
         )
     return response
