@@ -1,4 +1,5 @@
 import uuid
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
@@ -7,7 +8,7 @@ from starlette import status
 from models import dbsession as conn , Community
 
 
-def mark_community_as_feature(community_id: uuid.UUID, feature: bool) -> None:
+def mark_community_as_feature(community_id: uuid.UUID, feature: bool) -> dict[str, UUID | bool] | None:
     """
     Marks a community as featured or unfeatured.
 
@@ -29,7 +30,10 @@ def mark_community_as_feature(community_id: uuid.UUID, feature: bool) -> None:
         community.is_featured = feature
         conn.add(community) # use add instead of save, in modern sqlalchemy.
         conn.commit()
-        return
+        return {
+            "community_id": community_id,
+            "is_featured": feature,
+        }
 
     except SQLAlchemyError as e:
         conn.rollback()  # Rollback on error
