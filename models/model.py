@@ -124,6 +124,7 @@ class Community(Base):
     proposal_minimum_token = Column(Integer)
     executive_badge_address = Column(String)
     is_featured = Column(Boolean,default=False)
+    is_disabled_by_admin = Column(Boolean,default=False)
 
 class CommunityTags(Base):
     __tablename__ = 'community_tags'

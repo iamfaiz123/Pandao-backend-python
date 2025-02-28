@@ -51,3 +51,43 @@ def mark_community_as_feature(community_id: uuid.UUID, feature: bool) -> dict[st
 
 
 
+def disable_community(community_id: uuid.UUID, disable: bool) -> dict[str, UUID | bool] | None:
+    """
+    Disables a community.
+
+    Args:
+        community_id: The UUID of the community.
+
+    Raises:
+        HTTPException: 404 if the community is not found.
+        HTTPException: 500 for database errors.
+        :param community_id:
+        :param disable:
+    """
+    try:
+        community = conn.query(Community).filter(Community.id == community_id).first()
+
+        if community is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Community not found")
+
+        community.is_disabled_by_admin = disable
+        conn.add(community)
+        conn.commit()
+        return {
+            "community_id": community_id,
+            "is_disabled": True,
+        }
+
+    except SQLAlchemyError as e:
+        conn.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}",
+        )
+    except HTTPException as http_ex:
+        conn.rollback()
+        raise http_ex
+
+    except Exception as general_ex:
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(general_ex)}")
