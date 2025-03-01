@@ -10,4 +10,8 @@ class MarkCommunityAsFeatured(BaseModel):
 
 class MarkCommunityAsDisable(BaseModel):
     community_id: UUID = Field(..., description="The UUID of the community.")
-    is_disable: bool = Field(..., description="True to mark as disable, False to enable.")
+    is_disable: bool = Field(..., description="True to mark as disable, False to enable.")\
+
+class AdminLogin(BaseModel):
+    email: str = Field(..., description="The email of the admin.")
+    password: str = Field(..., description="The password of the admin.")
