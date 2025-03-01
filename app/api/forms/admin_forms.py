@@ -6,4 +6,8 @@ from enum import Enum
 
 class MarkCommunityAsFeatured(BaseModel):
     community_id: UUID = Field(..., description="The UUID of the community.")
-    is_featured: bool = Field(..., description="True to mark as featured, False to unfeature.")
+    is_featured: bool = Field(..., description="True to mark as featured, False to un feature.")
+
+class MarkCommunityAsDisable(BaseModel):
+    community_id: UUID = Field(..., description="The UUID of the community.")
+    is_disable: bool = Field(..., description="True to mark as disable, False to enable.")
