@@ -139,7 +139,7 @@ def load_server(app):
 
     @app.get('/community/top', description="get top 3 community of the platform",tags=(['community-public-apis']))
     def get_top_community_route():
-        return get_community(None)
+        return get_community(sort = None)
 
     @app.get('/community', status_code=status.HTTP_200_OK,summary="get communities of the platform ", description="get communities of platform",
              tags=['community-public-apis'])

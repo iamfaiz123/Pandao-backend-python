@@ -12,7 +12,7 @@ from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
-    UserMetaData, UserNotification, CommunityExecutiveBadge
+    UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions
 from smtp_email import send_email
 
 
@@ -116,8 +116,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         proposal_rights=metadata['proposal_creation_right'],
                         proposal_minimum_token=metadata['minimum_token']
                     )
+                    community_functions = CommunityFunctions(community_id = community_id)
                     # add created community object for batch insert state
                     conn.add(community)
+                    conn.add(community_functions)
                     # loop over the tags for community
                     for t in community_tags:
                         tag = CommunityTags(

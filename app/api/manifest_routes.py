@@ -7,7 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
     ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
     ClaimBond, MintExecutiveToken, TransferExecutiveBadge
-from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens
+from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens, \
+    CommunityFunctions
 from models import dbsession as conn
 
 
@@ -74,6 +75,13 @@ def transaction_manifest_routes(app):
     @app.post('/manifest/build/buy_token/token_weighted_dao', tags=(['manifest-builder']))
     def buy_token_token_weighted_dao(req: BuyTokenWeightedDaoToken):
         try:
+            # get community configs
+            # check if participation enable by admin
+            community_configs = conn.query(CommunityFunctions).filter(
+                CommunityFunctions.community_id ==req.community_id).first()
+            if not community_configs.token_buy_enable:
+                raise HTTPException(status_code=403, detail="buying token is disabled by admin")
+
             community = conn.query(Community).filter(Community.id == req.community_id).first()
             account_address = req.userAddress
             XRD_take = req.tokenSupply * community.token_price + 1
@@ -165,6 +173,12 @@ def transaction_manifest_routes(app):
     @app.post('/manifest/build/praposal', tags=(['manifest-builder']))
     def build_proposal(req: DeployProposal):
         try:
+
+            community_configs = conn.query(CommunityFunctions).filter(
+                CommunityFunctions.community_id == req.community_id).first()
+            if not community_configs.proposal_create_enable:
+                raise HTTPException(status_code=403, detail="creation of new proposal is suspended by admin")
+
             community = conn.query(Community).filter(Community.id == req.community_id).first()
             user_token = conn.query(CommunityToken).filter(CommunityToken.community_id == community.id,
                                                            CommunityToken.user_address == req.userAddress).first()

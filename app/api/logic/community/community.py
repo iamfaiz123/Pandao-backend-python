@@ -14,7 +14,7 @@ from app.api.logic.wallet import get_asset_details
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
     CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
-    UserToProposalVote, UserNotification, CommunityExecutiveBadge
+    UserToProposalVote, UserNotification, CommunityExecutiveBadge, CommunityFunctions
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -170,8 +170,13 @@ def create_community(community: DeployCommunity):
 
 def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
     try:
-        # create new user participant
+        # check if participation enable by admin
+        community_configs = conn.query(CommunityFunctions).filter(CommunityFunctions.community_id == community_id).first()
 
+        if not community_configs.is_participation_enabled:
+            raise HTTPException(status_code=403, detail="participation not enabled by admin")
+
+        # create new user participant
         # first check if user exist in the community or not
         already_participated =  conn.query(Participants).filter(Participants.user_addr == user_addr).filter(Participants.community_id == community_id).first()
         if already_participated is not None:
