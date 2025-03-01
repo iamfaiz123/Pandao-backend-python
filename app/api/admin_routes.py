@@ -45,12 +45,12 @@ def get_current_user(token: str = Depends(verify_token)):
 def admin_routes(app):
     @app.post('/admin/community/mark-featured', status_code=status.HTTP_201_CREATED,
               summary='admin marks a community as featured', tags=['admin routes'])
-    def mark_community_as_featured(req: MarkCommunityAsFeatured, token: str = Depends(get_current_user)):
+    def mark_community_as_featured(req: MarkCommunityAsFeatured):
         return mark_community_as_feature(req.community_id, req.is_featured)
 
     @app.post('/admin/community/disable', status_code=status.HTTP_201_CREATED,
               summary='admin enable/disable a community', tags=['admin routes'])
-    def mark_community_as_disabled(req: MarkCommunityAsDisable, token: str = Depends(get_current_user)):
+    def mark_community_as_disabled(req: MarkCommunityAsDisable):
         return disable_community(req.community_id, req.is_disable)
 
 
