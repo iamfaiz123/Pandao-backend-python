@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 
-origins = ["https://pandao-admin.vercel.app","https://pandao.live"],
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,8 +36,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 
 )
-
-
 
 transaction_manifest_routes(app)
 admin_routes(app)
