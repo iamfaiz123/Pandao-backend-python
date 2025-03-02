@@ -5,7 +5,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 
-from models import dbsession as conn , Community
+from app.api.forms.admin_forms import UpdateCommunityFunctions
+from models import dbsession as conn, Community, CommunityFunctions
 
 
 def mark_community_as_feature(community_id: uuid.UUID, feature: bool) -> dict[str, UUID | bool] | None:
@@ -91,3 +92,51 @@ def disable_community(community_id: uuid.UUID, disable: bool) -> dict[str, UUID 
     except Exception as general_ex:
         conn.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(general_ex)}")
+
+def get_community_config(community_id: uuid.UUID):
+    try:
+        config = conn.query(CommunityFunctions).filter(CommunityFunctions.id == community_id).first()
+        return config
+
+    except SQLAlchemyError as e:
+        conn.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}",
+        )
+    except HTTPException as http_ex:
+        conn.rollback()
+        raise http_ex
+
+    except Exception as general_ex:
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"An unexpected error occurred: {str(general_ex)}")
+
+def update_community_config(req: UpdateCommunityFunctions):
+    try:
+        if req:
+            community_functions = conn.query(CommunityFunctions).filter(
+                CommunityFunctions.community_id == req.community_id).first()
+            # Update the object's attributes
+            for key, value in req.items():
+                setattr(community_functions, key, value)
+            # Commit the changes to the database
+            conn.commit()
+            return community_functions
+
+    except SQLAlchemyError as e:
+        conn.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}",
+        )
+    except HTTPException as http_ex:
+        conn.rollback()
+        raise http_ex
+
+    except Exception as general_ex:
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"An unexpected error occurred: {str(general_ex)}")
+

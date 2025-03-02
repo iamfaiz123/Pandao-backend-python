@@ -244,12 +244,13 @@ class CommunityExecutiveBadge(Base):
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False, primary_key=True)
 
 class CommunityFunctions(Base):
+    __tablename__ = 'community_functions'
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False,primary_key=True)
-    token_buy_enable = Column(Boolean, nullable=True,default=False)
-    proposal_create_enable = Column(Boolean, nullable=True, default=False)
-    is_participation_enabled = Column(Boolean, nullable=True, default=False)
-    bond_creation_enable = Column(Boolean, nullable=True, default=False)
-    discussion_creation_enable = Column(Boolean, nullable=True, default=False)
+    token_buy_enable = Column(Boolean, nullable=True,default=True)
+    proposal_create_enable = Column(Boolean, nullable=True, default=True)
+    is_participation_enabled = Column(Boolean, nullable=True, default=True)
+    bond_creation_enable = Column(Boolean, nullable=True, default=True)
+    discussion_creation_enable = Column(Boolean, nullable=True, default=True)
 
 from .engine import engine
 Base.metadata.create_all(engine)
