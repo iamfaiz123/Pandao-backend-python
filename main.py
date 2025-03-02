@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 
-origins = ["*"]
+origins = ["https://www.pandao.live","https://pandao-admin.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
