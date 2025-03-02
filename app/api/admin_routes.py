@@ -85,12 +85,15 @@ def admin_routes(app):
             return e
         return update_community_config(req)
 
+    from fastapi import Response
 
     @app.post("/token", response_model=Token,status_code=status.HTTP_201_CREATED,
               summary='admin login', tags=['admin routes'])
-    def login_for_access_token(form_data: AdminLogin):
+    def login_for_access_token(form_data: AdminLogin,response: Response):
         # Validate username and password (typically check against a database)
         if form_data.email == "admin@pandao.live" and form_data.password == "pandao@123":  # Example validation
             access_token = create_access_token(data={"sub": form_data.email})
+            response.headers["Access-Control-Allow-Credentials"] = "true"
             return {"access_token": access_token, "token_type": "Bearer"}
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+# Access-Control-Allow-Credentials
