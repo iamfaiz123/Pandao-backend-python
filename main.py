@@ -29,7 +29,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://pandao-admin.vercel.app","https://pandao.live"],  # Allow all origins
-    allow_credentials=False,
+    allow_credentials=True,
+    credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
 
