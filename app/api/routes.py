@@ -13,7 +13,7 @@ from .logic import health as health_handler
 from .logic.activity.user_activity import get_user_activity, UserActivityModel, get_community_activity
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile, \
     delete_user, get_pending_transactions, get_user_created_bonds, send_email_verification_otp, \
-    get_user_email_preference, get_user_notification, get_user_all_notification
+    get_user_email_preference, get_user_notification, get_user_all_notification, get_user_token_withdraw_request
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
@@ -287,7 +287,11 @@ def load_server(app):
     ### invalid apis
     @app.get('/user/metadata/{user_address}', summary="get all assets from users wallet",
              tags=(['User wallet']))
-    def invalid_function(user_address: str):
-        return  {}
+    # def invalid_function(user_address: str):
+    #     return  {}
 
+    @app.get('/user/token-withdraw-request/{user_address}', summary="get all assets from users wallet",
+             tags=(['User wallet']))
+    def token_withdraw_request(user_address: str):
+        return get_user_token_withdraw_request(user_address)
 

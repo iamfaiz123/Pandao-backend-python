@@ -2,12 +2,13 @@ from datetime import datetime, timedelta
 from http.client import HTTPException
 import random
 
-from sqlalchemy import select
+from sqlalchemy import select, ARRAY, String, cast, func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
-    Community, UserEmailVerification, UserEmailPreference, UserNotification
+    Community, UserEmailVerification, UserEmailPreference, UserNotification, TokenWithDrawExecutiveSignStatus, \
+    TokenWithDrawRequest
 from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
@@ -595,3 +596,37 @@ def get_user_all_notification(user_address: str):
         conn.rollback()
         logging.error(f"Error getting all notifications: {e}")  # Improved logging
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error") # Use HTTPException
+
+def get_user_token_withdraw_request(user_address: str):
+    try:
+        result = (
+            conn.query(
+                TokenWithDrawRequest.amount_to_withdraw,
+                TokenWithDrawRequest.request_date,
+                TokenWithDrawRequest.status,
+                Community.name,
+                Community.image,
+            )
+            .join(Community, Community.id == TokenWithDrawRequest.community_id)
+            .filter(TokenWithDrawRequest.user_address == user_address)
+            .all()
+        )
+        withdraw_requests = [
+            {
+                "amount_to_withdraw": req.amount_to_withdraw,
+                "request_date": req.request_date,
+                "status": req.status,
+                "community_name": req.name,
+                "community_image": req.image,
+            }
+            for req in result
+        ]
+
+        return withdraw_requests
+    except Exception as e:
+        conn.rollback()
+        logging.error(f"Error getting token withdraw requests: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+
+
+

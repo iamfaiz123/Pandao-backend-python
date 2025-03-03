@@ -265,6 +265,7 @@ class TokenWithDrawExecutiveSignStatus:
     __tablename__ = 'token_withdraw_executive_sign_status'
     signed_by:Mapped[str] = mapped_column(String, ForeignKey("users.public_address"),nullable=True)
     signed_date = Column(DateTime, default=func.now(), nullable=False)
+    req_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
 from .engine import engine
