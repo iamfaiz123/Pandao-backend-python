@@ -118,3 +118,8 @@ class TransferExecutiveBadge(BaseModel):
     user_address: str = Field(..., description="wallet address of user")
     community_id: uuid.UUID = Field(..., description="community id")
     recipient: str = Field(..., description="wallet address of recipient")
+
+class RequestTokenWithDraw(BaseModel):
+    user_address: str = Field(..., description="wallet address of user")
+    community_id: uuid.UUID = Field(..., description="community id")
+    amount : float =  Field(..., description="amount to withdraw")

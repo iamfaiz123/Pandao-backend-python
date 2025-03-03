@@ -6,9 +6,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
     ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
-    ClaimBond, MintExecutiveToken, TransferExecutiveBadge
+    ClaimBond, MintExecutiveToken, TransferExecutiveBadge, RequestTokenWithDraw
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens, \
-    CommunityFunctions
+    CommunityFunctions, TokenWithDrawRequest
 from models import dbsession as conn
 
 
@@ -678,5 +678,48 @@ def transaction_manifest_routes(app):
                     ;
                     
                 """
+        return transaction_string
+
+    @app.post('/manifest/generate-token-withdraw-request', tags=(['manifest-builder']))
+    def transfer_executive_badge(req: RequestTokenWithDraw):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        try:
+            user_last_req = (
+                conn.query(TokenWithDrawRequest)
+                .filter(
+                    TokenWithDrawRequest.community_id == req.community_id,
+                    TokenWithDrawRequest.user_address == req.user_address
+                )
+                .order_by(TokenWithDrawRequest.request_date.desc())
+                .first()
+            )
+
+            if user_last_req is not None:
+                if not user_last_req.status:
+                    error_message = {
+                        "error": "your last request is still pending",
+                        "message": "your last request is still pending"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+            t_w_r = TokenWithDrawRequest(
+                community_id=req.community_id,
+                user_address=req.user_address,
+                amount_to_withdraw=req.amount,
+                status=False
+            )
+            conn.add(t_w_r)
+            conn.commit()
+            transaction_string = f"""
+                CALL_METHOD
+                    Address("{community.component_address}")
+                    "request_withdrawal"
+                    Address("{req.user_address}")
+                    Decimal("{req.amount}")
+                ;
+            """
+        except HTTPException as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+
         return transaction_string
 

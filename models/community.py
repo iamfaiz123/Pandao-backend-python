@@ -252,6 +252,21 @@ class CommunityFunctions(Base):
     bond_creation_enable = Column(Boolean, nullable=True, default=True)
     discussion_creation_enable = Column(Boolean, nullable=True, default=True)
 
+class TokenWithDrawRequest(Base):
+    __tablename__ = 'token_withdraw_request'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
+    user_address:Mapped[str] = mapped_column(String, ForeignKey("users.public_address"),nullable=True)
+    amount_to_withdraw = Column(Float, nullable=False)
+    request_date = Column(DateTime, default=func.now(), nullable=False)
+    status = Column(Boolean, nullable=False)
+
+class TokenWithDrawExecutiveSignStatus:
+    __tablename__ = 'token_withdraw_executive_sign_status'
+    signed_by:Mapped[str] = mapped_column(String, ForeignKey("users.public_address"),nullable=True)
+    signed_date = Column(DateTime, default=func.now(), nullable=False)
+
+
 from .engine import engine
 Base.metadata.create_all(engine)
 
