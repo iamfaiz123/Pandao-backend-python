@@ -95,7 +95,7 @@ def disable_community(community_id: uuid.UUID, disable: bool) -> dict[str, UUID 
 
 def get_community_config(community_id: uuid.UUID):
     try:
-        config = conn.query(CommunityFunctions).filter(CommunityFunctions.id == community_id).first()
+        config = conn.query(CommunityFunctions).filter(CommunityFunctions.community_id == community_id).first()
         return config
 
     except SQLAlchemyError as e:

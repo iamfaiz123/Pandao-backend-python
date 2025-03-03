@@ -41,9 +41,9 @@ def verify_token(token: str):
 def admin_routes(app):
     @app.post('/admin/community/mark-featured', status_code=status.HTTP_201_CREATED,
               summary='admin marks a community as featured', tags=['admin routes'])
-    def mark_community_as_featured(req: MarkCommunityAsFeatured, authorization:str = Header(..., description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
+    def mark_community_as_featured(req: MarkCommunityAsFeatured, auth:str =  Header(...,  alias="Authorization",description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
         try:
-            prefix, token = authorization.split(" ")
+            prefix, token = auth.split(" ")
             if prefix != 'Bearer':
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
             verify_token(token)
@@ -53,9 +53,9 @@ def admin_routes(app):
 
     @app.post('/admin/community/disable', status_code=status.HTTP_201_CREATED,
               summary='admin enable/disable a community', tags=['admin routes'])
-    def mark_community_as_disabled(req: MarkCommunityAsDisable, authorization:str = Header(..., description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
+    def mark_community_as_disabled(req: MarkCommunityAsDisable, auth:str =  Header(...,  alias="Authorization",description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
         try:
-            prefix, token = authorization.split(" ")
+            prefix, token = auth.split(" ")
             if prefix != 'Bearer':
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
             verify_token(token)
@@ -63,10 +63,13 @@ def admin_routes(app):
             return e
         return disable_community(req.community_id, req.is_disable)
 
-    @app.get('admin/community/config', status_code=status.HTTP_200_OK,summary = 'get community config', tags=['admin routes'])
-    def get_community_config_api(community_id: uuid.UUID, t:str =  Header(..., description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
+    @app.get('/admin/community/config', status_code=status.HTTP_200_OK,summary = 'get community config', tags=['admin routes'])
+    def get_community_config_api(community_id: uuid.UUID, auth:str =  Header(...,  alias="Authorization",description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
         try:
-            prefix, token = t.split(" ")
+            try:
+               prefix, token = auth.split(" ")
+            except:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
             if prefix != 'Bearer':
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
             verify_token(token)
@@ -75,9 +78,9 @@ def admin_routes(app):
         return get_community_config(community_id)
 
     @app.post('/admin/community/config', status_code=status.HTTP_201_CREATED,summary = 'update community config', tags=['admin routes'])
-    def get_community_config_api(req: UpdateCommunityFunctions, authorization:str =  Header(..., description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
+    def get_community_config_api(req: UpdateCommunityFunctions, auth:str =  Header(...,  alias="Authorization",description="Authorization header with Bearer token scheme. Example: 'Bearer <token>'")):
         try:
-           prefix,token = authorization.split(" ")
+           prefix,token = auth.split(" ")
            if prefix != 'Bearer':
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
            verify_token(token)
