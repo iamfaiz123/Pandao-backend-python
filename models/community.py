@@ -261,7 +261,7 @@ class TokenWithDrawRequest(Base):
     request_date = Column(DateTime, default=func.now(), nullable=False)
     status = Column(Boolean, nullable=False)
 
-class TokenWithDrawExecutiveSignStatus:
+class TokenWithDrawExecutiveSignStatus(Base):
     __tablename__ = 'token_withdraw_executive_sign_status'
     signed_by:Mapped[str] = mapped_column(String, ForeignKey("users.public_address"),nullable=True)
     signed_date = Column(DateTime, default=func.now(), nullable=False)

@@ -8,7 +8,8 @@ from sqlalchemy.orm import selectinload, joinedload
 
 from models import dbsession as conn, User, UserMetaData, UserPreference, UserWork, PendingTransactions, ZeroCouponBond, \
     Community, UserEmailVerification, UserEmailPreference, UserNotification, TokenWithDrawExecutiveSignStatus, \
-    TokenWithDrawRequest
+    TokenWithDrawRequest, UserActivity, Participants, CommunityToken, CommunityDiscussion, DiscussionComment, \
+    UserToProposalVote
 from smtp_email import send_email
 from ....forms import UserLogin, UserSignupForm, UserProfileUpdate, UserWorkHistoryUpdate
 from ....utils import ApiError
@@ -335,9 +336,21 @@ def delete_user(u_a: str):
     try:
         # More efficient deletion using a single query per table
         conn.query(UserMetaData).filter(UserMetaData.user_address == u_a).delete(synchronize_session=False)
+        conn.query(UserActivity).filter(UserActivity.user_address == u_a).delete(synchronize_session=False)
         conn.query(UserWork).filter(UserWork.user_address == u_a).delete(synchronize_session=False)
+        conn.query(Participants).filter(Participants.user_addr == u_a).delete(synchronize_session=False)
+        conn.query(CommunityToken).filter(CommunityToken.user_address == u_a).delete(synchronize_session=False)
+        conn.query(CommunityDiscussion).filter(CommunityDiscussion.created_by == u_a).delete(synchronize_session=False)
+        conn.query(DiscussionComment).filter(DiscussionComment.created_by == u_a).delete(synchronize_session=False)
+        conn.query(UserToProposalVote).filter(UserToProposalVote.user_address == u_a).delete(synchronize_session=False)
+        conn.query(ZeroCouponBond).filter(ZeroCouponBond. creator == u_a).delete(synchronize_session=False)
+        conn.query(TokenWithDrawRequest).filter(TokenWithDrawRequest.user_address == u_a).delete(
+            synchronize_session=False)
+        conn.query(TokenWithDrawExecutiveSignStatus).filter(TokenWithDrawExecutiveSignStatus.signed_by == u_a).delete(
+            synchronize_session=False)
         conn.query(UserPreference).filter(UserPreference.user_address == u_a).delete(synchronize_session=False)
-        conn.query(UserEmailPreference).filter(UserEmailPreference.user_address == u_a).delete(synchronize_session=False)
+        conn.query(UserEmailPreference).filter(UserEmailPreference.user_address == u_a).delete(
+            synchronize_session=False)
         conn.query(User).filter(User.public_address == u_a).delete(synchronize_session=False)
         conn.commit()  # Commit all deletions at once
 
