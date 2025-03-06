@@ -632,16 +632,22 @@ def transaction_manifest_routes(app):
     def mint_executive_badge(req: MintExecutiveToken):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
+                        CALL_METHOD
+                            Address("{req.user_address}")
+                            "create_proof_of_amount"
+                            Address("{community.owner_token_address}")
+                            Decimal("1")
+                        ;
                        CALL_METHOD
                             Address("{community.component_address}")
                             "mint_executive_badge"
                             "{req.name}"
-                            ;
+                        ;
                         CALL_METHOD
                             Address("{req.user_address}")
                             "deposit_batch"
                             Expression("ENTIRE_WORKTOP")
-                            ;
+                        ;
                     
                     """
         return transaction_string
@@ -650,6 +656,12 @@ def transaction_manifest_routes(app):
     def transfer_executive_badge(req: TransferExecutiveBadge):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         transaction_string = f"""
+                     CALL_METHOD
+                            Address("{req.user_address}")
+                            "create_proof_of_amount"
+                            Address("{community.owner_token_address}")
+                            Decimal("1")
+                    ;
                      CALL_METHOD
                           Address("{req.user_address}")
                          "withdraw"
@@ -676,7 +688,6 @@ def transaction_manifest_routes(app):
                         Expression("ENTIRE_WORKTOP")
                         Enum<0u8>()
                     ;
-                    
                 """
         return transaction_string
 
