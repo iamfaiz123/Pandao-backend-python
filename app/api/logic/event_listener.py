@@ -12,7 +12,7 @@ from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
-    UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions
+    UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest
 from smtp_email import send_email
 
 
@@ -739,6 +739,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     )
                     conn.add(new_executive_member)
                     conn.commit()
+                elif resources['event_type'] == 'WITHDRAWAL_REQUESTED_SUCCESSFULLY':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    requester_address = metadata['requester_address']
+                    withdraw_req = conn.query(TokenWithDrawRequest).filter(TokenWithDrawRequest.community_id == community.id,TokenWithDrawRequest. user_address == requester_address ).first()
+                    withdraw_req.created_on_blockchain = True
+                    conn.add(withdraw_req)
+                    conn.commit()
+
                 else:
                     pass
 
