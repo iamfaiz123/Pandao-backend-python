@@ -734,3 +734,63 @@ def transaction_manifest_routes(app):
 
         return transaction_string
 
+    @app.post('/manifest/sign-withdraw-request', tags=(['manifest-builder']))
+    def sign_withdraw_request(req: RequestTokenWithDraw):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        try:
+            user_last_req = (
+                conn.query(TokenWithDrawRequest)
+                .filter(
+                    TokenWithDrawRequest.community_id == req.community_id,
+                    TokenWithDrawRequest.user_address == req.user_address
+                )
+                .order_by(TokenWithDrawRequest.request_date.desc())
+                .first()
+            )
+
+            if user_last_req is not None:
+                if not user_last_req.status:
+                    error_message = {
+                        "error": "your last request is still pending",
+                        "message": "your last request is still pending"
+                    }
+                    raise HTTPException(status_code=400, detail=error_message)
+            t_w_r = TokenWithDrawRequest(
+                community_id=req.community_id,
+                user_address=req.user_address,
+                amount_to_withdraw=req.amount,
+                status=False
+            )
+            conn.add(t_w_r)
+            conn.commit()
+            transaction_string = f"""
+                        CALL_METHOD
+                            Address("{req.user_address}")
+                            "create_proof_of_non_fungibles"
+                            Address("resource_tdx_2_1n29u6m9j4mqkgqwfddnfvt0w6v04enc863688a528spmfjxsvk4c4q")
+                            Array<NonFungibleLocalId>(
+                                    NonFungibleLocalId("#84844#")
+                            )
+                        ;
+                        
+                        CALL_METHOD
+                            Address("component_tdx_2_1czgnfv6zt57cxv7uvc327l4waz59k0y7xfszjf48kzr435z68j926m")
+                            "approve_or_deny_withdrawal_request"
+                            Address("account_tdx_2_128al6l882wwvd3lw9zt9fvsxfpw80ept4f9gd92fh3t2fcnuqhmug7")
+                            Address("account_tdx_2_128al6l882wwvd3lw9zt9fvsxfpw80ept4f9gd92fh3t2fcnuqhmug7")
+                            Enum<0u8>( )
+                        ;
+                        
+                        CALL_METHOD
+                            Address("account_tdx_2_128al6l882wwvd3lw9zt9fvsxfpw80ept4f9gd92fh3t2fcnuqhmug7")
+                            "deposit_batch"
+                            Expression("ENTIRE_WORKTOP")
+                        ;
+               """
+        except HTTPException as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+
+        return transaction_string
+
+

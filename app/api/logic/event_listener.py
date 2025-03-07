@@ -12,7 +12,8 @@ from app.api.logic.community.community import generate_random_string
 from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
-    UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest
+    UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest, \
+    CommunityExecutiveBadgeMetaData
 from smtp_email import send_email
 
 
@@ -724,8 +725,16 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'EXECUTIVE_BADGE_MINTED':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    nft_local_id = metadata["local_id"]
+                    nft_name = metadata['name']
                     community_executive_badge_address = metadata['resource_address']
                     community.executive_badge_address = community_executive_badge_address
+                    new_badge_metadata = CommunityExecutiveBadgeMetaData(
+                        community_id=community.id,
+                        token_id=nft_local_id,
+                        token_name=nft_name
+                    )
+                    conn.add(new_badge_metadata)
                     conn.add(community)
                     conn.commit()
 

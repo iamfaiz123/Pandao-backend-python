@@ -237,11 +237,19 @@ class CommunityNotice(Base):
     notice:Mapped[str] = mapped_column(String, nullable=True)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False)
 
+class CommunityExecutiveBadgeMetaData(Base):
+    __tablename__ = 'community_executive_badge_metadata'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False, primary_key=True)
+    token_id: Mapped[str] = mapped_column(String, nullable=True)
+    token_name:Mapped[str] = mapped_column(String, nullable=True)
 
 class CommunityExecutiveBadge(Base):
     __tablename__ = 'community_executive_badge'
     holder_address: Mapped[str] = mapped_column(String, primary_key=True)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False, primary_key=True)
+    token_id: Mapped[str] = mapped_column(String, nullable=True)
+    token_name:Mapped[str] = mapped_column(String, nullable=True)
 
 class CommunityFunctions(Base):
     __tablename__ = 'community_functions'
