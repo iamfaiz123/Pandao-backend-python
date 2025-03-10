@@ -741,12 +741,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'EXECUTIVE_APPOINTED':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    print(community.id)
+                    print(community.name)
                     receiver = metadata['account_address']
                     badge_id = metadata['local_id']
                     new_executive_member = CommunityExecutiveBadge(
                         holder_address = receiver ,
                         community_id = community.id,
-                        token_id = badge_id
+                        token_id = badge_id,
+                        token_name = "no significance"
                     )
                     conn.add(new_executive_member)
                     conn.commit()

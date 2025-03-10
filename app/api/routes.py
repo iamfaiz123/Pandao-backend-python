@@ -26,7 +26,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
     get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history, \
     get_user_expense, get_proposal_bond, get_communities_user_might_be_int_in, check_user_has_voted, \
-    get_community_executives
+    get_community_executives, get_community_executive_members
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -189,6 +189,10 @@ def load_server(app):
     @app.get('/community/participant/{c_id}', summary="user join a community", tags=(['community-public-apis']))
     def get_community_participant_route(c_id: uuid.UUID):
         return get_community_participants(c_id)
+
+    @app.get('/community/executive-members/{c_id}', status_code=status.HTTP_200_OK, tags=(['community-public-apis']), description="community-public-apis")
+    def community_executive_members(c_id: uuid.UUID):
+        return get_community_executive_members(c_id)
 
     @app.get('/community/funds-history/{c_id}', summary="get funds history of a community", tags=(['community-public-apis']))
     def get_community_funds_history_route(c_id: uuid.UUID):

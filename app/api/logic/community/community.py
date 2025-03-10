@@ -1116,4 +1116,14 @@ def get_community_executives(community_id:uuid):
 
 
 def get_community_executive_members(community_id:uuid):
+    users_in_community = (
+        conn.query(User.name, User.public_address, UserMetaData.image_url,CommunityExecutiveBadge.appointed_date)
+        .join(CommunityExecutiveBadge, CommunityExecutiveBadge.holder_address == User.public_address)
+        .join(UserMetaData, UserMetaData.user_address == User.public_address)
+        .filter(CommunityExecutiveBadge.community_id == community_id)
+        .all()
+    )
+
+    # Convert the result into a list of dictionaries and return as API response
+    return [{"name": user.name, "public_address": user.public_address, "image_url": user.image_url,'appointed_data':user.appointed_date} for user in users_in_community]
 
