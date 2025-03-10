@@ -1113,3 +1113,7 @@ def get_community_executives(community_id:uuid):
     result = query.all()
     response_data = [{"user_name": name, "image_url": image_url} for name, image_url in result]
     return response_data
+
+
+def get_community_executive_members(community_id:uuid):
+

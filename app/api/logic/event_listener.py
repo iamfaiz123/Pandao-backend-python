@@ -728,12 +728,12 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     nft_local_id = metadata["local_id"]
                     nft_name = metadata['name']
                     community_executive_badge_address = metadata['resource_address']
-                    community.executive_badge_address = community_executive_badge_address
                     new_badge_metadata = CommunityExecutiveBadgeMetaData(
                         community_id=community.id,
                         token_id=nft_local_id,
-                        token_name=nft_name
+                        token_name=nft_name,
                     )
+                    community.executive_badge_address = community_executive_badge_address
                     conn.add(new_badge_metadata)
                     conn.add(community)
                     conn.commit()
@@ -742,9 +742,11 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     receiver = metadata['account_address']
+                    badge_id = metadata['local_id']
                     new_executive_member = CommunityExecutiveBadge(
                         holder_address = receiver ,
-                        community_id = community.id
+                        community_id = community.id,
+                        token_id = badge_id
                     )
                     conn.add(new_executive_member)
                     conn.commit()
@@ -752,7 +754,12 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     requester_address = metadata['requester_address']
-                    withdraw_req = conn.query(TokenWithDrawRequest).filter(TokenWithDrawRequest.community_id == community.id,TokenWithDrawRequest. user_address == requester_address ).first()
+                    withdraw_req = conn.query(TokenWithDrawRequest) \
+                        .filter(TokenWithDrawRequest.community_id == community.id,
+                                TokenWithDrawRequest.user_address == requester_address,
+                                TokenWithDrawRequest.created_on_blockchain == False) \
+                        .order_by(TokenWithDrawRequest.request_date.desc()) \
+                        .first()
                     withdraw_req.created_on_blockchain = True
                     conn.add(withdraw_req)
                     conn.commit()

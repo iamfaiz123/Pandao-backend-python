@@ -8,7 +8,7 @@ from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenW
     ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
     ClaimBond, MintExecutiveToken, TransferExecutiveBadge, RequestTokenWithDraw
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens, \
-    CommunityFunctions, TokenWithDrawRequest
+    CommunityFunctions, TokenWithDrawRequest, CommunityExecutiveBadgeMetaData
 from models import dbsession as conn
 
 

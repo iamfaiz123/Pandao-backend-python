@@ -250,6 +250,7 @@ class CommunityExecutiveBadge(Base):
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"), nullable=False, primary_key=True)
     token_id: Mapped[str] = mapped_column(String, nullable=True)
     token_name:Mapped[str] = mapped_column(String, nullable=True)
+    appointed_date = Column(DateTime, default=func.now(), nullable=False)
 
 class CommunityFunctions(Base):
     __tablename__ = 'community_functions'
