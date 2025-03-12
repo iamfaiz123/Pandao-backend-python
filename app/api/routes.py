@@ -26,7 +26,7 @@ from .logic.community.community import create_community, get_user_community, che
     get_user_communities, get_all_community_of_platform, get_community_tags, get_community_all_proposal, \
     get_community_all_zero_coupon_bonds, get_community_all_ann_tokens, get_bonds_name, community_funds_history, \
     get_user_expense, get_proposal_bond, get_communities_user_might_be_int_in, check_user_has_voted, \
-    get_community_executives, get_community_executive_members
+    get_community_executives, get_community_executive_members, get_community_token_withdraw_request
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .logic.health import pre_define_data
 from .logic.tags import get_all_tags_query
@@ -254,6 +254,12 @@ def load_server(app):
     @app.post('/community/proposal/comments', summary="add proposal comment", tags=(['community-public-apis']))
     def get_community_proposal_comment(req: ProposalComment):
         return add_proposal_comment(req)
+
+
+    @app.get('/community/token-withdraw/request', summary="get community withdraw request", tags=(['community-public-apis']))
+    def get_community_proposal_comment(c_id: uuid.UUID):
+        return get_community_token_withdraw_request(c_id)
+
 
     @app.get('/community/proposal/is-voted', summary="check if user has already voted", tags=(['community-public-apis']))
     def get_community_proposal_comment(proposal_id:uuid.UUID,user_address:str):

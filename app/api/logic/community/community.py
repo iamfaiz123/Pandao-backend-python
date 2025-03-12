@@ -14,7 +14,7 @@ from app.api.logic.wallet import get_asset_details
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
     CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
-    UserToProposalVote, UserNotification, CommunityExecutiveBadge, CommunityFunctions
+    UserToProposalVote, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -1127,3 +1127,37 @@ def get_community_executive_members(community_id:uuid):
     # Convert the result into a list of dictionaries and return as API response
     return [{"name": user.name, "public_address": user.public_address, "image_url": user.image_url,'appointed_data':user.appointed_date} for user in users_in_community]
 
+
+
+def get_community_token_withdraw_request(community_id:uuid):
+    try:
+        result = (
+            conn.query(
+                TokenWithDrawRequest.amount_to_withdraw,
+                TokenWithDrawRequest.request_date,
+                TokenWithDrawRequest.status,
+                TokenWithDrawRequest.id,
+                Community.name,
+                Community.image,
+            )
+            .join(Community, Community.id == TokenWithDrawRequest.community_id)
+            .filter(TokenWithDrawRequest.community_id == community_id)
+            .all()
+        )
+        withdraw_requests = [
+            {
+                "amount_to_withdraw": req.amount_to_withdraw,
+                "request_date": req.request_date,
+                "status": req.status,
+                "community_name": req.name,
+                "community_image": req.image,
+                "id":req.id
+            }
+            for req in result
+        ]
+
+        return withdraw_requests
+    except Exception as e:
+        conn.rollback()
+        logging.error(f"Error getting token withdraw requests: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
