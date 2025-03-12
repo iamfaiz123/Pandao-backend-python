@@ -1139,8 +1139,12 @@ def get_community_token_withdraw_request(community_id:uuid):
                 TokenWithDrawRequest.id,
                 Community.name,
                 Community.image,
+                UserMetaData.image_url,
+                User.public_address
             )
             .join(Community, Community.id == TokenWithDrawRequest.community_id)
+            .join(User,User.public_address == TokenWithDrawRequest.user_address)
+            .join(UserMetaData,UserMetaData.user_address == User.public_address)
             .filter(TokenWithDrawRequest.community_id == community_id)
             .all()
         )
@@ -1151,7 +1155,9 @@ def get_community_token_withdraw_request(community_id:uuid):
                 "status": req.status,
                 "community_name": req.name,
                 "community_image": req.image,
-                "id":req.id
+                "id":req.id,
+                "user_image":req.image_url,
+                "user_address":req.public_address
             }
             for req in result
         ]

@@ -738,32 +738,15 @@ def transaction_manifest_routes(app):
     def sign_withdraw_request(req: RequestTokenWithDraw):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         try:
-            user_last_req = (
+            withdraw_req = (
                 conn.query(TokenWithDrawRequest)
                 .filter(
-                    TokenWithDrawRequest.community_id == req.community_id,
-                    TokenWithDrawRequest.user_address == req.user_address
+                    TokenWithDrawRequest.id == req.id,
+
                 )
-                .order_by(TokenWithDrawRequest.request_date.desc())
                 .first()
             )
-
-            if user_last_req is not None:
-                if not user_last_req.status:
-                    error_message = {
-                        "error": "your last request is still pending",
-                        "message": "your last request is still pending"
-                    }
-                    raise HTTPException(status_code=400, detail=error_message)
-            t_w_r = TokenWithDrawRequest(
-                community_id=req.community_id,
-                user_address=req.user_address,
-                amount_to_withdraw=req.amount,
-                status=False
-            )
-            badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.receiver == req.user_address).first()
-            conn.add(t_w_r)
-            conn.commit()
+            badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.receiver == withdraw_req.user_address).first()
             transaction_string = f"""
                         CALL_METHOD
                             Address("{req.user_address}")
