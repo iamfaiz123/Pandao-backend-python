@@ -57,6 +57,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                     elif (_m_d['field_name'] == 'address_issued_bonds_to_sell' or
                                           _m_d['field_name'] == 'target_xrd_amount' or
                                           _m_d['field_name'] == 'global_id' or
+                                          _m_d['field_name'] == 'requester_id' or
                                           _m_d['field_name'] == 'proposal_creator_address'):
                                         if len(_m_d['fields']) != 0:
                                             metadata[_m_d['field_name']] = _m_d['fields'][0]['value']
@@ -758,6 +759,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     requester_address = metadata['requester_address']
+                    request_id = metadata['requester_id']
                     withdraw_req = conn.query(TokenWithDrawRequest) \
                         .filter(TokenWithDrawRequest.community_id == community.id,
                                 TokenWithDrawRequest.user_address == requester_address,
@@ -765,6 +767,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         .order_by(TokenWithDrawRequest.request_date.desc()) \
                         .first()
                     withdraw_req.created_on_blockchain = True
+                    withdraw_req.request_id = request_id
                     conn.add(withdraw_req)
                     conn.commit()
 

@@ -270,6 +270,7 @@ class TokenWithDrawRequest(Base):
     request_date = Column(DateTime, default=func.now(), nullable=False)
     status = Column(Boolean, nullable=False)
     created_on_blockchain = Column(Boolean, nullable=False,default = False )
+    request_id = Column(String, nullable=True)
 
 class TokenWithDrawExecutiveSignStatus(Base):
     __tablename__ = 'token_withdraw_executive_sign_status'

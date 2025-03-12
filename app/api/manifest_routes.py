@@ -761,6 +761,7 @@ def transaction_manifest_routes(app):
                             "approve_or_deny_withdrawal_request"
                             Address("{req.user_address}")
                             Address("{badge_data.receiver}")
+                            {withdraw_req.request_id}u64
                             Enum<0u8>()
                         ;
                         CALL_METHOD
