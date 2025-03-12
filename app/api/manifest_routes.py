@@ -742,7 +742,6 @@ def transaction_manifest_routes(app):
                 conn.query(TokenWithDrawRequest)
                 .filter(
                     TokenWithDrawRequest.id == req.id,
-
                 )
                 .first()
             )
