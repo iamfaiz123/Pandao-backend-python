@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal, \
     ProposalVote, ExecuteProposal, ZeroCouponBond, IssueAnnTokenRequest, WithDrawMoneyFromBond, AddMoneyInBond, \
-    ClaimBond, MintExecutiveToken, TransferExecutiveBadge, RequestTokenWithDraw
+    ClaimBond, MintExecutiveToken, TransferExecutiveBadge, RequestTokenWithDraw, SignWithDrawRequest
 from models import Community, Participants, Proposal, CommunityToken, ZeroCouponBond as ZcpModel, AnnTokens, \
     CommunityFunctions, TokenWithDrawRequest, CommunityExecutiveBadgeMetaData, CommunityExecutiveBadge
 from models import dbsession as conn
@@ -735,7 +735,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
     @app.post('/manifest/sign-withdraw-request', tags=(['manifest-builder']))
-    def sign_withdraw_request(req: RequestTokenWithDraw):
+    def sign_withdraw_request(req: SignWithDrawRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         try:
             withdraw_req = (
@@ -745,7 +745,9 @@ def transaction_manifest_routes(app):
                 )
                 .first()
             )
-            badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.receiver == withdraw_req.user_address).first()
+            if withdraw_req is not None:
+               print(withdraw_req)
+            badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.holder_address == req.user_address).first()
             transaction_string = f"""
                         CALL_METHOD
                             Address("{req.user_address}")
@@ -759,7 +761,7 @@ def transaction_manifest_routes(app):
                             Address("{community.component_address}")
                             "approve_or_deny_withdrawal_request"
                             Address("{req.user_address}")
-                            Address("{badge_data.receiver}")
+                            Address("{withdraw_req.user_address}")
                             {withdraw_req.request_id}u64
                             Enum<0u8>()
                         ;
