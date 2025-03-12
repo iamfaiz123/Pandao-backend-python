@@ -127,4 +127,4 @@ class RequestTokenWithDraw(BaseModel):
 class SignWithDrawRequest(BaseModel):
     user_address: str = Field(..., description="wallet address of user")
     community_id: uuid.UUID = Field(..., description="community id")
-    requested_addre : float =  Field(..., description="amount to withdraw")
+    id: uuid.UUID = Field(..., description="withdraw request id")
