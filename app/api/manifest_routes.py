@@ -748,6 +748,12 @@ def transaction_manifest_routes(app):
             if withdraw_req is not None:
                print(withdraw_req)
             badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.holder_address == req.user_address).first()
+            if badge_data is None:
+                error_message = {
+                    "error": "only executive can sign withdraw request",
+                    "message": "only executive can sign withdraw request"
+                }
+                raise HTTPException(status_code=400, detail=error_message)
             transaction_string = f"""
                         CALL_METHOD
                             Address("{req.user_address}")
