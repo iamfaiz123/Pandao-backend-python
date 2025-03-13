@@ -2,7 +2,7 @@ import uuid
 
 import requests
 import sqlalchemy
-from sqlalchemy import or_, select, func, desc, distinct, join
+from sqlalchemy import or_, select, func, desc, distinct, join, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
@@ -331,6 +331,10 @@ def get_community_participants(community_id: UUID,page = 1, limit = 10):
                     ),
                     0,
                 ).label("discussion"),
+                case(
+                    (CommunityExecutiveBadge.holder_address.isnot(None), true()),
+                    else_=False
+                ).label('executive_member')
             )
             .join(UserMetaData, UserMetaData.user_address == User.public_address)
             .join(
@@ -355,7 +359,8 @@ def get_community_participants(community_id: UUID,page = 1, limit = 10):
                     CommunityExpense.tx_hash == UserActivity.transaction_id,
                 ),
             )
-            .group_by(User.public_address, User.name, UserMetaData.image_url)
+            .outerjoin(CommunityExecutiveBadge, CommunityExecutiveBadge.holder_address == User.public_address)
+            .group_by(User.public_address, User.name, UserMetaData.image_url,CommunityExecutiveBadge.holder_address)
             .offset((page - 1) * limit)
             .limit(limit)
         )
@@ -376,6 +381,7 @@ def get_community_participants(community_id: UUID,page = 1, limit = 10):
                 "proposal_created": row.proposal_created,
                 "zero_coupon_bond_created": row.zero_coupon_bond_created,
                 "discussion": row.discussion,
+                "is_executive_member":row.executive_member
             }
             for row in result
         ]
