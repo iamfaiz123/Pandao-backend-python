@@ -15,7 +15,8 @@ from app.api.logic.wallet import get_asset_details
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, \
     UserActivity, Community, CommunityToken, Proposal, ProposalComments, CommunityDiscussion, DiscussionComment, \
     CommunityTags, ZeroCouponBond, AnnTokens, CommunityFunds, CommunityExpense, CommunityNotice, UserPreference, \
-    UserToProposalVote, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest
+    UserToProposalVote, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest, \
+    TokenWithDrawExecutiveSignStatus
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -1138,7 +1139,7 @@ def get_community_executive_members(community_id:uuid):
 
 
 
-def get_community_token_withdraw_request(community_id:uuid):
+def get_community_token_withdraw_request(community_id: uuid.UUID):
     try:
         result = (
             conn.query(
@@ -1146,32 +1147,56 @@ def get_community_token_withdraw_request(community_id:uuid):
                 TokenWithDrawRequest.request_date,
                 TokenWithDrawRequest.status,
                 TokenWithDrawRequest.id,
+                TokenWithDrawRequest.request_id,
                 Community.name,
                 Community.image,
                 UserMetaData.image_url,
                 User.public_address,
-                User.name
+                User.name,
             )
             .join(Community, Community.id == TokenWithDrawRequest.community_id)
-            .join(User,User.public_address == TokenWithDrawRequest.user_address)
-            .join(UserMetaData,UserMetaData.user_address == User.public_address)
+            .join(User, User.public_address == TokenWithDrawRequest.user_address)
+            .join(UserMetaData, UserMetaData.user_address == User.public_address)
             .filter(TokenWithDrawRequest.community_id == community_id)
             .all()
         )
-        withdraw_requests = [
-            {
-                "amount_to_withdraw": req.amount_to_withdraw,
-                "request_date": req.request_date,
-                "status": req.status,
-                "community_name": req.name,
-                "community_image": req.image,
-                "id":req.id,
-                "user_image":req.image_url,
-                "user_address":req.public_address,
-                "user_name":req.name
-            }
-            for req in result
-        ]
+
+        withdraw_requests = []
+        for req in result:
+            signed_users_result = (
+                conn.query(
+                    User.public_address,
+                    User.name,
+                    UserMetaData.image_url
+                )
+                .join(TokenWithDrawExecutiveSignStatus, TokenWithDrawExecutiveSignStatus.signed_by == User.public_address)
+                .join(UserMetaData, UserMetaData.user_address == User.public_address)
+                .filter(TokenWithDrawExecutiveSignStatus.req_id == req.request_id)
+                .all()
+            )
+            signed_users = [
+                {
+                    "public_address": signed_user.public_address,
+                    "name": signed_user.name,
+                    "image_url": signed_user.image_url
+                }
+                for signed_user in signed_users_result
+            ]
+
+            withdraw_requests.append(
+                {
+                    "amount_to_withdraw": req.amount_to_withdraw,
+                    "request_date": req.request_date,
+                    "status": req.status,
+                    "community_name": req.name,
+                    "community_image": req.image,
+                    "id": req.id,
+                    "user_image": req.image_url,
+                    "user_address": req.public_address,
+                    "user_name": req.name,
+                    "signed_users": signed_users,
+                }
+            )
 
         return withdraw_requests
     except Exception as e:

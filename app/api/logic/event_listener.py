@@ -13,7 +13,7 @@ from app.api.logic.wallet import get_asset_details
 from models import Community, dbsession as conn, UserActivity, CommunityToken, Proposal, Participants, CommunityTags, \
     ZeroCouponBond, AnnTokens, CommunityExpense, CommunityFunds, PendingTransactions, UserToProposalVote, User, \
     UserMetaData, UserNotification, CommunityExecutiveBadge, CommunityFunctions, TokenWithDrawRequest, \
-    CommunityExecutiveBadgeMetaData
+    CommunityExecutiveBadgeMetaData, TokenWithDrawExecutiveSignStatus
 from smtp_email import send_email
 
 
@@ -770,7 +770,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     withdraw_req.request_id = request_id
                     conn.add(withdraw_req)
                     conn.commit()
-
+                elif resources['event_type'] == 'WITHDRAWAL_REQUEST_APPROVED':
+                    community_address = resources['component_address']
+                    community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    request_id = metadata['request_id']
+                    signer = metadata['user_address']
+                    sign_data = TokenWithDrawExecutiveSignStatus(
+                        req_id=request_id,
+                        signed_by=signer
+                    )
+                    conn.add(sign_data)
+                    conn.commit()
                 else:
                     pass
 
