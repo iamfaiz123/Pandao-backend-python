@@ -1148,7 +1148,7 @@ def get_community_token_withdraw_request(community_id: uuid.UUID):
                 TokenWithDrawRequest.status,
                 TokenWithDrawRequest.id,
                 TokenWithDrawRequest.request_id,
-                Community.name,
+                Community.name.label('community_name'),
                 Community.image,
                 UserMetaData.image_url,
                 User.public_address,
@@ -1188,7 +1188,7 @@ def get_community_token_withdraw_request(community_id: uuid.UUID):
                     "amount_to_withdraw": req.amount_to_withdraw,
                     "request_date": req.request_date,
                     "status": req.status,
-                    "community_name": req.name,
+                    "community_name": req.community_name,
                     "community_image": req.image,
                     "id": req.id,
                     "user_image": req.image_url,
@@ -1203,3 +1203,4 @@ def get_community_token_withdraw_request(community_id: uuid.UUID):
         print(e)
         conn.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+

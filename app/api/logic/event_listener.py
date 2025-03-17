@@ -774,7 +774,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     request_id = metadata['request_id']
-                    signer = metadata['user_address']
+                    signer = metadata['approver_address']
                     sign_data = TokenWithDrawExecutiveSignStatus(
                         req_id=request_id,
                         signed_by=signer
