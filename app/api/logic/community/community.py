@@ -5,6 +5,7 @@ import sqlalchemy
 from sqlalchemy import or_, select, func, desc, distinct, join, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
+from starlette import status
 
 from app.api.forms.blueprint import DeployCommunity
 from app.api.forms.community import ProposalComment, CommunityDiscussionComment, CommunityFilter
@@ -257,6 +258,7 @@ def get_community_participants(community_id: UUID,page = 1, limit = 10):
                 User.name.label("name"),
                 User.public_address,
                 UserMetaData.image_url,
+                CommunityExecutiveBadge.holder_address,
                 func.count(distinct(UserActivity.transaction_id)).label("activities"),
                 func.coalesce(func.sum(CommunityExpense.xrd_spend_on_asset), 0).label("total_invested"),
                 func.coalesce(
@@ -381,7 +383,8 @@ def get_community_participants(community_id: UUID,page = 1, limit = 10):
                 "proposal_created": row.proposal_created,
                 "zero_coupon_bond_created": row.zero_coupon_bond_created,
                 "discussion": row.discussion,
-                "is_executive_member":row.executive_member
+                "is_executive_member":row.executive_member,
+                "holder_address":row.holder_address
             }
             for row in result
         ]
@@ -1147,7 +1150,7 @@ def get_community_token_withdraw_request(community_id:uuid):
                 Community.image,
                 UserMetaData.image_url,
                 User.public_address,
-                UserMetaData.name
+                User.name
             )
             .join(Community, Community.id == TokenWithDrawRequest.community_id)
             .join(User,User.public_address == TokenWithDrawRequest.user_address)
@@ -1172,6 +1175,6 @@ def get_community_token_withdraw_request(community_id:uuid):
 
         return withdraw_requests
     except Exception as e:
+        print(e)
         conn.rollback()
-        logging.error(f"Error getting token withdraw requests: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
