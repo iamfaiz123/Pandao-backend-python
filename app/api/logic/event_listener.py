@@ -770,17 +770,28 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     withdraw_req.request_id = request_id
                     conn.add(withdraw_req)
                     conn.commit()
-                elif resources['event_type'] == 'WITHDRAWAL_REQUEST_APPROVED':
+
+                elif resources['event_type'] == 'WITHDRAWAL_REQUEST_APPROVED' or resources['event_type'] == 'FUNDS_WITHDRAWN':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     request_id = metadata['request_id']
                     signer = metadata['approver_address']
+                    print(signer)
                     sign_data = TokenWithDrawExecutiveSignStatus(
                         req_id=request_id,
                         signed_by=signer
                     )
                     conn.add(sign_data)
                     conn.commit()
+                    # check if signed by got all the sign
+                    all_sign_data = conn.query(TokenWithDrawExecutiveSignStatus).filter(TokenWithDrawExecutiveSignStatus.req_id == request_id).all()
+                    if len(all_sign_data) == 3:
+                        # get the request
+                        withdraw_req = conn.query(TokenWithDrawRequest).filter(TokenWithDrawRequest.request_id == request_id).first()
+                        withdraw_req.status = True
+                        conn.add(withdraw_req)
+                        conn.commit()
+
                 else:
                     pass
 

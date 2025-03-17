@@ -1147,6 +1147,7 @@ def get_community_token_withdraw_request(community_id: uuid.UUID):
                 TokenWithDrawRequest.request_date,
                 TokenWithDrawRequest.status,
                 TokenWithDrawRequest.id,
+                TokenWithDrawRequest.status,
                 TokenWithDrawRequest.request_id,
                 Community.name.label('community_name'),
                 Community.image,
