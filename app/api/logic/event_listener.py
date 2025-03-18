@@ -760,15 +760,49 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     requester_address = metadata['requester_address']
                     request_id = metadata['requester_id']
+                    current_time = datetime.now()
                     withdraw_req = conn.query(TokenWithDrawRequest) \
                         .filter(TokenWithDrawRequest.community_id == community.id,
                                 TokenWithDrawRequest.user_address == requester_address,
                                 TokenWithDrawRequest.created_on_blockchain == False) \
                         .order_by(TokenWithDrawRequest.request_date.desc()) \
                         .first()
+                    user = conn.query(User).filter(User.public_address == requester_address).firs(s)
                     withdraw_req.created_on_blockchain = True
                     withdraw_req.request_id = request_id
                     conn.add(withdraw_req)
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'created withdraw request ',
+                        user_address=requester_address,
+                        community_id=community.id,
+                        activity_type='withdraw_request'
+                    )
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='member created withdraw request',
+                            text=f'{user.name} has withdraw some tokens from {community.name}',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
+                    community_expense = CommunityExpense(
+                        community_id=community.id,
+                        xrd_spent_transactions=-float(xrd_paid),
+                        xrd_spend_on_asset=None,
+                        creator=user_address,
+                        tx_hash=tx_id,
+                        xrd_spent_on='created a token withdraw request',
+                        date=current_time  # You can omit this if you want to use the default value
+                    )
+                    conn.add(community_expense)
+                    conn.add(activity)
                     conn.commit()
 
                 elif resources['event_type'] == 'WITHDRAWAL_REQUEST_APPROVED' or resources['event_type'] == 'FUNDS_WITHDRAWN':
@@ -809,6 +843,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         xrd_spent_on='sold tokens in community',
                         date=current_time  # You can omit this if you want to use the default value
                     )
+                    conn.add(community_expense)
                     conn.add(n)
                     conn.add(sign_data)
                     conn.add(activity)
