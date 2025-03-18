@@ -20,7 +20,7 @@ from fastapi import status
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 import logging
-
+import copy
 # Assuming necessary imports for User, UserMetaData, UserPreference, UserWork, UserEmailPreference, UserSignupForm, conn, and send_email are present
 
 def user_sign_up(signup: UserSignupForm):
@@ -561,14 +561,11 @@ def get_user_notification(user_address: str):
     """
     try:
         # 1. Fetch unread notifications
-        query = select(UserNotification).filter(
-            UserNotification.user_address == user_address,
-            UserNotification.is_read == False  # Explicitly filter for unread notifications
-        )
-        result = conn.execute(query).scalars().all()  # scalars() gets the UserNotification objects directly
-
-        # 2. Mark notifications as read (more efficient update)
-        if result: # Only update if there are notifications.
+        query = select(UserNotification).filter(UserNotification.user_address == user_address,UserNotification.is_read == False)
+        result = conn.execute(query).scalars().all()  # Directly get User
+        resp  = copy.deepcopy(result)
+        # # 2. Mark notifications as read (more efficient update)
+        if len(result) != 0: # Only update if there are notifications.
             update_query = (
                 update(UserNotification)
                 .where(UserNotification.user_address == user_address, UserNotification.is_read == False) # More precise where clause
@@ -577,7 +574,7 @@ def get_user_notification(user_address: str):
             conn.execute(update_query)
             conn.commit()  # Commit the update after fetching
 
-        return result
+        return resp
 
     except Exception as e:
         conn.rollback()
