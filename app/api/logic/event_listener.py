@@ -281,7 +281,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     conn.add(activity)
                     community_expense = CommunityExpense(
                         community_id=community.id,
-                        xrd_spent_transactions =  - float(metadata['amount_paid']) ,
+                        xrd_spent_transactions =  - float(xrd_paid) ,
                         xrd_spend_on_asset = funds_added,
                         creator=user_address,
                         tx_hash=tx_id,
@@ -776,12 +776,42 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
                     request_id = metadata['request_id']
                     signer = metadata['approver_address']
-                    print(signer)
+                    user_address = metadata['user_address']
+                    current_time = datetime.now()
+                    signer_data = conn.query(User).filter(User.public_address == signer).first()
                     sign_data = TokenWithDrawExecutiveSignStatus(
                         req_id=request_id,
                         signed_by=signer
                     )
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'signed tokens with draw request',
+                        user_address=signer,
+                        community_id=community.id,
+                        activity_type='withdraw_sign'
+                    )
+                    n = UserNotification(
+                        # id=uuid4(),  # Generate a new UUID for the notification ID
+                        user_address=user_address,
+                        title=f'{signer_data.name} signed your tokens with draw request',
+                        text=f'{signer_data.name} signed your tokens with draw request',
+                        image=community.image,
+                        date=datetime.utcnow(),  # Current timestamp in UTC
+                        is_read=False,
+                        type='Info'
+                    )
+                    community_expense = CommunityExpense(
+                        community_id=community.id,
+                        xrd_spent_transactions=-float(xrd_paid),
+                        xrd_spend_on_asset=None,
+                        creator=user_address,
+                        tx_hash=tx_id,
+                        xrd_spent_on='sold tokens in community',
+                        date=current_time  # You can omit this if you want to use the default value
+                    )
+                    conn.add(n)
                     conn.add(sign_data)
+                    conn.add(activity)
                     conn.commit()
                     # check if signed by got all the sign
                     all_sign_data = conn.query(TokenWithDrawExecutiveSignStatus).filter(TokenWithDrawExecutiveSignStatus.req_id == request_id).all()
@@ -789,6 +819,18 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         # get the request
                         withdraw_req = conn.query(TokenWithDrawRequest).filter(TokenWithDrawRequest.request_id == request_id).first()
                         withdraw_req.status = True
+                        amount_withdrawn = withdraw_req.amount_to_withdraw
+                        community.funds -= amount_withdrawn
+                        current_community_funds = community.funds - amount_withdrawn
+                        new_funds = CommunityFunds(
+                            community_id=community.id,
+                            xrd_added=- amount_withdrawn,
+                            current_xrd=current_community_funds,
+                            creator=user_address,
+                            tx_hash=tx_id,
+                            date=current_time  # You can omit this if you want to use the default value
+                        )
+                        conn.add(new_funds)
                         conn.add(withdraw_req)
                         conn.commit()
 
