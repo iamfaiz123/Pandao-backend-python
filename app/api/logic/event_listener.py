@@ -727,6 +727,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'EXECUTIVE_BADGE_MINTED':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
+                    owner_address = community.owner_address
                     nft_local_id = metadata["local_id"]
                     nft_name = metadata['name']
                     community_executive_badge_address = metadata['resource_address']
@@ -736,6 +737,24 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         token_name=nft_name,
                     )
                     community.executive_badge_address = community_executive_badge_address
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'minted executive badge',
+                        user_address=owner_address,
+                        community_id=community.id,
+                        activity_type='executive_mint'
+                    )
+                    community_expense = CommunityExpense(
+                        community_id=community.id,
+                        xrd_spent_transactions=-float(xrd_paid),
+                        xrd_spend_on_asset=None,
+                        creator=owner_address,
+                        tx_hash=tx_id,
+                        xrd_spent_on='mint executive badge',
+                        date=datetime.now()   # You can omit this if you want to use the default value
+                    )
+                    conn.add(community_expense)
+                    conn.add(activity)
                     conn.add(new_badge_metadata)
                     conn.add(community)
                     conn.commit()
@@ -743,8 +762,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 elif resources['event_type'] == 'EXECUTIVE_APPOINTED':
                     community_address = resources['component_address']
                     community = conn.query(Community).filter(Community.component_address == community_address).first()
-                    print(community.id)
-                    print(community.name)
+                    owner_address = community.owner_address
                     receiver = metadata['account_address']
                     badge_id = metadata['local_id']
                     new_executive_member = CommunityExecutiveBadge(
@@ -753,6 +771,39 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                         token_id = badge_id,
                         token_name = "no significance"
                     )
+                    executive_data = conn.query(User).filter(User.public_address == receiver).first()
+                    activity = UserActivity(
+                        transaction_id=tx_id,
+                        transaction_info=f'minted executive badge',
+                        user_address=owner_address,
+                        community_id=community.id,
+                        activity_type='appoint executive badge'
+                    )
+                    community_expense = CommunityExpense(
+                        community_id=community.id,
+                        xrd_spent_transactions=-float(xrd_paid),
+                        xrd_spend_on_asset=None,
+                        creator=owner_address,
+                        tx_hash=tx_id,
+                        xrd_spent_on='appoint executive badge',
+                        date=datetime.now()   # You can omit this if you want to use the default value
+                    )
+                    p = conn.query(Participants).filter(
+                        Participants.community_id == community.id).all()
+                    for participant in p:
+                        n = UserNotification(
+                            # id=uuid4(),  # Generate a new UUID for the notification ID
+                            user_address=participant.user_addr,
+                            title='executive appointed in community',
+                            text=f'{executive_data.name} has been appointed as executive in {community.name} by owner!',
+                            image=community.image,
+                            date=datetime.utcnow(),  # Current timestamp in UTC
+                            is_read=False,
+                            type='Info'
+                        )
+                        conn.add(n)
+                    conn.add(community_expense)
+                    conn.add(activity)
                     conn.add(new_executive_member)
                     conn.commit()
                 elif resources['event_type'] == 'WITHDRAWAL_REQUESTED_SUCCESSFULLY':
@@ -767,7 +818,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                                 TokenWithDrawRequest.created_on_blockchain == False) \
                         .order_by(TokenWithDrawRequest.request_date.desc()) \
                         .first()
-                    user = conn.query(User).filter(User.public_address == requester_address).firs(s)
+                    user = conn.query(User).filter(User.public_address == requester_address).first()
                     withdraw_req.created_on_blockchain = True
                     withdraw_req.request_id = request_id
                     conn.add(withdraw_req)
