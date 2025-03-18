@@ -774,10 +774,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     executive_data = conn.query(User).filter(User.public_address == receiver).first()
                     activity = UserActivity(
                         transaction_id=tx_id,
-                        transaction_info=f'minted executive badge',
+                        transaction_info=f'appointed executive badge',
                         user_address=owner_address,
                         community_id=community.id,
-                        activity_type='appoint executive badge'
+                        activity_type='appointed executive badge'
                     )
                     community_expense = CommunityExpense(
                         community_id=community.id,
