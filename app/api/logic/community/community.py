@@ -865,8 +865,6 @@ def get_user_communities(user_addr: str, owner: bool,sort=None,name=None,tag=Non
 
     if owner:
         query = query.filter(Community.owner_address == user_addr )
-    else:
-        query = query.filter(Community.owner_address != user_addr)
 
     if sort is not None:
         if sort == 'participants':
