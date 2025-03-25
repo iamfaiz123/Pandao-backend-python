@@ -38,23 +38,39 @@ def generate_random_string(length=12):
     return random_string
 
 
-def get_community(sort: str = 'participants'):
-    query = conn.query(Community, func.count(Participants.id).label('participants_count')) \
-        .outerjoin(Participants, Community.id == Participants.community_id) \
-        .filter(Community.is_featured == True) \
+def get_community(sort: str = 'participants',name=None,tag=None):
+    query = (
+        conn.query(
+            Community,
+            func.count(func.distinct(Participants.id)).label('participants_count')
+        )
+        .outerjoin(Participants, Community.id == Participants.community_id)
+        .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)
         .group_by(Community.id)
-    if sort == 'participants':
-        query = query.order_by(func.count(Participants.id).desc())
-    elif sort == 'funds':
-        query = query.order_by(Community.funds.desc())
-    elif sort == 'name':
-        query = query.order_by(Community.name.asc())
+    )
 
-    communities_with_participants = query.limit(3).all()
-
+    if sort is not None:
+        if sort == 'participants':
+            query = query.order_by(func.count(Participants.id).desc())
+        elif sort == 'funds':
+            query = query.order_by(Community.funds.desc())
+        elif sort == 'name':
+            query = query.order_by(Community.name.asc())
+    if name is not None:
+        query = query.filter(Community.name.ilike(f"%{name}%"))
+    if tag is not None:
+        query = query.filter(CommunityTags.tag == sqlalchemy.any_(tag))
+    communities_with_participants = query.limit(1000).all()
+    # Now you can iterate over the result
     # Now you can iterate over the result
     response = []
     for community, participant_count in communities_with_participants:
+        # get all the tags of the community
+        c_tags = conn.query(CommunityTags).filter(CommunityTags.community_id == community.id).all()
+        tags = []
+        if c_tags is not None:
+            for ct in c_tags:
+                tags.append(ct.tag)
         response.append(
             {
                 "component_address": community.component_address,
@@ -69,7 +85,10 @@ def get_community(sort: str = 'participants'):
                 "image": community.image,
                 "funds": community.funds,
                 "description": community.description,
-                "is_disable":community.is_disabled_by_admin
+                "tags": tags,
+                "purpose": community.purpose,
+                "is_featured": community.is_featured,
+                "is_disable": community.is_disabled_by_admin
             }
         )
     return response
@@ -832,44 +851,67 @@ def get_community_all_proposal(community_id: uuid.UUID,status:str):
     return proposal
 
 
-def get_user_communities(user_addr: str, owner: bool):
-    try:
-        if not owner:
-            results = (
-                conn.query(Community.id, Community.name, Community.component_address, Community.image)
-                .join(Participants, Community.id == Participants.community_id)
-                .filter(Participants.user_addr == user_addr)
-                .distinct(Community.id)
-                .all()
-            )
-        else:
-            results = (
-                conn.query(Community.id, Community.name, Community.component_address, Community.image)
-                .join(Participants, Community.id == Participants.community_id)
-                .filter(Community.owner_address == user_addr)
-                .distinct(Community.id)
-                .all()
-            )
+def get_user_communities(user_addr: str, owner: bool,sort=None,name=None,tag=None):
+    query = (
+        conn.query(
+            Community,
+            func.count(func.distinct(Participants.id)).label('participants_count')
+        )
+        .outerjoin(Participants, Community.id == Participants.community_id)
+        .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)\
+        .filter(Community.owner_address == user_addr )
+        .group_by(Community.id)
+    )
 
-        communities = [
+    if owner:
+        query = query.filter(Community.owner_address == user_addr )
+    else:
+        query = query.filter(Community.owner_address != user_addr)
+
+    if sort is not None:
+        if sort == 'participants':
+            query = query.order_by(func.count(Participants.id).desc())
+        elif sort == 'funds':
+            query = query.order_by(Community.funds.desc())
+        elif sort == 'name':
+            query = query.order_by(Community.name.asc())
+    if name is not None:
+        query = query.filter(Community.name.ilike(f"%{name}%"))
+    if tag is not None:
+        query = query.filter(CommunityTags.tag == sqlalchemy.any_(tag))
+    communities_with_participants = query.limit(1000).all()
+    # Now you can iterate over the result
+    # Now you can iterate over the result
+    response = []
+    for community, participant_count in communities_with_participants:
+        # get all the tags of the community
+        c_tags = conn.query(CommunityTags).filter(CommunityTags.community_id == community.id).all()
+        tags = []
+        if c_tags is not None:
+            for ct in c_tags:
+                tags.append(ct.tag)
+        response.append(
             {
-                "community_id": row.id,
-                "community_name": row.name,
-                "component_address": row.component_address,
-                "community_image": row.image
-
+                "component_address": community.component_address,
+                "community_id": community.id,
+                "blueprint_slug": community.blueprint_slug,
+                "owner_token_address": community.owner_token_address,
+                "token_price": community.token_price,
+                "total_token": community.total_token,
+                "owner_address": community.owner_address,
+                "community_name": community.name,
+                "number_of_participants": participant_count,
+                "community_image": community.image,
+                "community_funds": community.funds,
+                "description": community.description,
+                "tags": tags,
+                "purpose": community.purpose,
+                "is_featured": community.is_featured,
+                "is_disable": community.is_disabled_by_admin
             }
-            for row in results
-        ]
-        return communities
-    except SQLAlchemyError as e:
-        conn.rollback()
-        print(e)
-        raise HTTPException(status_code=500, detail="dssdrror")
-    except Exception as e:
-        conn.rollback()
-        print(e)
-        raise HTTPException(status_code=500, detail="Internal Servesvsvsvsdvr Error")
+        )
+    return response
+
 
 
 def get_community_all_zero_coupon_bonds(community_id: uuid.UUID,purchased:bool):
