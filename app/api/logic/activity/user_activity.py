@@ -97,7 +97,8 @@ def get_user_activity(user_address: str, page: int, limit: int,community_id=None
                 User.name,
                 UserMetaData.image_url,
                 UserActivity.transaction_info,
-                UserActivity.created_at
+                UserActivity.created_at,
+                UserActivity.community_id
             ).join(
                 User, UserActivity.user_address == User.public_address
             ).join(
@@ -116,7 +117,8 @@ def get_user_activity(user_address: str, page: int, limit: int,community_id=None
                 User.name,
                 UserMetaData.image_url,
                 UserActivity.transaction_info,
-                UserActivity.created_at
+                UserActivity.created_at,
+                UserActivity.community_id
             ).join(
                 User, UserActivity.user_address == User.public_address
             ).join(
@@ -136,7 +138,8 @@ def get_user_activity(user_address: str, page: int, limit: int,community_id=None
                 'user_name': data[2],
                 'user_image_url': data[3],
                 'info': data[4],
-                'created_at': data[5]
+                'created_at': data[5],
+                'community_id': data[6]
             }
             response.append(activity)
 
