@@ -858,8 +858,7 @@ def get_user_communities(user_addr: str, owner: bool,sort=None,name=None,tag=Non
             func.count(func.distinct(Participants.id)).label('participants_count')
         )
         .outerjoin(Participants, Community.id == Participants.community_id)
-        .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)\
-        .filter(Community.owner_address == user_addr )
+        .outerjoin(CommunityTags, Community.id == CommunityTags.community_id)
         .group_by(Community.id)
     )
 
