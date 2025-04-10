@@ -434,7 +434,7 @@ def transaction_manifest_routes(app):
         return transaction_string
 
     @app.post('/manifest/create-ann', tags=(['manifest-builder']))
-    def create_zero_coupon_bond(req:   IssueAnnTokenRequest):
+    def create_ann(req:   IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         if community is not None:
             ann = AnnTokens(
@@ -745,8 +745,8 @@ def transaction_manifest_routes(app):
                 )
                 .first()
             )
-            if withdraw_req is not None:
-               print(withdraw_req)
+            # if withdraw_req is not None:
+            #    print(withdraw_req)
             badge_data = conn.query(CommunityExecutiveBadge).filter(CommunityExecutiveBadge.community_id == req.community_id,CommunityExecutiveBadge.holder_address == req.user_address).first()
             if badge_data is None:
                 error_message = {
@@ -779,8 +779,7 @@ def transaction_manifest_routes(app):
                """
         except HTTPException as e:
             conn.rollback()
-            raise HTTPException(status_code=500, detail="Internal Server Error")
-
+            raise e
         return transaction_string
 
 

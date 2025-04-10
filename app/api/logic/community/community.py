@@ -60,7 +60,7 @@ def get_community(sort: str = 'participants',name=None,tag=None):
         query = query.filter(Community.name.ilike(f"%{name}%"))
     if tag is not None:
         query = query.filter(CommunityTags.tag == sqlalchemy.any_(tag))
-    communities_with_participants = query.limit(1000).all()
+    communities_with_participants = query.limit(3).all()
     # Now you can iterate over the result
     # Now you can iterate over the result
     response = []
