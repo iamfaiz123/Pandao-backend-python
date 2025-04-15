@@ -433,9 +433,10 @@ def transaction_manifest_routes(app):
         """
         return transaction_string
 
-    @app.post('/manifest/create-ann', tags=(['manifest-builder']))
-    def create_ann(req:   IssueAnnTokenRequest):
+    @app.post('/manifest/create-ann', tags=['manifest-builder'])
+    def create_ann(req: IssueAnnTokenRequest):
         community = conn.query(Community).filter(Community.id == req.community_id).first()
+
         if community is not None:
             ann = AnnTokens(
                 community_id=req.community_id,
@@ -446,8 +447,22 @@ def transaction_manifest_routes(app):
             )
             conn.add(ann)
             conn.commit()
+
         transaction_string = f"""
-                CALL_METHOD
+            CALL_METHOD
+                Address("{req.user_address}")
+                "withdraw"
+                Address("{req.nft}")
+                Decimal("1")
+            ;
+
+            TAKE_FROM_WORKTOP
+                Address("{req.nft}")
+                Decimal("1")
+                Bucket("bucket1")
+            ;
+
+            CALL_METHOD
                 Address("{community.component_address}")
                 "issue_ann_token"
                 "{req.contract_type}"
@@ -462,10 +477,18 @@ def transaction_manifest_routes(app):
                 Decimal("{req.price}")
                 Decimal("{req.number_of_ann}")
                 Address("{req.user_address}")
-                ;
-            """
-        return transaction_string
+                Bucket("bucket1")
+            ;
 
+            CALL_METHOD
+                Address("{req.user_address}")
+                "try_deposit_batch_or_refund"
+                Expression("ENTIRE_WORKTOP")
+                Enum<0u8>()
+            ;
+        """
+
+        return transaction_string
 
     @app.post('/manifest/zcb/withdraw-all',tags=(['manifest-builder']))
     def take_money_from_zcb(req: WithDrawMoneyFromBond):

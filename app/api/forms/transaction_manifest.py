@@ -94,6 +94,8 @@ class IssueAnnTokenRequest(BaseModel):
     community_id: uuid.UUID = Field(..., description="community id")
     name:str
     description: str
+    nft: str
+
 
 class WithDrawMoneyFromBond(BaseModel):
         bond_id: uuid.UUID = Field(..., description="community id")
