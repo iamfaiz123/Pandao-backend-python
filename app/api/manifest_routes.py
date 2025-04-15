@@ -782,4 +782,55 @@ def transaction_manifest_routes(app):
             raise e
         return transaction_string
 
+    @app.post('/manifest/build/ann/buy_token/token_weighted_dao', tags=(['ANN DAO MANIFEST']))
+    def buy_token_ann(req: BuyTokenWeightedDaoToken):
+        community = conn.query(Community).filter(Community.id == req.community_id).first()
+        try:
+            # get community configs
+            # check if participation enable by admin
+            community_configs = conn.query(CommunityFunctions).filter(
+                CommunityFunctions.community_id == req.community_id).first()
+            if not community_configs.token_buy_enable:
+                raise HTTPException(status_code=403, detail="buying token is disabled by admin")
+
+            community = conn.query(Community).filter(Community.id == req.community_id).first()
+            account_address = req.userAddress
+            XRD_take = req.tokenSupply * community.token_price + 1
+            community_address = community.component_address
+            token_take = req.tokenSupply
+            does_user_exist = conn.query(Participants).filter(Participants.community_id == community.id,
+                                                              Participants.user_addr == account_address).first()
+            transaction_string = f"""
+                            CALL_METHOD
+                                    Address("{account_address}")
+                                    "withdraw"
+                                    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+                                    Decimal("{XRD_take}")
+                                ;
+                        
+                            TAKE_FROM_WORKTOP
+                                    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+                                    Decimal("{XRD_take}")
+                                    Bucket("bucket1")
+                                ;
+                            
+                            CALL_METHOD
+                                     Address("{community_address}")
+                                     "obtain_community_token"
+                                     Bucket("bucket1")
+                                     Decimal("{token_take}")
+                            ;
+                            
+                            CALL_METHOD
+                                Address("{account_address}")
+                                "try_deposit_batch_or_refund"
+                                Expression("ENTIRE_WORKTOP")
+                                Enum<0u8>()
+                            ;
+                   """
+        except HTTPException as e:
+            conn.rollback()
+            raise e
+        return transaction_string
+
 
