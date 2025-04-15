@@ -484,9 +484,9 @@ def get_community_comments(c_id: uuid.UUID):
             User.public_address,
             LatestComment.c.last_comment_at
         )
-        .join(User, CommunityDiscussion.created_by == User.public_address)
-        .join(UserMetaData, User.public_address == UserMetaData.user_address)
-        .join(LatestComment, LatestComment.c.discussion_id == CommunityDiscussion.id)
+        .outerjoin(User, CommunityDiscussion.created_by == User.public_address)
+        .outerjoin(UserMetaData, User.public_address == UserMetaData.user_address)
+        .outerjoin(LatestComment, LatestComment.c.discussion_id == CommunityDiscussion.id)
         .filter(CommunityDiscussion.community_id == c_id)
         .order_by(LatestComment.c.last_comment_at)
         .all()
@@ -506,6 +506,8 @@ def get_community_comments(c_id: uuid.UUID):
         }
         for row in results
     ]
+
+    print('no results')
 
     return comments
 
